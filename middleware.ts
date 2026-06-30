@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   /* =====================
-     تجاهل static / api
+      static / api
   ====================== */
   if (
     pathname.startsWith("/_next") ||
