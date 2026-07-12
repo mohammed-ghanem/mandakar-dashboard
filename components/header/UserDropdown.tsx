@@ -14,6 +14,7 @@ import {
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import LogoutButton from "../auth/logout/LogoutButton";
+import { NavbarUserSkeleton } from "@/components/skeleton/NavbarSkeleton";
 
 interface UserDropdownProps {
   showUserName?: boolean;
@@ -57,9 +58,7 @@ export default function UserDropdown({
   if (!token) return null;
 
   if (isLoading || !user) {
-    return (
-      <div className="w-28 h-8 rounded-md bg-gray-300 animate-pulse" />
-    );
+    return <NavbarUserSkeleton />;
   }
 
   return (
@@ -75,9 +74,11 @@ export default function UserDropdown({
               alt={user?.name || "user"}
               width={40}
               height={40}
+              className="w-full h-full object-cover"
+             
             />
           ) : (
-            <UserCircle className="w-full h-full text-blue-600" />
+            <UserCircle className="w-full text-blue-600" />
           )}
         </div>
 

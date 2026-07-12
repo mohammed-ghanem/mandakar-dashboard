@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { FC, useMemo } from "react";
+import { FC, useMemo, useRef } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
- 
 
 import {
   ClassicEditor,
@@ -28,10 +27,7 @@ import {
   Link,
   List,
   Font,
-  FontSize,
-  FontFamily,
   Alignment,
-  Mention,
   Paragraph,
   PasteFromOffice,
   Table,
@@ -52,6 +48,9 @@ import {
   WordCount,
 } from "ckeditor5";
 
+import translationsAr from "ckeditor5/translations/ar.js";
+import translationsEn from "ckeditor5/translations/en.js";
+
 import "ckeditor5/ckeditor5.css";
 import "./style.css";
 
@@ -70,12 +69,17 @@ const CkEditor: FC<CkEditorProps> = ({
   handleOnUpdate,
   config,
 }) => {
-  /* ✅ STABLE CONFIG (VERY IMPORTANT) */
+  // Keep initial HTML stable so React does not keep calling setData and
+  // fighting the user while typing / clicking the toolbar.
+  const initialDataRef = useRef(editorData);
+
   const editorConfig = useMemo<any>(
     () => ({
       licenseKey: "GPL",
       language: config?.language ?? "en",
       placeholder: config?.placeholder ?? "",
+      initialData: initialDataRef.current,
+      translations: [translationsAr, translationsEn],
       plugins: [
         Autoformat,
         BlockQuote,
@@ -95,11 +99,8 @@ const CkEditor: FC<CkEditorProps> = ({
         Italic,
         Link,
         Font,
-        FontSize,
-        FontFamily,
         Alignment,
         List,
-        Mention,
         Paragraph,
         PasteFromOffice,
         PictureEditing,
@@ -162,7 +163,7 @@ const CkEditor: FC<CkEditorProps> = ({
         "sourceEditing",
       ],
       fontSize: {
-        options: [10, 12, 14, "default", 18, 20, 24],
+        options: [10, 12, 14, "default", 18, 20, 24 , 32 , 36 , 40 , 48 , 56 , 64 ,],
       },
       fontFamily: {
         options: [
@@ -178,11 +179,12 @@ const CkEditor: FC<CkEditorProps> = ({
           "Almarai, sans-serif",
           "El Messiri, sans-serif",
           "Reem Kufi, sans-serif",
+          "Scheherazade New, serif",
         ],
       },
-       alignment: {
-      options: ["left", "center", "right", "justify"],
-    },
+      alignment: {
+        options: ["left", "center", "right", "justify"],
+      },
       image: {
         toolbar: [
           "imageTextAlternative",
@@ -203,18 +205,24 @@ const CkEditor: FC<CkEditorProps> = ({
         contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"],
       },
     }),
-    [config?.language, config?.placeholder]
+    [config?.language, config?.placeholder],
   );
 
   return (
-    <div
-      className="ckeditor-container"
-      dir={config?.direction ?? "ltr"}
-    >
+    <div className="ckeditor-container" dir={config?.direction ?? "ltr"}>
       <CKEditor
         editor={ClassicEditor}
-        data={editorData} // ✅ CORRECT
         config={editorConfig}
+        onReady={(editor) => {
+          if (editor.isReadOnly) {
+            console.warn("[CKEditor] started in read-only mode", {
+              language: config?.language,
+            });
+          }
+        }}
+        onError={(error, details) => {
+          console.error("[CKEditor] error", error, details);
+        }}
         onChange={(_, editor) => {
           handleOnUpdate(editor.getData());
         }}

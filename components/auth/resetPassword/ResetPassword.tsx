@@ -10,9 +10,9 @@ import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import restpass from "@/public/assets/images/restpass.webp";
+import loginIcon from "@/public/assets/images/loginIcon.svg";
 import ResetPasswordSkeleton from "@/components/skeleton/ResetPasswordSkeleton";
-import logo from "@/public/assets/images/logo.png";
+import logo from "@/public/assets/images/logo.svg";
 
 const ResetPassword = () => {
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
@@ -81,8 +81,15 @@ const ResetPassword = () => {
       <div className="grid lg:grid-cols-2 gap-4 items-center bgForm">
         <div className="my-10" dir="ltr">
           {/* logo */}
-          <div className="flex justify-center mb-4">
-            <Image src={logo} alt="login icon" width={200} height={200} />
+          <div className="mb-4 flex justify-center">
+            <Image
+              src={logo}
+              alt="logo"
+              width={220}
+              height={86}
+              className="h-auto w-full max-w-[220px] object-contain"
+              priority
+            />
           </div>
           <h1 className="text-center font-bold text-xl md:text-2xl authTitle">
             {translate?.pages.resetPassword.title}
@@ -155,8 +162,8 @@ const ResetPassword = () => {
 
         {/* Image */}
         <div className="relative hidden lg:flex h-screen items-center justify-center">
-          <div className="h-[70%]">
-            <Image src={restpass} alt="bg" width={800} height={1000} />
+          <div className="h-[90%]">
+            <Image src={loginIcon} alt="bg" width={300} height={300} />
           </div>
         </div>
       </div>

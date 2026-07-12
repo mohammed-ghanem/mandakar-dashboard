@@ -2,6 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap");
 
 .ck-content > blockquote,
 .ck-content > dl,
@@ -63,6 +64,8 @@ p {
 }
 
 .ckeditor-container {
+  position: relative;
+  z-index: 1;
   height: 100%;
   min-height: 300px; /* Minimum height */
   max-height: 500px; /* Maximum height */
@@ -73,6 +76,12 @@ p {
   background: #e9f3f8;
   width: 100%;
   margin: auto;
+  pointer-events: auto;
+}
+
+.ckeditor-container .ck.ck-editor,
+.ckeditor-container .ck-editor__editable {
+  pointer-events: auto !important;
 }
 
 .ck-content {

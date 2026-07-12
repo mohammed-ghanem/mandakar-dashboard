@@ -6,9 +6,9 @@ import { useLoginMutation } from "@/store/auth/authApi";
 import { toast } from "sonner";
 import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import loginIcon from "@/public/assets/images/loginIcon.webp";
+import loginIcon from "@/public/assets/images/loginIcon.svg";
 import Image from "next/image";
-import logo from "@/public/assets/images/logo.png";
+import logo from "@/public/assets/images/logo.svg";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import LoginSkeleton from "@/components/skeleton/LoginSkeleton";
@@ -73,8 +73,15 @@ const Login = () => {
         {/* Form */}
         <div className="my-10 h-screen md:h-auto" dir="ltr">
           {/* logo  */}
-          <div className="flex justify-center mb-4">
-            <Image src={logo} alt="login icon" width={200} height={200} />
+          <div className="mb-4 flex justify-center">
+            <Image
+              src={logo}
+              alt="logo"
+              width={220}
+              height={86}
+              className="h-auto w-full max-w-[220px] object-contain"
+              priority
+            />
           </div>
           <h1 className="text-center font-bold text-xl md:text-2xl authTitle">
             {translate.pages.login.loginTitle}
@@ -180,8 +187,8 @@ const Login = () => {
         {/* Image */}
 
         <div className="relative hidden lg:flex h-screen items-center justify-center ">
-          <div className="h-[70%]">
-            <Image src={loginIcon} alt="bg" width={800} height={1000} />
+          <div className="h-[85%]">
+            <Image src={loginIcon} alt="bg" width={300} height={300} />
           </div>
         </div>
 

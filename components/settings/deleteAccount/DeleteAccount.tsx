@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import DeleteAccountSkeleton, {
@@ -46,13 +46,17 @@ export default function DeleteAccount() {
     useUpdateDeleteAccountMutation();
 
   const [form, setForm] = useState({ ar: "", en: "" });
+  const [editorsReady, setEditorsReady] = useState(false);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || hydratedRef.current) return;
+    hydratedRef.current = true;
     setForm({
       ar: data.ar ?? "",
       en: data.en ?? "",
     });
+    setEditorsReady(true);
   }, [data]);
 
   if (!sessionReady || isLoading) {
@@ -99,7 +103,7 @@ export default function DeleteAccount() {
         </CardHeader>
 
         <CardContent className={dash.formCardContent}>
-          {!data ? (
+          {!editorsReady ? (
             <div className="space-y-8">
               <DeleteAccountEditorSkeleton />
               <DeleteAccountEditorSkeleton />
@@ -111,6 +115,7 @@ export default function DeleteAccount() {
                   {t?.arabicContent}
                 </Label>
                 <CkEditor
+                  key="delete-ar"
                   editorData={form.ar}
                   handleOnUpdate={(value) =>
                     setForm((prev) => ({ ...prev, ar: value }))
@@ -124,6 +129,7 @@ export default function DeleteAccount() {
                   {t?.englishContent}
                 </Label>
                 <CkEditor
+                  key="delete-en"
                   editorData={form.en}
                   handleOnUpdate={(value) =>
                     setForm((prev) => ({ ...prev, en: value }))

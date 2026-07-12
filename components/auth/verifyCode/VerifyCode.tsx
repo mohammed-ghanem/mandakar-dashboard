@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Image from "next/image";
-import logo from "@/public/assets/images/logo.png";
-import otp from "@/public/assets/images/otp.webp";
+import logo from "@/public/assets/images/logo.svg";
+import loginIcon from "@/public/assets/images/loginIcon.svg";
 
 import { useResendOtpMutation, useVerifyCodeMutation } from "@/store/auth/authApi";
 import LangUseParams from "@/translate/LangUseParams";
@@ -143,8 +143,15 @@ const VerifyCode = () => {
         {/* Form */}
         <div className="my-10" dir="ltr">
           {/* logo  */}
-          <div className="flex justify-center mb-4">
-            <Image src={logo} alt="login icon" width={200} height={200} />
+          <div className="mb-4 flex justify-center">
+            <Image
+              src={logo}
+              alt="logo"
+              width={220}
+              height={86}
+              className="h-auto w-full max-w-[220px] object-contain"
+              priority
+            />
           </div>
           <h1 className="text-center font-bold text-xl md:text-2xl authTitle">
             {translate?.pages.verifyCode.title}
@@ -242,8 +249,8 @@ const VerifyCode = () => {
 
         {/* Image */}
         <div className="relative hidden lg:flex h-screen items-center justify-center">
-          <div className="h-[70%]">
-            <Image src={otp} alt="bg" width={800} height={1000} />
+          <div className="h-[90%]">
+            <Image src={loginIcon} alt="bg" width={300} height={300} />
           </div>
         </div>
       </div>

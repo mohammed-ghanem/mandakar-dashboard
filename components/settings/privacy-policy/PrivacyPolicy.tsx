@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useGetPrivacyPolicyQuery,
   useUpdatePrivacyPolicyMutation,
@@ -45,13 +45,17 @@ export default function PrivacyPolicy() {
     useUpdatePrivacyPolicyMutation();
 
   const [form, setForm] = useState({ ar: "", en: "" });
+  const [editorsReady, setEditorsReady] = useState(false);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || hydratedRef.current) return;
+    hydratedRef.current = true;
     setForm({
       ar: data.ar ?? "",
       en: data.en ?? "",
     });
+    setEditorsReady(true);
   }, [data]);
 
   if (!sessionReady || isLoading) {
@@ -100,7 +104,7 @@ export default function PrivacyPolicy() {
         </CardHeader>
 
         <CardContent className={dash.formCardContent}>
-          {!data ? (
+          {!editorsReady ? (
             <div className="space-y-8">
               <PrivacyPolicyEditorSkeleton />
               <PrivacyPolicyEditorSkeleton />
@@ -112,6 +116,7 @@ export default function PrivacyPolicy() {
                   {t?.arabicContent}
                 </Label>
                 <CkEditor
+                  key="privacy-ar"
                   editorData={form.ar}
                   handleOnUpdate={(value) =>
                     setForm((prev) => ({ ...prev, ar: value }))
@@ -125,6 +130,7 @@ export default function PrivacyPolicy() {
                   {t?.englishContent}
                 </Label>
                 <CkEditor
+                  key="privacy-en"
                   editorData={form.en}
                   handleOnUpdate={(value) =>
                     setForm((prev) => ({ ...prev, en: value }))

@@ -1,5 +1,6 @@
 /* Font imports */
 @import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap");
 
 /* Tailwind imports */
 @import "tailwindcss";
@@ -157,10 +158,10 @@ input[data-slot="input"]:-webkit-autofill:active {
 }
 
 .titleColor {
-  color: #3f4e5c;
+  color: #000;
 }
 .bgTitleColor {
-  background-color: #937e55;
+  background-color: #9f8452;
 }
 .bgTitleColor:hover {
   background-color: #ad9870;
@@ -175,7 +176,7 @@ input[data-slot="input"]:-webkit-autofill:active {
   color: #000;
 }
 .hover-mainColor:hover {
-  background: #607181;
+  background: #000;
   color: #fff;
   transition: ease-in-out 0.3s;
 }
@@ -186,8 +187,8 @@ input[data-slot="input"]:-webkit-autofill:active {
   color: #9368f33d;
 }
 .activeLink {
-  background: #607181;
-  color: #fff;
+  background: #f3eee3;
+  color: #000;
 }
 
 .fontCairo {
@@ -221,14 +222,19 @@ input[data-slot="input"]:-webkit-autofill:active {
 }
 .asideBg {
   background: #eddec2ad;
-  background: linear-gradient(-45deg, rgba(237, 222, 194, .63) -100%, #fff 100%, #eddec2 100%);
+  background: linear-gradient(
+    -45deg,
+    rgba(237, 222, 194, 0.63) -100%,
+    #fff 100%,
+    #eddec2 100%
+  );
 }
 .authTitle {
   width: fit-content;
   margin: auto;
-  border: 1px solid #967d56;
+  border: 1px solid #000;
   padding: 4px 10px;
   border-radius: 5px;
   background: #fff;
-  color : #3f4e5c;
+  color: #000;
 }

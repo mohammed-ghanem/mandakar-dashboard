@@ -14,7 +14,7 @@ import TranslateHook from "@/translate/TranslateHook";
 import SidebarSkeleton from "@/components/skeleton/SidebarSkeleton";
 import { mainLinks, settingsLinks } from "./sidebarLinks";
 import Image from "next/image";
-import logo from "@/public/assets/images/logo.png";
+import logo from "@/public/assets/images/logo.svg";
 const SideBar = () => {
   const lang = LangUseParams() as string;
   const translate = TranslateHook();
@@ -55,13 +55,20 @@ const SideBar = () => {
         fixed inset-y-0 inset-s-0 z-40
         h-screen w-14 md:w-60
         asideBg border-e flex flex-col
-        overflow-y-scroll
+        overflow-y-auto overflow-x-hidden
       "
     >
       <div className="p-4 font-bold text-lg mainColor flex justify-center md:justify-start">
-        {/* logo  */}
-        <div className="flex justify-center mb-4 m-auto md:ms-0">
-          <Image className="" src={logo} alt="login icon" width={130} height={75} />
+        {/* logo — keep inside sidebar; oversized SVG was covering the editor */}
+        <div className="mb-4 flex w-full max-w-full justify-center md:justify-start">
+          <Image
+            src={logo}
+            alt="logo"
+            width={300}
+            height={60}
+            className="h-auto w-full max-w-[300px] object-contain"
+            priority
+          />
         </div>
       </div>
 

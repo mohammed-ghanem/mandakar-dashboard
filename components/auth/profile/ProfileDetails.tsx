@@ -24,7 +24,7 @@ import ProfileSkeleton from "@/components/skeleton/ProfileSkeleton";
 function ProfileDetails() {
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
+ 
   const t = translate?.pages.profile;
 
   const { data, isLoading } = useGetProfileQuery(undefined, {
@@ -37,7 +37,7 @@ function ProfileDetails() {
   if (!user) return null;
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">

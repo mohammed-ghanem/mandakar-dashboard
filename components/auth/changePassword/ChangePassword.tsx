@@ -1,57 +1,68 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2, Lock } from "lucide-react";
 import { useChangePasswordMutation } from "@/store/auth/authApi";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
+import { dash } from "@/constants/dashboardUi";
+import { cn } from "@/lib/utils";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import ChangePasswordSkeleton from "@/components/skeleton/ChangePasswordSkeleton";
-
 
 const ChangePassword = () => {
   const router = useRouter();
   const lang = LangUseParams();
   const translate = TranslateHook();
+  const t = translate?.pages.changePassword;
   const [changePassword, { isLoading }] = useChangePasswordMutation();
+
   const [form, setForm] = useState({
     old_password: "",
     password: "",
     password_confirmation: "",
   });
 
-  const [showPassword, setShowPassword] = useState({ old: false, new: false, confirm: false, });
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const togglePassword = (key: keyof typeof showPassword) => {
-    setShowPassword(prev => ({ ...prev, [key]: !prev[key] }));
+    setShowPassword((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const validateForm = () => {
     const errors: string[] = [];
 
     if (!form.old_password.trim()) {
-      errors.push(translate?.pages.changePassword.oldRequired);
+      errors.push(t?.oldRequired);
     }
     if (!form.password.trim()) {
-      errors.push(translate?.pages.changePassword.newRequired);
+      errors.push(t?.newRequired);
     } else if (form.password.length < 8) {
-      errors.push(
-        translate?.pages.changePassword.minLength);
+      errors.push(t?.minLength);
     }
     if (form.password !== form.password_confirmation) {
-      errors.push(
-        translate?.pages.changePassword.notMatch);
+      errors.push(t?.notMatch);
     }
     return errors;
   };
@@ -61,7 +72,7 @@ const ChangePassword = () => {
 
     const errors = validateForm();
     if (errors.length) {
-      errors.forEach(err => toast.error(err));
+      errors.forEach((err) => toast.error(err));
       return;
     }
 
@@ -83,7 +94,7 @@ const ChangePassword = () => {
 
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) =>
-          messages.forEach((msg: string) => toast.error(msg))
+          messages.forEach((msg: string) => toast.error(msg)),
         );
         return;
       }
@@ -94,127 +105,128 @@ const ChangePassword = () => {
     return <ChangePasswordSkeleton />;
   }
 
+  const passwordField = (
+    id: string,
+    name: keyof typeof form,
+    label: string | undefined,
+    showKey: keyof typeof showPassword,
+    autoComplete: string,
+    hint?: string | undefined,
+  ) => (
+    <div className="space-y-2">
+      <Label
+        htmlFor={id}
+        className="text-sm font-semibold text-slate-800"
+      >
+        {label}
+      </Label>
+      <div className="relative">
+        <KeyRound className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          id={id}
+          type={showPassword[showKey] ? "text" : "password"}
+          name={name}
+          value={form[name]}
+          onChange={handleChange}
+          autoComplete={autoComplete}
+          className={cn("h-11 ps-10 pe-10", dash.input)}
+        />
+        <button
+          type="button"
+          onClick={() => togglePassword(showKey)}
+          className="absolute inset-e-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          aria-label={showPassword[showKey] ? "Hide password" : "Show password"}
+        >
+          {showPassword[showKey] ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
+        </button>
+      </div>
+      {hint ? (
+        <p className="text-xs text-red-500">{hint}</p>
+      ) : null}
+    </div>
+  );
+
   return (
-    <div className=" flex items-center justify-center bg-muted/40 px-4" dir="ltr">
-      <Card className="w-full max-w-3xl shadow-lg rounded-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">
-            {translate?.pages.changePassword.title}
+    <div className={dash.formPage} >
+      <Card className={dash.formCard}>
+        <CardHeader className={dash.formCardHeader}>
+          <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">
+            <span className={dash.pageIconBox}>
+              <Lock className="w-6 h-6" />
+            </span>
+            <div className="space-y-2 min-w-0 text-start">
+              <span className="leading-tight block">{t?.title}</span>
+              <CardDescription className={cn(dash.listDescription, "mt-0")}>
+                {t?.subtitle}
+              </CardDescription>
+            </div>
           </CardTitle>
-          <CardDescription>
-            {translate?.pages.changePassword.subtitle}
-          </CardDescription>
         </CardHeader>
 
-        <Separator />
-
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Old Password */}
-            <div className="space-y-2">
-              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
-                {translate?.pages.changePassword.oldPassword}
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showPassword.old ? "text" : "password"}
-                  name="old_password"
-                  value={form.old_password}
-                  onChange={handleChange}
-                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
-
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePassword("old")}
-                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
-                >
-                  {showPassword.old ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
+        <CardContent className={cn(dash.formCardContent, "space-y-8")}>
+          <form onSubmit={handleSubmit} className="space-y-8 md:space-y-10">
+            <section className={dash.sectionNeutral}>
+              <div className="mb-6 flex flex-wrap items-start gap-4">
+                <span className={dash.sectionIconWrap}>
+                  <KeyRound className="h-5 w-5" strokeWidth={2} />
+                </span>
+                <p className="text-sm font-semibold text-slate-800">
+                  {t?.title}
+                </p>
               </div>
-            </div>
 
-            {/* New Password */}
-            <div className="space-y-2">
-              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
-                {translate?.pages.changePassword.password}
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showPassword.new ? "text" : "password"}
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePassword("new")}
-                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
-                >
-                  {showPassword.new ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground" dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
-                {translate?.pages.changePassword.passCondition}
-              </p>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`} >
-                {translate?.pages.changePassword.confirmPassword}
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showPassword.confirm ? "text" : "password"}
-                  name="password_confirmation"
-                  value={form.password_confirmation}
-                  onChange={handleChange}
-                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
-
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePassword("confirm")}
-                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
-                >
-                  {showPassword.confirm ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end justify-center! items-center! space-x-3 my-2">
-              <Button
-                type="submit"
-                className=" greenBgIcon p-5!"
-                disabled={isLoading}
-              >
-                {isLoading && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <div className="space-y-6">
+                {passwordField(
+                  "old_password",
+                  "old_password",
+                  t?.oldPassword,
+                  "old",
+                  "current-password",
                 )}
-                {translate?.pages.changePassword.confirmBtn}
-              </Button>
+                {passwordField(
+                  "password",
+                  "password",
+                  t?.password,
+                  "new",
+                  "new-password",
+                  t?.passCondition,
+                )}
+                {passwordField(
+                  "password_confirmation",
+                  "password_confirmation",
+                  t?.confirmPassword,
+                  "confirm",
+                  "new-password",
+                )}
+              </div>
+            </section>
 
+            <div className={cn(dash.formFooterBar, "flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-center")}>
               <Button
                 type="button"
-                variant="destructive"
-                className="hover:bg-red-600 cursor-pointer p-5!"
+                variant="outline"
+                className="rounded-xl px-8 py-6 text-base font-semibold"
                 onClick={() => router.push(`/${lang}`)}
               >
-                {translate?.pages.changePassword.cancelBtn}
+                {t?.cancelBtn}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className={cn(dash.formSubmit, "mt-0 gap-2")}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 shrink-0 animate-spin" />
+                    {t?.confirmBtn}
+                  </>
+                ) : (
+                  t?.confirmBtn
+                )}
               </Button>
             </div>
           </form>

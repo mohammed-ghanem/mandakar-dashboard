@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import loginIcon from "@/public/assets/images/loginIcon.webp";
+import loginIcon from "@/public/assets/images/loginIcon.svg";
 import LangUseParams from "@/translate/LangUseParams";
 
 const LoginSkeleton = () => {
@@ -52,8 +52,8 @@ const LoginSkeleton = () => {
         </div>
 
         <div className="relative hidden lg:flex h-screen items-center justify-center ">
-          <div className="h-[70%]">
-            <Image src={loginIcon} alt="bg" width={800} height={1000} />
+          <div className="h-[90%]">
+            <Image src={loginIcon} alt="bg" width={300} height={300} />
           </div>
         </div>
       </div>
