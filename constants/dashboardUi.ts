@@ -21,14 +21,14 @@ export const dash = {
 
   /** Gradient header strip on list pages. */
   listHeader:
-    "flex flex-col gap-6 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-emerald-50/45 px-6 py-8 md:flex-row md:items-center md:justify-between md:px-10 md:py-10 space-y-0",
+    "flex flex-col gap-6 border-b border-slate-100 bg-linear-to-br from-slate-50 via-white to-emerald-50/45 px-6 py-8 md:flex-row md:items-center md:justify-between md:px-10 md:py-10 space-y-0",
 
   /** Card body under list header (table zone). */
   listContent: "pb-8 pt-6 px-2 md:pb-10 md:pt-8",
 
   /** Icon badge in list header (left of title). */
   pageIconBox:
-    "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-50 text-emerald-800 shadow-inner ring-1 ring-emerald-200/60",
+    "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-100 to-teal-50 text-emerald-800 shadow-inner ring-1 ring-emerald-200/60",
 
   listTitle:
     "text-xl md:text-2xl font-bold text-slate-900 leading-tight border-0 p-0",
@@ -37,7 +37,7 @@ export const dash = {
 
   /** Primary “Create …” button in list header. */
   primaryCta:
-    "w-full shrink-0 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 px-4 py-5 text-base font-semibold shadow-lg shadow-emerald-900/20 hover:from-emerald-600 hover:to-teal-600 md:w-auto",
+    "w-full shrink-0 rounded-xl bg-linear-to-r from-emerald-700 to-teal-700 px-4 py-5 text-base font-semibold shadow-lg shadow-emerald-900/20 hover:from-emerald-600 hover:to-teal-600 md:w-auto",
 
   /** Pass-through to DataTable root `className`. */
   dataTableOuter:
@@ -47,7 +47,7 @@ export const dash = {
     "rounded-2xl border-slate-200/90 bg-white shadow-md shadow-slate-900/5 ring-1 ring-slate-900/4",
 
   dataTableHeader:
-    "bg-gradient-to-r from-emerald-50/90 via-slate-50/90 to-white [&_th]:border-slate-200/80 [&_th]:font-semibold [&_th]:text-slate-700",
+    "bg-linear-to-r from-emerald-50/90 via-slate-50/90 to-white [&_th]:border-slate-200/80 [&_th]:font-semibold [&_th]:text-slate-700",
 
   /** Row action buttons in DataTable */
   tableView:
@@ -64,7 +64,7 @@ export const dash = {
     "overflow-hidden rounded-3xl border-slate-200/80 shadow-xl shadow-slate-900/6 ring-1 ring-slate-900/4",
 
   formCardHeader:
-    "space-y-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 pb-8 pt-8 md:pt-10 md:pb-10 px-6 md:px-10",
+    "space-y-3 border-b border-slate-100 bg-linear-to-br from-slate-50 via-white to-emerald-50/40 pb-8 pt-8 md:pt-10 md:pb-10 px-6 md:px-10",
 
   formCardContent: "px-4 py-8 md:px-10 md:py-10",
 
@@ -77,11 +77,11 @@ export const dash = {
 
   /** Main submit on create/edit forms */
   formSubmit:
-    "mt-6 w-full md:w-auto md:min-w-[200px] mx-auto flex rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 px-10 py-6 text-base font-semibold shadow-lg shadow-emerald-900/20 hover:from-emerald-600 hover:to-teal-600",
+    "mt-6 w-full md:w-auto md:min-w-[200px] mx-auto flex rounded-xl bg-linear-to-r from-emerald-700 to-teal-700 px-10 py-6 text-base font-semibold shadow-lg shadow-emerald-900/20 hover:from-emerald-600 hover:to-teal-600",
 
   /** Neutral “lesson details” style section */
   sectionNeutral:
-    "rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-slate-50/30 to-emerald-50/20 p-6 md:p-8 shadow-sm ring-1 ring-slate-900/3",
+    "rounded-2xl border border-slate-200/90 bg-linear-to-br from-white via-slate-50/30 to-emerald-50/20 p-6 md:p-8 shadow-sm ring-1 ring-slate-900/3",
 
   /** Section title chip (matches cohort enrollment blocks) */
   cohortSectionHeadingBadge:
@@ -92,7 +92,7 @@ export const dash = {
 
   /** Violet videos block */
   sectionVideos:
-    "rounded-2xl border-2 border-violet-200/70 bg-gradient-to-b from-violet-50/50 via-white to-white p-6 md:p-8 shadow-md shadow-violet-950/6 ring-1 ring-violet-900/4",
+    "rounded-2xl border-2 border-violet-200/70 bg-linear-to-b from-violet-50/50 via-white to-white p-6 md:p-8 shadow-md shadow-violet-950/6 ring-1 ring-violet-900/4",
 
   videosCard:
     "rounded-xl border border-violet-100/90 bg-white/95 p-4 md:p-5 shadow-sm ring-1 ring-violet-900/3 transition hover:ring-violet-300/40",
@@ -102,11 +102,11 @@ export const dash = {
 
   /** Rich text / CKEditor section shell */
   sectionRichContent:
-    "rounded-2xl border border-emerald-200/75 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 p-6 md:p-8 shadow-sm ring-1 ring-emerald-900/5",
+    "rounded-2xl border border-emerald-200/75 bg-linear-to-br from-emerald-50/30 via-white to-teal-50/20 p-6 md:p-8 shadow-sm ring-1 ring-emerald-900/5",
 
   /** PDF block */
   sectionPdf:
-    "rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-orange-50/25 p-6 md:p-8 shadow-lg shadow-amber-950/5 ring-1 ring-amber-900/6",
+    "rounded-2xl border border-amber-200/80 bg-linear-to-br from-amber-50/40 via-white to-orange-50/25 p-6 md:p-8 shadow-lg shadow-amber-950/5 ring-1 ring-amber-900/6",
 
   pdfAddBtnOutline:
     "shrink-0 rounded-xl border-amber-300/80 bg-white text-amber-950 hover:bg-amber-50",
@@ -121,7 +121,7 @@ export const dash = {
 
   /** Back button on read-only view pages (matches lesson view) */
   viewBackButton:
-    "rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white px-8 py-6 text-base font-semibold shadow-lg",
+    "rounded-xl bg-linear-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white px-8 py-6 text-base font-semibold shadow-lg",
 } as const;
 
 export type DashKeys = keyof typeof dash;

@@ -254,7 +254,7 @@ export default function CategoryTreeSelect({
       {isOpen ? (
         <div className="space-y-4">
           <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute top-1/2 start-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute top-1/2 inset-s-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -281,13 +281,13 @@ export default function CategoryTreeSelect({
                   <article
                     key={root.id}
                     className={cn(
-                      "overflow-hidden rounded-2xl border bg-gradient-to-br from-white via-slate-50/40 to-emerald-50/30 shadow-sm transition-all",
+                      "overflow-hidden rounded-2xl border bg-linear-to-br from-white via-slate-50/40 to-emerald-50/30 shadow-sm transition-all",
                       branchSelected
                         ? "border-emerald-300 ring-2 ring-emerald-500/15 shadow-emerald-900/5"
                         : "border-slate-200/90 ring-1 ring-slate-900/4",
                     )}
                   >
-                    <header className="flex items-center justify-between gap-3 border-b border-emerald-100/80 bg-gradient-to-r from-emerald-700 to-teal-700 px-4 py-3 text-white">
+                    <header className="flex items-center justify-between gap-3 border-b border-emerald-100/80 bg-linear-to-r from-emerald-700 to-teal-700 px-4 py-3 text-white">
                       <div className="flex min-w-0 items-center gap-2.5">
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
                           <FolderTree className="h-4 w-4" />

@@ -66,7 +66,7 @@ const SideBar = () => {
             alt="logo"
             width={300}
             height={60}
-            className="h-auto w-full max-w-[300px] object-contain"
+            className="h-auto w-full max-w-75 object-contain"
             priority
           />
         </div>

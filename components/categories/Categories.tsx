@@ -166,7 +166,7 @@ function CategoryBranch({
       {!isLast ? (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 start-3 w-px bg-emerald-200/90"
+          className="pointer-events-none absolute inset-y-0 inset-s-3 w-px bg-emerald-200/90"
         />
       ) : null}
 
@@ -174,7 +174,7 @@ function CategoryBranch({
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute start-3 top-0 h-5 w-4 border-emerald-200/90",
+            "pointer-events-none absolute inset-s-3 top-0 h-5 w-4 border-emerald-200/90",
             "border-s border-b rounded-es-lg",
           )}
         />
