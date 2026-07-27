@@ -16,8 +16,8 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "Sorooj Academy Dashboard",
-  description: "Admin dashboard for Sorooj Academy",
+  title: "Mandakar Dashboard",
+  description: "Admin dashboard for Mandakar",
 };
 
 export default async function RootLayout({

@@ -36,7 +36,6 @@ type FormState = {
   name_ar: string;
   name_en: string;
   parent_id: string;
-  sort_order: string;
   is_active: boolean;
 };
 
@@ -59,7 +58,6 @@ export default function CreateCategory() {
     name_ar: "",
     name_en: "",
     parent_id: "",
-    sort_order: "0",
     is_active: true,
   });
 
@@ -72,7 +70,6 @@ export default function CreateCategory() {
         name_en: form.name_en,
         parent_id: form.parent_id ? Number(form.parent_id) : null,
         is_active: form.is_active,
-        sort_order: Number(form.sort_order) || 0,
       }).unwrap();
 
       toast.success(res?.message);
@@ -189,29 +186,9 @@ export default function CreateCategory() {
                     emptyLabel={t?.parentEmpty}
                     selectedLabel={t?.parentSelected}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-red-500">
                     {t?.parentHint}
                   </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    className={cn(
-                      "text-sm font-semibold text-slate-800",
-                      labelAlign,
-                    )}
-                  >
-                    {t?.sortOrder}
-                  </Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    className={cn("h-11", dash.input)}
-                    value={form.sort_order}
-                    onChange={(e) =>
-                      setForm({ ...form, sort_order: e.target.value })
-                    }
-                  />
                 </div>
               </div>
             </section>

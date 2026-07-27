@@ -1,10 +1,10 @@
 import {
   FolderTree,
   Home,
-  Megaphone,
+  Mic,
   MessageCircleMore,
-  Mic2,
-  Newspaper,
+  TvMinimalPlay,
+  FileText,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -27,17 +27,17 @@ export const mainLinks = (lang: string) => [
   },
   {
     href: `/${lang}/lectures`,
-    icon: Mic2,
+    icon: TvMinimalPlay,
     key: "lectures",
   },
   {
     href: `/${lang}/speeches`,
-    icon: Megaphone,
+    icon: Mic,
     key: "speeches",
   },
   {
     href: `/${lang}/articles`,
-    icon: Newspaper,
+    icon: FileText,
     key: "articles",
   },
   {
