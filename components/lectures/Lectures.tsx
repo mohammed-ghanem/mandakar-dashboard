@@ -14,107 +14,100 @@ import { useSessionReady } from "@/hooks/useSessionReady";
 import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 
 import {
-  useGetRolesQuery,
-  useToggleRoleStatusMutation,
-  useDeleteRoleMutation,
-} from "@/store/roles/rolesApi";
+  useGetLecturesQuery,
+  useToggleLectureStatusMutation,
+  useDeleteLectureMutation,
+} from "@/store/lectures/lecturesApi";
+import { ILectureListItem } from "@/types/lectures";
 
 import { Column, DataTable } from "../datatable/DataTable";
 import { toast } from "sonner";
-import { Edit3, Eye, ShieldCheck } from "lucide-react";
+import { Edit3, Mic2 } from "lucide-react";
 import DeleteConfirmDialog from "../shared/DeleteConfirmDialog";
 
-type Role = {
-  id: number;
-  name: string;
-  name_ar: string;
-  name_en: string;
-  is_active: boolean;
-};
-
-export default function RolesPage() {
+export default function Lectures() {
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
   const sessionReady = useSessionReady();
   const pageDir = lang === "ar" ? "rtl" : "ltr";
 
-  const headers = TABLE_HEADERS[lang].roles;
-  const pg = translate?.pages.roles;
+  const headers = TABLE_HEADERS[lang].lectures;
+  const pg = translate?.pages.lectures;
 
-  const {
-    data: rolesData = [],
-    isLoading,
-    isFetching,
-  } = useGetRolesQuery(undefined, {
-    skip: !sessionReady,
-    refetchOnMountOrArgChange: false,
-  });
+  const { data: lecturesData = [], isLoading } = useGetLecturesQuery(
+    undefined,
+    { skip: !sessionReady },
+  );
 
-  const roles: Role[] = rolesData.map((role: any) => ({
-    ...role,
-    is_active: Boolean(role.is_active),
+  const lectures: ILectureListItem[] = lecturesData.map((lecture) => ({
+    id: lecture.id,
+    title_ar: lecture.title?.ar ?? "",
+    title_en: lecture.title?.en ?? "",
+    category_name:
+      lecture.category?._name ??
+      lecture.category?.name?.[lang] ??
+      lecture.category?.name?.ar ??
+      lecture.category?.name?.en ??
+      "—",
+    youtube_url: lecture.youtube_url ?? "",
+    is_active: Boolean(lecture.is_active),
   }));
 
-  const [toggleStatus] = useToggleRoleStatusMutation();
-  const [deleteRole] = useDeleteRoleMutation();
+  const [toggleStatus] = useToggleLectureStatusMutation();
+  const [deleteLecture] = useDeleteLectureMutation();
 
   const { getOptimisticStatus, toggle, isPending } =
-    useOptimisticToggle<Role>({
-      getId: (role) => role.id,
-      getStatus: (role) => Boolean(role.is_active),
-      onToggle: async (role, next) => {
-        await toggleStatus({
-          id: role.id,
-          is_active: next,
-        }).unwrap();
+    useOptimisticToggle<ILectureListItem>({
+      getId: (lecture) => lecture.id,
+      getStatus: (lecture) => lecture.is_active,
+      onToggle: async (lecture) => {
+        await toggleStatus(lecture.id).unwrap();
       },
     });
 
   const handleDelete = async (id: number) => {
     try {
-      const res = (await deleteRole(id).unwrap()) as any;
+      const res = await deleteLecture(id).unwrap();
       toast.success(res?.message);
     } catch (err: any) {
       const errorData = err?.data ?? err;
-
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) =>
           messages.forEach((msg: string) => toast.error(msg)),
         );
         return;
       }
-
       if (errorData?.message) {
         toast.error(errorData.message);
-        return;
       }
     }
   };
 
-  const columns: Column<Role>[] = [
+  const columns: Column<ILectureListItem>[] = [
     {
-      key: `${lang === "ar" ? "name_ar" : "name_en"}`,
-      header: headers.name,
+      key: lang === "ar" ? "title_ar" : "title_en",
+      header: headers.title,
+    },
+    {
+      key: "category_name",
+      header: headers.category,
     },
     {
       key: "is_active",
       header: headers.status,
       align: "center",
-      render: (_, role) => (
+      render: (_, lecture) => (
         <div className="flex items-center justify-center gap-2" dir="ltr">
           <Switch
             className={dash.statusSwitch}
-            checked={getOptimisticStatus(role)}
-            disabled={isPending(role)}
+            checked={getOptimisticStatus(lecture)}
+            disabled={isPending(lecture)}
             onCheckedChange={(checked) => {
-              void toggle(role, checked);
+              void toggle(lecture, checked);
             }}
           />
-
           <span className="text-sm text-slate-600">
-            {getOptimisticStatus(role)
-              ? pg?.active || ""
-              : pg?.inactive || ""}
+            {getOptimisticStatus(lecture) ? pg?.active : pg?.inactive}
           </span>
         </div>
       ),
@@ -123,44 +116,40 @@ export default function RolesPage() {
       key: "id",
       header: headers.actions,
       align: "center",
-      render: (_, role) => (
+      render: (_, lecture) => (
         <div className="flex justify-center gap-2 flex-wrap">
-          <Link href={`/${lang}/roles/view/${role.id}`}>
-            <Button type="button" size="sm" className={dash.tableView}>
-              <Eye className="w-5 h-5" />
-            </Button>
-          </Link>
-          <Link href={`/${lang}/roles/edit/${role.id}`}>
+          <Link href={`/${lang}/lectures/edit/${lecture.id}`}>
             <Button type="button" size="sm" className={dash.tableEdit}>
               <Edit3 className="h-4 w-4" />
             </Button>
           </Link>
+
           <DeleteConfirmDialog
             title={pg?.deleteTitle ?? ""}
             description={pg?.deleteMessage ?? ""}
             confirmText={pg?.deleteBtn ?? ""}
             cancelText={pg?.cancelBtn ?? ""}
-            onConfirm={() => handleDelete(role.id)}
+            onConfirm={() => handleDelete(lecture.id)}
           />
         </div>
       ),
     },
   ];
 
-  const showSkeleton = !sessionReady || isLoading || isFetching;
+  const showSkeleton = !sessionReady || isLoading;
 
   return (
     <IndexListPage
-      icon={ShieldCheck}
-      title={pg?.rolesTitle ?? ""}
+      icon={Mic2}
+      title={pg?.lecturesTitle ?? ""}
       description={pg?.listDescription}
-      createHref={`/${lang}/roles/create`}
-      createLabel={pg?.createRole?.title ?? ""}
+      createHref={`/${lang}/lectures/create`}
+      createLabel={pg?.createLecture?.title ?? ""}
       showSkeleton={showSkeleton}
       dir={pageDir}
     >
       <DataTable
-        data={roles}
+        data={lectures}
         columns={columns}
         isSkeleton={showSkeleton}
         searchPlaceholder={`${pg?.searchPlaceholder}`}

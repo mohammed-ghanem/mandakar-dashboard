@@ -54,7 +54,7 @@ export default function Admins() {
       getId: (admin) => admin.id,
       getStatus: (admin) => admin.is_active,
       onToggle: async (admin) => {
-        await toggleStatus(admin.id);
+        await toggleStatus(admin.id).unwrap();
       },
     });
 
@@ -124,13 +124,7 @@ export default function Admins() {
               checked={getOptimisticStatus(admin)}
               disabled={isPending(admin)}
               onCheckedChange={(checked) => {
-                toggle(admin, checked).catch(() => {
-                  toast.error(
-                    lang === "ar"
-                      ? "فشل تغيير الحالة"
-                      : "Failed to update status",
-                  );
-                });
+                void toggle(admin, checked);
               }}
             />
 

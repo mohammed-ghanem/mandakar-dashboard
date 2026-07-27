@@ -12,7 +12,7 @@ function normalizeItem(item: any): IAdmin {
   return {
     id: Number(user?.id) || 0,
     name: user?.name ?? "",
-    email: user?.email ?? "",
+    email: user?.email ?? "", 
     image: user?.image ?? null,
     mobile: user?.mobile ?? "",
     roles: user?.roles ?? user?.type ?? "",
@@ -206,7 +206,7 @@ export const adminsApi = createApi({
     }),
 
     /* =======================
-       TOGGLE STATUS (OPTIMISTIC)
+       TOGGLE STATUS (OPTIMISTIC — no invalidate to avoid flicker)
     ======================= */
     toggleAdminStatus: builder.mutation<
       { message: string },
@@ -242,8 +242,6 @@ export const adminsApi = createApi({
           patchResult.undo();
         }
       },
-
-      invalidatesTags: ["Admins"],
     }),
   }),
 });

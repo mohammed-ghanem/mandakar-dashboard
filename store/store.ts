@@ -9,6 +9,10 @@ import { authApi } from "./auth/authApi";
 import { contactsApi } from "./settings/contactsApi";
 import { termsAndConditionsApi } from "./settings/termsAndConditions";
 import { appContactsApi } from "./settings/appContactsApi";
+import { categoriesApi } from "./categories/categoriesApi";
+import { lecturesApi } from "./lectures/lecturesApi";
+import { speechesApi } from "./speeches/speechesApi";
+import { articlesApi } from "./articles/articlesApi";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +25,10 @@ export const store = configureStore({
     [rolesApi.reducerPath]: rolesApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [contactsApi.reducerPath]: contactsApi.reducer,
+    [categoriesApi.reducerPath]: categoriesApi.reducer,
+    [lecturesApi.reducerPath]: lecturesApi.reducer,
+    [speechesApi.reducerPath]: speechesApi.reducer,
+    [articlesApi.reducerPath]: articlesApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -33,6 +41,10 @@ export const store = configureStore({
       permissionsApi.middleware,
       authApi.middleware,
       contactsApi.middleware,
+      categoriesApi.middleware,
+      lecturesApi.middleware,
+      speechesApi.middleware,
+      articlesApi.middleware,
     ),
 });
 

@@ -14,107 +14,100 @@ import { useSessionReady } from "@/hooks/useSessionReady";
 import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 
 import {
-  useGetRolesQuery,
-  useToggleRoleStatusMutation,
-  useDeleteRoleMutation,
-} from "@/store/roles/rolesApi";
+  useGetSpeechesQuery,
+  useToggleSpeechStatusMutation,
+  useDeleteSpeechMutation,
+} from "@/store/speeches/speechesApi";
+import { ISpeechListItem } from "@/types/speeches";
 
 import { Column, DataTable } from "../datatable/DataTable";
 import { toast } from "sonner";
-import { Edit3, Eye, ShieldCheck } from "lucide-react";
+import { Edit3, Megaphone } from "lucide-react";
 import DeleteConfirmDialog from "../shared/DeleteConfirmDialog";
 
-type Role = {
-  id: number;
-  name: string;
-  name_ar: string;
-  name_en: string;
-  is_active: boolean;
-};
-
-export default function RolesPage() {
+export default function Speeches() {
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
   const sessionReady = useSessionReady();
   const pageDir = lang === "ar" ? "rtl" : "ltr";
 
-  const headers = TABLE_HEADERS[lang].roles;
-  const pg = translate?.pages.roles;
+  const headers = TABLE_HEADERS[lang].speeches;
+  const pg = translate?.pages.speeches;
 
-  const {
-    data: rolesData = [],
-    isLoading,
-    isFetching,
-  } = useGetRolesQuery(undefined, {
-    skip: !sessionReady,
-    refetchOnMountOrArgChange: false,
-  });
+  const { data: speechesData = [], isLoading } = useGetSpeechesQuery(
+    undefined,
+    { skip: !sessionReady },
+  );
 
-  const roles: Role[] = rolesData.map((role: any) => ({
-    ...role,
-    is_active: Boolean(role.is_active),
+  const speeches: ISpeechListItem[] = speechesData.map((speech) => ({
+    id: speech.id,
+    title_ar: speech.title?.ar ?? "",
+    title_en: speech.title?.en ?? "",
+    category_name:
+      speech.category?._name ??
+      speech.category?.name?.[lang] ??
+      speech.category?.name?.ar ??
+      speech.category?.name?.en ??
+      "—",
+    youtube_url: speech.youtube_url ?? "",
+    is_active: Boolean(speech.is_active),
   }));
 
-  const [toggleStatus] = useToggleRoleStatusMutation();
-  const [deleteRole] = useDeleteRoleMutation();
+  const [toggleStatus] = useToggleSpeechStatusMutation();
+  const [deleteSpeech] = useDeleteSpeechMutation();
 
   const { getOptimisticStatus, toggle, isPending } =
-    useOptimisticToggle<Role>({
-      getId: (role) => role.id,
-      getStatus: (role) => Boolean(role.is_active),
-      onToggle: async (role, next) => {
-        await toggleStatus({
-          id: role.id,
-          is_active: next,
-        }).unwrap();
+    useOptimisticToggle<ISpeechListItem>({
+      getId: (speech) => speech.id,
+      getStatus: (speech) => speech.is_active,
+      onToggle: async (speech) => {
+        await toggleStatus(speech.id).unwrap();
       },
     });
 
   const handleDelete = async (id: number) => {
     try {
-      const res = (await deleteRole(id).unwrap()) as any;
+      const res = await deleteSpeech(id).unwrap();
       toast.success(res?.message);
     } catch (err: any) {
       const errorData = err?.data ?? err;
-
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) =>
           messages.forEach((msg: string) => toast.error(msg)),
         );
         return;
       }
-
       if (errorData?.message) {
         toast.error(errorData.message);
-        return;
       }
     }
   };
 
-  const columns: Column<Role>[] = [
+  const columns: Column<ISpeechListItem>[] = [
     {
-      key: `${lang === "ar" ? "name_ar" : "name_en"}`,
-      header: headers.name,
+      key: lang === "ar" ? "title_ar" : "title_en",
+      header: headers.title,
+    },
+    {
+      key: "category_name",
+      header: headers.category,
     },
     {
       key: "is_active",
       header: headers.status,
       align: "center",
-      render: (_, role) => (
+      render: (_, speech) => (
         <div className="flex items-center justify-center gap-2" dir="ltr">
           <Switch
             className={dash.statusSwitch}
-            checked={getOptimisticStatus(role)}
-            disabled={isPending(role)}
+            checked={getOptimisticStatus(speech)}
+            disabled={isPending(speech)}
             onCheckedChange={(checked) => {
-              void toggle(role, checked);
+              void toggle(speech, checked);
             }}
           />
-
           <span className="text-sm text-slate-600">
-            {getOptimisticStatus(role)
-              ? pg?.active || ""
-              : pg?.inactive || ""}
+            {getOptimisticStatus(speech) ? pg?.active : pg?.inactive}
           </span>
         </div>
       ),
@@ -123,44 +116,40 @@ export default function RolesPage() {
       key: "id",
       header: headers.actions,
       align: "center",
-      render: (_, role) => (
+      render: (_, speech) => (
         <div className="flex justify-center gap-2 flex-wrap">
-          <Link href={`/${lang}/roles/view/${role.id}`}>
-            <Button type="button" size="sm" className={dash.tableView}>
-              <Eye className="w-5 h-5" />
-            </Button>
-          </Link>
-          <Link href={`/${lang}/roles/edit/${role.id}`}>
+          <Link href={`/${lang}/speeches/edit/${speech.id}`}>
             <Button type="button" size="sm" className={dash.tableEdit}>
               <Edit3 className="h-4 w-4" />
             </Button>
           </Link>
+
           <DeleteConfirmDialog
             title={pg?.deleteTitle ?? ""}
             description={pg?.deleteMessage ?? ""}
             confirmText={pg?.deleteBtn ?? ""}
             cancelText={pg?.cancelBtn ?? ""}
-            onConfirm={() => handleDelete(role.id)}
+            onConfirm={() => handleDelete(speech.id)}
           />
         </div>
       ),
     },
   ];
 
-  const showSkeleton = !sessionReady || isLoading || isFetching;
+  const showSkeleton = !sessionReady || isLoading;
 
   return (
     <IndexListPage
-      icon={ShieldCheck}
-      title={pg?.rolesTitle ?? ""}
+      icon={Megaphone}
+      title={pg?.speechesTitle ?? ""}
       description={pg?.listDescription}
-      createHref={`/${lang}/roles/create`}
-      createLabel={pg?.createRole?.title ?? ""}
+      createHref={`/${lang}/speeches/create`}
+      createLabel={pg?.createSpeech?.title ?? ""}
       showSkeleton={showSkeleton}
       dir={pageDir}
     >
       <DataTable
-        data={roles}
+        data={speeches}
         columns={columns}
         isSkeleton={showSkeleton}
         searchPlaceholder={`${pg?.searchPlaceholder}`}

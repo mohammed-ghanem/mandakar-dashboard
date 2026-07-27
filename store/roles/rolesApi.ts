@@ -6,9 +6,8 @@ import { Role } from "./types";
 export const rolesApi = createApi({
   reducerPath: "rolesApi",
   baseQuery: axiosBaseQuery(),
-  tagTypes: ["Roles" , "Role"],
+  tagTypes: ["Roles", "Role"],
   endpoints: (builder) => ({
-
     /* ===================== GET ALL ROLES ===================== */
 
     getRoles: builder.query<Role[], void>({
@@ -19,7 +18,7 @@ export const rolesApi = createApi({
           page: 0,
           limit: 0,
         },
-      }), 
+      }),
       transformResponse: (res: any) => {
         const payload = res?.data;
         // API: { status, message, data: Role[] } — data is the array directly
@@ -37,13 +36,12 @@ export const rolesApi = createApi({
       providesTags: ["Roles"],
 
       keepUnusedDataFor: 300, // five minutes
-
     }),
 
     /* ===================== GET ROLE BY ID ===================== */
 
     getRoleById: builder.query<Role | null, { id: number; lang: any }>({
-      query: ({id}) => ({
+      query: ({ id }) => ({
         url: `/roles/${id}`,
         method: "get",
       }),
@@ -56,12 +54,9 @@ export const rolesApi = createApi({
           null
         );
       },
-      providesTags: (result, error, arg) => [
-        { type: "Role", id: arg.id },
-      ],
+      providesTags: (result, error, arg) => [{ type: "Role", id: arg.id }],
       keepUnusedDataFor: 300,
     }),
-
 
     /* ===================== CREATE ROLE ===================== */
     createRole: builder.mutation<any, any>({
@@ -89,9 +84,8 @@ export const rolesApi = createApi({
         formData.append("name[en]", body.name_en);
         formData.append("name[ar]", body.name_ar);
 
-
         body.permissions.forEach((p: number) =>
-          formData.append("role_permissions[]", String(p))
+          formData.append("role_permissions[]", String(p)),
         );
 
         return {
@@ -100,11 +94,10 @@ export const rolesApi = createApi({
           data: formData,
         };
       },
-       invalidatesTags: (result, error, arg) => [
+      invalidatesTags: (result, error, arg) => [
         "Roles",
         { type: "Role", id: arg.id },
       ],
-      
     }),
 
     /* ===================== DELETE ROLE ===================== */
@@ -120,14 +113,12 @@ export const rolesApi = createApi({
             "getRoles",
             undefined,
             (draft: Role[]) => {
-              const index = draft.findIndex(
-                (role) => role.id === id
-              );
+              const index = draft.findIndex((role) => role.id === id);
               if (index !== -1) {
                 draft.splice(index, 1);
               }
-            }
-          )
+            },
+          ),
         );
 
         try {
@@ -137,7 +128,6 @@ export const rolesApi = createApi({
         }
       },
     }),
-
 
     /* ===================== TOGGLE STATUS ===================== */
     toggleRoleStatus: builder.mutation<
@@ -155,15 +145,9 @@ export const rolesApi = createApi({
         };
       },
 
-      invalidatesTags: (result, error, arg) => [
-        { type: "Role", id: arg.id },
-      ],
+      invalidatesTags: (result, error, arg) => [{ type: "Role", id: arg.id }],
 
-      async onQueryStarted(
-        { id },
-        { dispatch, queryFulfilled }
-
-      ) {
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
           rolesApi.util.updateQueryData(
             "getRoles",
@@ -173,8 +157,8 @@ export const rolesApi = createApi({
               if (role) {
                 role.is_active = role.is_active ? 0 : 1;
               }
-            }
-          )
+            },
+          ),
         );
 
         try {

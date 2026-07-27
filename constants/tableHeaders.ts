@@ -83,6 +83,35 @@ export const TABLE_HEADERS = {
       actions: "الإجراءات",
     },
 
+    categories: {
+      name: "الاسم",
+      level: "المستوى",
+      parent: "القسم الأب",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
+    lectures: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
+    speeches: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
+    articles: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
     contacts: {
       name: "الاسم",
       email: "البريد الإلكتروني",
@@ -185,6 +214,35 @@ export const TABLE_HEADERS = {
     roles: {
       name: "Role",
       status: "Description",
+      actions: "Actions",
+    },
+
+    categories: {
+      name: "Name",
+      level: "Level",
+      parent: "Parent",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    lectures: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    speeches: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    articles: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
       actions: "Actions",
     },
 

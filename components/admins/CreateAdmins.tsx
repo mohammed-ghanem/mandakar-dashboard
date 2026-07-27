@@ -254,7 +254,12 @@ export default function CreateAdmin() {
                 {t?.roles}
               </Label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-2xl border border-slate-200/90 bg-white/60 p-4">
+              <span className="text-sm text-red-500">
+                {t?.adminRoleWarning}
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-2xl
+               border border-slate-200/90 bg-white/60 p-4 mt-2">
                 {roles.map((role: any) => (
                   <label
                     key={role.id}
@@ -266,6 +271,7 @@ export default function CreateAdmin() {
                         : "border-slate-200 hover:bg-slate-50/80",
                     )}
                   >
+                 
                     <Checkbox
                       id={`role-${role.id}`}
                       checked={form.role_id.includes(role.id)}

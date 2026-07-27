@@ -1,10 +1,44 @@
-import { Home, ShieldCheck, Users } from "lucide-react";
+import {
+  FolderTree,
+  Home,
+  Megaphone,
+  MessageCircleMore,
+  Mic2,
+  Newspaper,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 
 export const mainLinks = (lang: string) => [
   {
     href: `/${lang}`,
     icon: Home,
     key: "dashboard",
+  },
+  {
+    href: `/${lang}/about-sheikh`,
+    icon: MessageCircleMore,
+    key: "aboutUS",
+  },
+  {
+    href: `/${lang}/categories`,
+    icon: FolderTree,
+    key: "categories",
+  },
+  {
+    href: `/${lang}/lectures`,
+    icon: Mic2,
+    key: "lectures",
+  },
+  {
+    href: `/${lang}/speeches`,
+    icon: Megaphone,
+    key: "speeches",
+  },
+  {
+    href: `/${lang}/articles`,
+    icon: Newspaper,
+    key: "articles",
   },
   {
     href: `/${lang}/admins`,
@@ -24,19 +58,19 @@ export const settingsLinks = (lang: string) => [
     key: "privacyPolicy",
   },
   {
-    href: `/${lang}/app-contacts`,
-    key: "appContacts",
-  },
-  {
     href: `/${lang}/terms-conditions`,
     key: "termsAndConditions",
-  },
-  {
-    href: `/${lang}/contact-us`,
-    key: "contactUs",
   },
   {
     href: `/${lang}/profile`,
     key: "profile",
   },
+  {
+    href: `/${lang}/app-contacts`,
+    key: "appContacts",
+  },
+  // {
+  //   href: `/${lang}/contact-us`,
+  //   key: "contactUs",
+  // },
 ];

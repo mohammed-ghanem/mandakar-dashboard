@@ -1,37 +1,51 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { Music2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type ImageDropzoneLabels = {
+export type AudioDropzoneLabels = {
   hint?: string;
   browse?: string;
-  currentImage?: string;
+  currentAudio?: string;
   noNewUpload?: string;
   loading?: string;
+  formatsNote?: string;
 };
 
-type ImageDropzoneProps = {
+type AudioDropzoneProps = {
   file: File | null;
   onFileChange: (file: File | null) => void;
-  existingImageUrl?: string;
+  existingAudioUrl?: string;
   className?: string;
   accept?: string;
   showRemoveButton?: boolean;
-  labels?: ImageDropzoneLabels;
+  labels?: AudioDropzoneLabels;
 };
 
-export default function ImageDropzone({
+function formatSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function isAudioFile(file: File) {
+  return (
+    file.type.startsWith("audio/") ||
+    /\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i.test(file.name)
+  );
+}
+
+export default function AudioDropzone({
   file,
   onFileChange,
-  existingImageUrl,
+  existingAudioUrl,
   className = "",
-  accept = "image/*",
+  accept = "audio/*",
   showRemoveButton = true,
   labels,
-}: ImageDropzoneProps) {
+}: AudioDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,8 +53,8 @@ export default function ImageDropzone({
 
   const previewUrl = useMemo(() => {
     if (file) return URL.createObjectURL(file);
-    return existingImageUrl || "";
-  }, [file, existingImageUrl]);
+    return existingAudioUrl || "";
+  }, [file, existingAudioUrl]);
 
   useEffect(() => {
     return () => {
@@ -52,7 +66,7 @@ export default function ImageDropzone({
 
   const handlePick = (picked: File | null) => {
     if (!picked) return;
-    if (!picked.type.startsWith("image/")) return;
+    if (!isAudioFile(picked)) return;
 
     setIsLoading(true);
     setLoadProgress(0);
@@ -111,17 +125,20 @@ export default function ImageDropzone({
         }}
       >
         <div className="flex flex-col items-center gap-2">
-          <ImagePlus className="h-6 w-6 text-muted-foreground" />
+          <Music2 className="h-6 w-6 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {labels?.hint ?? "Drag and drop image here or click to browse"}
+            {labels?.hint ?? "Drag and drop audio here or click to browse"}
           </p>
+          {labels?.formatsNote ? (
+            <p className="text-xs text-muted-foreground">{labels.formatsNote}</p>
+          ) : null}
           <Button
             type="button"
             variant="outline"
             className="mt-1 rounded-xl"
             onClick={() => inputRef.current?.click()}
           >
-            {labels?.browse ?? "Choose image"}
+            {labels?.browse ?? "Choose audio"}
           </Button>
         </div>
       </div>
@@ -129,7 +146,7 @@ export default function ImageDropzone({
       {isLoading ? (
         <div className="space-y-2 rounded-xl border border-emerald-200/70 bg-emerald-50/40 px-3 py-3">
           <div className="flex items-center justify-between text-xs text-emerald-900">
-            <span>{labels?.loading ?? "Loading image..."}</span>
+            <span>{labels?.loading ?? "Loading audio..."}</span>
             <span>{loadProgress}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-emerald-100">
@@ -142,30 +159,31 @@ export default function ImageDropzone({
       ) : null}
 
       {previewUrl && !isLoading ? (
-        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-          <img
-            src={previewUrl}
-            alt="cover preview"
-            className="h-24 w-24 rounded-md object-cover border"
-          />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">
-              {file
-                ? file.name
-                : labels?.currentImage ?? "Current cover image"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {file
-                ? `${Math.round(file.size / 1024)} KB`
-                : labels?.noNewUpload ?? "No new upload selected"}
-            </p>
+        <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+            <Music2 className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1 space-y-2">
+            <div>
+              <p className="truncate text-sm font-medium">
+                {file
+                  ? file.name
+                  : labels?.currentAudio ?? "Current audio file"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {file
+                  ? formatSize(file.size)
+                  : labels?.noNewUpload ?? "No new upload selected"}
+              </p>
+            </div>
+            <audio controls className="w-full max-w-md" src={previewUrl} />
           </div>
           {showRemoveButton ? (
             <Button
               type="button"
               variant="destructive"
               size="icon"
-              className="rounded-xl"
+              className="rounded-xl shrink-0 self-end sm:self-center"
               onClick={() => {
                 onFileChange(null);
                 if (inputRef.current) inputRef.current.value = "";
