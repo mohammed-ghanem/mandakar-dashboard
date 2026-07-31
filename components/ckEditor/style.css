@@ -90,6 +90,24 @@ p {
   overflow-y: auto !important; /* Enable vertical scrolling */
   overflow-x: hidden !important; /* Disable horizontal scrolling */
 }
+
+/* Keep footnote-like markers readable after Word paste cleanup */
+.ck-content sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: super;
+  top: -0.15em;
+  unicode-bidi: isolate;
+}
+
+.ck-content sub {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: sub;
+  unicode-bidi: isolate;
+}
 .ck-dropdown__panel-visible {
   overflow-y: auto !important;
   height: 100% !important;

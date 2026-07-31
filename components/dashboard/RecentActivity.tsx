@@ -5,16 +5,23 @@ import {
   BookOpen,
   FileText,
   Mic,
-  PencilLine,
   PlusCircle,
   Scale,
-  ToggleLeft,
   TvMinimalPlay,
   type LucideIcon,
 } from "lucide-react";
 import TranslateHook from "@/translate/TranslateHook";
 import { cn } from "@/lib/utils";
 import { dashboardMock } from "./mockData";
+
+const moduleOrder = [
+  "lectures",
+  "speeches",
+  "articles",
+  "explanations",
+  "fatwas",
+  "books",
+] as const;
 
 const moduleIcons: Record<string, LucideIcon> = {
   lectures: TvMinimalPlay,
@@ -23,12 +30,6 @@ const moduleIcons: Record<string, LucideIcon> = {
   explanations: BookOpen,
   fatwas: Scale,
   books: BookMarked,
-};
-
-const actionIcons: Record<string, LucideIcon> = {
-  create: PlusCircle,
-  update: PencilLine,
-  toggle: ToggleLeft,
 };
 
 export default function RecentActivity() {
@@ -44,11 +45,10 @@ export default function RecentActivity() {
     books: t?.moduleBooks,
   };
 
-  const actionLabels: Record<string, string | undefined> = {
-    create: t?.actionCreate,
-    update: t?.actionUpdate,
-    toggle: t?.actionToggle,
-  };
+  // One latest addition per content type — no extra create/update/toggle noise.
+  const latestByModule = moduleOrder
+    .map((key) => dashboardMock.recent.find((item) => item.key === key))
+    .filter((item): item is (typeof dashboardMock.recent)[number] => Boolean(item));
 
   return (
     <section
@@ -63,13 +63,12 @@ export default function RecentActivity() {
       </header>
 
       <ol className="relative space-y-0">
-        {dashboardMock.recent.map((item, index) => {
+        {latestByModule.map((item, index) => {
           const ModuleIcon = moduleIcons[item.key] ?? FileText;
-          const ActionIcon = actionIcons[item.action] ?? PlusCircle;
-          const isLast = index === dashboardMock.recent.length - 1;
+          const isLast = index === latestByModule.length - 1;
 
           return (
-            <li key={`${item.key}-${index}`} className="relative flex gap-4 pb-6">
+            <li key={item.key} className="relative flex gap-4 pb-6 last:pb-0">
               {!isLast ? (
                 <span
                   aria-hidden
@@ -95,8 +94,8 @@ export default function RecentActivity() {
                     {moduleLabels[item.key]}
                   </span>
                   <span className="inline-flex items-center gap-1 text-emerald-800">
-                    <ActionIcon className="h-3.5 w-3.5" />
-                    {actionLabels[item.action]}
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    {t?.actionCreate}
                   </span>
                 </div>
               </div>

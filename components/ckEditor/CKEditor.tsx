@@ -46,6 +46,7 @@ import {
   Subscript,
   Superscript,
   WordCount,
+  GeneralHtmlSupport,
 } from "ckeditor5";
 
 import translationsAr from "ckeditor5/translations/ar.js";
@@ -53,6 +54,7 @@ import translationsEn from "ckeditor5/translations/en.js";
 
 import "ckeditor5/ckeditor5.css";
 import "./style.css";
+import PasteWordCleanup from "./plugins/PasteWordCleanup";
 
 interface CkEditorProps {
   editorData: string;
@@ -103,6 +105,8 @@ const CkEditor: FC<CkEditorProps> = ({
         List,
         Paragraph,
         PasteFromOffice,
+        PasteWordCleanup,
+        GeneralHtmlSupport,
         PictureEditing,
         Table,
         TableColumnResize,
@@ -157,9 +161,9 @@ const CkEditor: FC<CkEditorProps> = ({
         "indent",
         "|",
         "removeFormat",
-        "specialCharacters",
         "subscript",
         "superscript",
+        "specialCharacters",
         "sourceEditing",
       ],
       fontSize: {
@@ -180,6 +184,41 @@ const CkEditor: FC<CkEditorProps> = ({
           "El Messiri, sans-serif",
           "Reem Kufi, sans-serif",
           "Scheherazade New, serif",
+          "Sakkal Majalla, serif",
+          "Traditional Arabic, serif",
+        ],
+      },
+      // Keep useful inline Word styles (colors) without premium footnotes.
+      htmlSupport: {
+        allow: [
+          {
+            name: "span",
+            styles: {
+              color: true,
+              "background-color": true,
+              "font-size": true,
+              "font-family": true,
+            },
+          },
+          {
+            name: "p",
+            styles: {
+              "text-align": true,
+            },
+            attributes: {
+              dir: true,
+            },
+          },
+          {
+            name: "sup",
+            classes: true,
+            attributes: true,
+          },
+          {
+            name: "sub",
+            classes: true,
+            attributes: true,
+          },
         ],
       },
       alignment: {

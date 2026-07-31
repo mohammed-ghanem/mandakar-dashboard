@@ -6,7 +6,7 @@ export function EditorSkeleton() {
   return (
     <section className="rounded-2xl border border-emerald-200/75 bg-linear-to-br from-emerald-50/30 via-white to-teal-50/20 p-6 md:p-8 shadow-sm ring-1 ring-emerald-900/5 space-y-3">
       <Skeleton className="h-5 w-48 max-w-full" />
-      <Skeleton className="min-h-[200px] w-full rounded-xl" />
+      <Skeleton className="min-h-50 w-full rounded-xl" />
     </section>
   );
 }

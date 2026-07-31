@@ -8,8 +8,7 @@ import { dashboardMock } from "./mockData";
 export default function PublishingHealth() {
   const translate = TranslateHook();
   const t = translate?.pages?.dashboard;
-  const { active, inactive, publishedThisWeek, draftsRatio } =
-    dashboardMock.publishing;
+  const { active, inactive, publishedThisWeek } = dashboardMock.publishing;
   const total = active + inactive || 1;
   const activePct = Math.round((active / total) * 100);
 
@@ -74,9 +73,6 @@ export default function PublishingHealth() {
             <p className="text-sm text-slate-600">{t?.publishedThisWeek}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">
               {publishedThisWeek}
-            </p>
-            <p className="mt-2 text-xs text-slate-500">
-              {t?.draftsRatio}: {draftsRatio}%
             </p>
           </div>
         </div>

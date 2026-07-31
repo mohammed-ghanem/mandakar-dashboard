@@ -43,7 +43,6 @@ const softTone: Record<string, string> = {
 export default function ContentModulesSection() {
   const translate = TranslateHook();
   const t = translate?.pages?.dashboard;
-  const total = dashboardMock.totals.content || 1;
 
   const moduleLabels: Record<string, string | undefined> = {
     lectures: t?.moduleLectures,
@@ -64,7 +63,9 @@ export default function ContentModulesSection() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {dashboardMock.modules.map((mod) => {
           const Icon = icons[mod.key] ?? FileText;
-          const pct = Math.round((mod.count / total) * 100);
+          const activePct = mod.count
+            ? Math.round((mod.active / mod.count) * 100)
+            : 0;
 
           return (
             <article
@@ -79,14 +80,9 @@ export default function ContentModulesSection() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-800 shadow-sm ring-1 ring-slate-200/80">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <div>
-                    <p className="font-semibold text-slate-900">
-                      {moduleLabels[mod.key]}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {t?.shareOfContent}: {pct}%
-                    </p>
-                  </div>
+                  <p className="font-semibold text-slate-900">
+                    {moduleLabels[mod.key]}
+                  </p>
                 </div>
                 <p className="text-2xl font-bold tabular-nums text-slate-900">
                   {mod.count}
@@ -96,7 +92,7 @@ export default function ContentModulesSection() {
               <div className="mb-3 h-2.5 overflow-hidden rounded-full bg-white/80 ring-1 ring-slate-200/60">
                 <div
                   className={cn("h-full rounded-full transition-all", barTone[mod.color])}
-                  style={{ width: `${pct}%` }}
+                  style={{ width: `${activePct}%` }}
                 />
               </div>
 

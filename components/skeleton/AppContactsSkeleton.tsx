@@ -9,7 +9,7 @@ export default function AppContactsSkeleton() {
         <CardHeader className="space-y-3 border-b border-slate-100 bg-linear-to-br from-slate-50 via-white to-emerald-50/40 pb-8 pt-8 md:pt-10 md:pb-10 px-6 md:px-10">
           <div className="flex flex-wrap items-start gap-4">
             <Skeleton className="h-12 w-12 shrink-0 rounded-2xl" />
-            <div className="space-y-2 flex-1 min-w-[200px]">
+            <div className="space-y-2 flex-1 `min-w-50">
               <Skeleton className="h-8 w-56 max-w-full" />
               <Skeleton className="h-4 w-full max-w-2xl" />
             </div>

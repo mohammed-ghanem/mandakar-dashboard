@@ -44,7 +44,7 @@ export default function WelcomeBanner() {
           <div className="leading-tight">
             <p className="text-xs text-white/80">{t?.totalContentLabel}</p>
             <p className="text-2xl font-bold tabular-nums">
-              {dashboardMock.totals.content}
+              {dashboardMock.totals.visits.toLocaleString()}
             </p>
           </div>
         </div>
