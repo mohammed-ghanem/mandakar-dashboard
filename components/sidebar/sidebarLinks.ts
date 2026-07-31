@@ -1,4 +1,5 @@
 import {
+  ArrowUpDown,
   FolderTree,
   Home,
   Mic,
@@ -40,23 +41,34 @@ function contentGroup(
   key: string,
   icon: LucideIcon,
   itemsKey: string,
+  options?: { withReorder?: boolean },
 ) {
+  const children: SidebarChildItem[] = [
+    {
+      href: `/${lang}/${key}`,
+      icon,
+      key: itemsKey,
+    },
+    {
+      href: `/${lang}/${key}/categories`,
+      icon: FolderTree,
+      key: "categories",
+    },
+  ];
+
+  if (options?.withReorder) {
+    children.push({
+      href: `/${lang}/${key}/reorder`,
+      icon: ArrowUpDown,
+      key: "changeOrder",
+    });
+  }
+
   return {
     kind: "group" as const,
     key,
     icon,
-    children: [
-      {
-        href: `/${lang}/${key}`,
-        icon,
-        key: itemsKey,
-      },
-      {
-        href: `/${lang}/${key}/categories`,
-        icon: FolderTree,
-        key: "categories",
-      },
-    ],
+    children,
   };
 }
 
@@ -73,12 +85,18 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
     icon: MessageCircleMore,
     key: "aboutUS",
   },
-  contentGroup(lang, "lectures", TvMinimalPlay, "lecturesItems"),
-  contentGroup(lang, "speeches", Mic, "speechesItems"),
-  contentGroup(lang, "articles", FileText, "articlesItems"),
-  contentGroup(lang, "explanations", BookOpen, "explanationsItems"),
-  contentGroup(lang, "fatwas", Scale, "fatwasItems"),
-  contentGroup(lang, "books", BookMarked, "booksItems"),
+  contentGroup(lang, "lectures", TvMinimalPlay, "lecturesItems", {
+    withReorder: true,
+  }),
+  contentGroup(lang, "speeches", Mic, "speechesItems", { withReorder: true }),
+  contentGroup(lang, "articles", FileText, "articlesItems", {
+    withReorder: true,
+  }),
+  contentGroup(lang, "explanations", BookOpen, "explanationsItems", {
+    withReorder: true,
+  }),
+  contentGroup(lang, "fatwas", Scale, "fatwasItems", { withReorder: true }),
+  contentGroup(lang, "books", BookMarked, "booksItems", { withReorder: true }),
   {
     kind: "link",
     href: `/${lang}/admins`,
@@ -124,8 +142,9 @@ export function pathWithoutLang(pathname: string, lang: string) {
 
 /**
  * Active state for content module links:
- * - `/lectures` matches create/edit/view under lectures, but not `/lectures/categories`
+ * - `/lectures` matches create/edit/view under lectures, but not categories/reorder
  * - `/lectures/categories` matches its create/edit routes
+ * - `/lectures/reorder` matches only the reorder page
  */
 export function isNavHrefActive(pathname: string, href: string, lang: string) {
   const path = pathWithoutLang(pathname, lang);
@@ -136,9 +155,14 @@ export function isNavHrefActive(pathname: string, href: string, lang: string) {
 
   if (!path.startsWith(`${target}/`)) return false;
 
-  if (target.endsWith("/categories")) return true;
+  if (target.endsWith("/categories") || target.endsWith("/reorder")) {
+    return true;
+  }
 
-  return !path.startsWith(`${target}/categories`);
+  return (
+    !path.startsWith(`${target}/categories`) &&
+    !path.startsWith(`${target}/reorder`)
+  );
 }
 
 export function isGroupActive(

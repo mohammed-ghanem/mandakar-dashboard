@@ -77,6 +77,7 @@ function normalizeContentItem(item: any): IContentItem {
       Number(item?.is_active ?? item?.isActive ?? 0) ||
         item?.is_active === true,
     ),
+    sort_order: Number(item?.sort_order ?? item?.order ?? 0),
     created_at: item?.created_at,
     updated_at: item?.updated_at,
   };

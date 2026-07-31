@@ -5,7 +5,6 @@ import WelcomeBanner from "./WelcomeBanner";
 import Statistics from "./Statistics";
 import ContentModulesSection from "./ContentModulesSection";
 import PublishingHealth from "./PublishingHealth";
-import RecentActivity from "./RecentActivity";
 import QuickLinks from "./QuickLinks";
 
 export default function Dashboard() {
@@ -16,7 +15,6 @@ export default function Dashboard() {
         <Statistics />
         <ContentModulesSection />
         <PublishingHealth />
-        {/* <RecentActivity /> */}
         <QuickLinks />
       </div>
     </div>

@@ -296,6 +296,22 @@
         "notFound": "Category not found"
       }
     },
+    "swapOrder": {
+      "title": "Change order",
+      "description": "Reorder with arrows or jump straight to a target position.",
+      "tabItems": "Content",
+      "tabRootCategories": "Main categories",
+      "itemsHint": "Change item order as it will appear on the site. Use the dropdown to jump (e.g. from 6 to 2).",
+      "categoriesHint": "Reorder main categories only (not subcategories). Use the dropdown to jump to any position.",
+      "position": "#",
+      "itemTitle": "Title",
+      "actions": "Order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "goTo": "To",
+      "emptyItems": "No items to reorder.",
+      "emptyCategories": "No main categories to reorder."
+    },
     "lectures": {
       "lecturesTitle": "Lectures",
       "listDescription": "Manage lectures and link them to categories, content, and media.",
@@ -1134,6 +1150,7 @@
     "categories": "Categories",
     "lectures": "Lectures",
     "lecturesItems": "Lectures",
+    "changeOrder": "Change order",
     "speeches": "Speeches",
     "speechesItems": "Speeches",
     "articles": "Articles",
