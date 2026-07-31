@@ -38,7 +38,6 @@ export default function Admins() {
   const sessionReady = useSessionReady();
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
 
   const headers = TABLE_HEADERS[lang as "ar" | "en"].admins;
   const pg = translate?.pages.admins;
@@ -179,7 +178,6 @@ export default function Admins() {
       createHref={`/${lang}/admins/create`}
       createLabel={pg?.createAdmin?.title ?? ""}
       showSkeleton={showSkeleton}
-      dir={pageDir}
     >
       <DataTable
         data={admins}

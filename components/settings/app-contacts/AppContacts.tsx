@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CircleCheckBig, Smartphone, Share2 } from "lucide-react";
+import { CircleCheckBig, Mail, Share2 } from "lucide-react";
 
 import { useSessionReady } from "@/hooks/useSessionReady";
 import TranslateHook from "@/translate/TranslateHook";
@@ -29,16 +29,26 @@ import {
 } from "@/store/settings/appContactsApi";
 import {
   type IAppContactsValue,
+  type SocialKey,
   emptyAppContacts,
+  SOCIAL_KEYS,
 } from "@/types/appContacts";
 import AppContactsSkeleton from "@/components/skeleton/AppContactsSkeleton";
+
+const SOCIAL_LABEL_KEYS: Record<SocialKey, string> = {
+  facebook: "facebook",
+  instagram: "instagram",
+  snapchat: "snapchat",
+  tiktok: "tiktok",
+  x: "x",
+  telegram: "telegram",
+  youtube: "youtube",
+};
 
 export default function AppContacts() {
   const sessionReady = useSessionReady();
   const translate = TranslateHook();
   const lang = LangUseParams();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.settings.appContacts;
 
   const { data, isLoading, isError } = useGetAppContactsQuery(undefined, {
@@ -52,18 +62,20 @@ export default function AppContacts() {
   const [form, setForm] = useState<IAppContactsValue>(emptyAppContacts);
 
   useEffect(() => {
-    if (data) {
-      setForm({
-        mobile: data.mobile ?? "",
-        whatsapp: data.whatsapp ?? "",
-        email: data.email ?? "",
-        social: {
-          facebook: data.social?.facebook ?? "",
-          instagram: data.social?.instagram ?? "",
-          x: data.social?.x ?? "",
-        },
-      });
-    }
+    if (!data) return;
+    setForm({
+      whatsapp: data.whatsapp ?? "",
+      email: data.email ?? "",
+      social: {
+        facebook: data.social?.facebook ?? "",
+        instagram: data.social?.instagram ?? "",
+        snapchat: data.social?.snapchat ?? "",
+        tiktok: data.social?.tiktok ?? "",
+        x: data.social?.x ?? "",
+        telegram: data.social?.telegram ?? "",
+        youtube: data.social?.youtube ?? "",
+      },
+    });
   }, [data]);
 
   if (!sessionReady || isLoading) {
@@ -74,18 +86,17 @@ export default function AppContacts() {
     return (
       <div
         className={cn(dash.formPage, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.errorMessage}
       </div>
     );
   }
 
-  const setField = (path: "mobile" | "whatsapp" | "email", v: string) => {
+  const setField = (path: "whatsapp" | "email", v: string) => {
     setForm((p) => ({ ...p, [path]: v }));
   };
 
-  const setSocial = (key: keyof IAppContactsValue["social"], v: string) => {
+  const setSocial = (key: SocialKey, v: string) => {
     setForm((p) => ({
       ...p,
       social: { ...p.social, [key]: v },
@@ -113,12 +124,12 @@ export default function AppContacts() {
   };
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">
             <span className={dash.pageIconBox}>
-              <Smartphone className="w-6 h-6" />
+              <Mail className="w-6 h-6" />
             </span>
             <div className="space-y-2 min-w-0">
               <span className="leading-tight block">{t?.title}</span>
@@ -134,7 +145,7 @@ export default function AppContacts() {
             <section className={dash.sectionNeutral}>
               <div className="mb-6 flex flex-wrap items-start gap-4">
                 <span className={dash.sectionIconWrap}>
-                  <Smartphone className="h-5 w-5" strokeWidth={2} />
+                  <Mail className="h-5 w-5" strokeWidth={2} />
                 </span>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
                   {t?.description}
@@ -144,30 +155,9 @@ export default function AppContacts() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div className="space-y-2">
                   <Label
-                    htmlFor="app-contacts-mobile"
-                    className={cn(
-                      "text-sm font-semibold text-slate-800",
-                      labelAlign,
-                    )}
-                  >
-                    {t?.mobile}
-                  </Label>
-                  <Input
-                    id="app-contacts-mobile"
-                    value={form.mobile}
-                    onChange={(e) => setField("mobile", e.target.value)}
-                    placeholder={t?.mobilePlaceholder}
-                    type="text"
-                    inputMode="tel"
-                    className={cn("h-11", dash.input)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
                     htmlFor="app-contacts-whatsapp"
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.whatsapp}
@@ -180,12 +170,11 @@ export default function AppContacts() {
                     className={cn("h-11", dash.input)}
                   />
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label
                     htmlFor="app-contacts-email"
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.email}
@@ -212,60 +201,25 @@ export default function AppContacts() {
                 {t?.socialTitle}
               </Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="app-contacts-facebook"
-                    className={cn(
-                      "text-sm font-semibold text-slate-800",
-                      labelAlign,
-                    )}
-                  >
-                    {t?.facebook}
-                  </Label>
-                  <Input
-                    id="app-contacts-facebook"
-                    value={form.social.facebook}
-                    onChange={(e) => setSocial("facebook", e.target.value)}
-                    placeholder="https://"
-                    className={cn("h-11", dash.input)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="app-contacts-instagram"
-                    className={cn(
-                      "text-sm font-semibold text-slate-800",
-                      labelAlign,
-                    )}
-                  >
-                    {t?.instagram}
-                  </Label>
-                  <Input
-                    id="app-contacts-instagram"
-                    value={form.social.instagram}
-                    onChange={(e) => setSocial("instagram", e.target.value)}
-                    placeholder="https://"
-                    className={cn("h-11", dash.input)}
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label
-                    htmlFor="app-contacts-x"
-                    className={cn(
-                      "text-sm font-semibold text-slate-800",
-                      labelAlign,
-                    )}
-                  >
-                    {t?.x}
-                  </Label>
-                  <Input
-                    id="app-contacts-x"
-                    value={form.social.x}
-                    onChange={(e) => setSocial("x", e.target.value)}
-                    placeholder="https://"
-                    className={cn("h-11", dash.input)}
-                  />
-                </div>
+                {SOCIAL_KEYS.map((key) => (
+                  <div key={key} className="space-y-2">
+                    <Label
+                      htmlFor={`app-contacts-${key}`}
+                      className={cn(
+                        "text-sm font-semibold text-slate-800",
+                      )}
+                    >
+                      {t?.[SOCIAL_LABEL_KEYS[key]]}
+                    </Label>
+                    <Input
+                      id={`app-contacts-${key}`}
+                      value={form.social[key]}
+                      onChange={(e) => setSocial(key, e.target.value)}
+                      placeholder="https://"
+                      className={cn("h-11", dash.input)}
+                    />
+                  </div>
+                ))}
               </div>
             </section>
 

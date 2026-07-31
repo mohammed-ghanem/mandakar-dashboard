@@ -28,7 +28,6 @@ export type IndexListPageProps = {
   createLabel: string;
   showCreate?: boolean;
   showSkeleton: boolean;
-  dir?: "rtl" | "ltr";
   children: React.ReactNode;
   className?: string;
 };
@@ -45,12 +44,11 @@ export default function IndexListPage({
   createLabel,
   showCreate = true,
   showSkeleton,
-  dir,
   children,
   className,
 }: IndexListPageProps) {
   return (
-    <div className={cn(dash.page, className)} dir={dir}>
+    <div className={cn(dash.page, className)}>
       <Card className={dash.listCard}>
         <CardHeader className={dash.listHeader}>
           {showSkeleton ? (

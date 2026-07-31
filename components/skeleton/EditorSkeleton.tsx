@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PrivacyPolicyEditorSkeleton() {
+/** Single rich-text editor block placeholder (CKEditor loading / hydration). */
+export function EditorSkeleton() {
   return (
     <section className="rounded-2xl border border-emerald-200/75 bg-linear-to-br from-emerald-50/30 via-white to-teal-50/20 p-6 md:p-8 shadow-sm ring-1 ring-emerald-900/5 space-y-3">
       <Skeleton className="h-5 w-48 max-w-full" />
@@ -10,7 +11,8 @@ export function PrivacyPolicyEditorSkeleton() {
   );
 }
 
-export default function PrivacyPolicySkeleton() {
+/** Full settings page shell with two editor blocks + submit bar. */
+export default function EditorsPageSkeleton() {
   return (
     <div className="w-full mx-auto py-10 px-4 md:px-4">
       <Card className="overflow-hidden rounded-3xl border-slate-200/80 shadow-xl shadow-slate-900/6 ring-1 ring-slate-900/4">
@@ -21,8 +23,8 @@ export default function PrivacyPolicySkeleton() {
           </div>
         </CardHeader>
         <CardContent className="px-4 py-8 md:px-10 md:py-10 space-y-8">
-          <PrivacyPolicyEditorSkeleton />
-          <PrivacyPolicyEditorSkeleton />
+          <EditorSkeleton />
+          <EditorSkeleton />
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 px-5 py-5">
             <Skeleton className="h-12 w-full max-w-xs mx-auto rounded-xl" />
           </div>

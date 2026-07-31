@@ -24,6 +24,7 @@ import {
   useToggleCategoryStatusMutation,
   useDeleteCategoryMutation,
 } from "@/store/categories/categoriesApi";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 import { ICategory } from "@/types/categories";
 
 import { Switch } from "@/components/ui/switch";
@@ -76,6 +77,7 @@ function filterTree(
 type ActionsProps = {
   category: ICategory;
   lang: "ar" | "en";
+  basePath: ContentCategoryType;
   activeLabel?: string;
   inactiveLabel?: string;
   deleteTitle: string;
@@ -92,6 +94,7 @@ type ActionsProps = {
 function CategoryActions({
   category,
   lang,
+  basePath,
   activeLabel,
   inactiveLabel,
   deleteTitle,
@@ -125,7 +128,7 @@ function CategoryActions({
         </span>
       </div>
 
-      <Link href={`/${lang}/categories/edit/${category.id}`}>
+      <Link href={`/${lang}/${basePath}/categories/edit/${category.id}`}>
         <Button type="button" size="sm" className={dash.tableEdit}>
           <Edit3 className="h-4 w-4" />
         </Button>
@@ -322,7 +325,9 @@ function CategoryTreeCard({
             </span>
           </div>
 
-          <Link href={`/${lang}/categories/edit/${root.id}`}>
+          <Link
+            href={`/${lang}/${actions.basePath}/categories/edit/${root.id}`}
+          >
             <Button
               type="button"
               size="sm"
@@ -386,18 +391,23 @@ function CategoryTreeCard({
   );
 }
 
-export default function Categories() {
+type CategoriesProps = {
+  categoryType: ContentCategoryType;
+};
+
+export default function Categories({ categoryType }: CategoriesProps) {
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
   const sessionReady = useSessionReady();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const pg = translate?.pages.categories;
+  const basePath = categoryType;
 
   const [search, setSearch] = useState("");
 
-  const { data: tree = [], isLoading } = useGetCategoriesTreeQuery(undefined, {
-    skip: !sessionReady,
-  });
+  const { data: tree = [], isLoading } = useGetCategoriesTreeQuery(
+    { type: categoryType },
+    { skip: !sessionReady },
+  );
 
   const filteredTree = useMemo(
     () => filterTree(tree, search, lang),
@@ -412,13 +422,13 @@ export default function Categories() {
       getId: (category) => category.id,
       getStatus: (category) => category.is_active,
       onToggle: async (category) => {
-        await toggleStatus(category.id).unwrap();
+        await toggleStatus({ id: category.id, type: categoryType }).unwrap();
       },
     });
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await deleteCategory(id).unwrap();
+      const res = await deleteCategory({ id, type: categoryType }).unwrap();
       toast.success(res?.message);
     } catch (err: any) {
       const errorData = err?.data ?? err;
@@ -444,6 +454,7 @@ export default function Categories() {
 
   const actions: Omit<ActionsProps, "category" | "compact"> = {
     lang,
+    basePath,
     activeLabel: pg?.active,
     inactiveLabel: pg?.inactive,
     deleteTitle: pg?.deleteTitle ?? "",
@@ -465,10 +476,9 @@ export default function Categories() {
       icon={FolderTree}
       title={pg?.categoriesTitle ?? ""}
       description={pg?.listDescription}
-      createHref={`/${lang}/categories/create`}
+      createHref={`/${lang}/${basePath}/categories/create`}
       createLabel={pg?.createCategory?.title ?? ""}
       showSkeleton={showSkeleton}
-      dir={pageDir}
     >
       <div className="space-y-5 px-2 md:px-4">
         <div className="relative max-w-md">

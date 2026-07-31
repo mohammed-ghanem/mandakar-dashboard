@@ -36,8 +36,6 @@ function UpdateProfile() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = translate?.pages.updateProfile;
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const inputIconPad = "ps-10";
 
   const {
@@ -212,7 +210,7 @@ function UpdateProfile() {
   if (!user) return null;
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -290,7 +288,6 @@ function UpdateProfile() {
                     htmlFor="update-profile-name"
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.name}
@@ -314,7 +311,6 @@ function UpdateProfile() {
                     htmlFor="update-profile-email"
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.email}
@@ -345,7 +341,6 @@ function UpdateProfile() {
                     htmlFor="phone"
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.phone ?? translate?.pages.profile.phone}

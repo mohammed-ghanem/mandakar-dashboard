@@ -51,8 +51,6 @@ export default function EditAdmin() {
   const router = useRouter();
   const translate = TranslateHook();
   const lang = LangUseParams();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages.admins?.editAdmin;
 
   const idNum = id != null ? Number(id) : NaN;
@@ -142,7 +140,6 @@ export default function EditAdmin() {
     return (
       <div
         className={cn(dash.formPage, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.notFound}
       </div>
@@ -157,7 +154,6 @@ export default function EditAdmin() {
     return (
       <div
         className={cn(dash.formPage, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.notFound}
       </div>
@@ -165,7 +161,7 @@ export default function EditAdmin() {
   }
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -199,7 +195,6 @@ export default function EditAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.name}
@@ -218,7 +213,6 @@ export default function EditAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.email}
@@ -237,7 +231,6 @@ export default function EditAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.phone}

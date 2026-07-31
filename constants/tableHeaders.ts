@@ -112,6 +112,27 @@ export const TABLE_HEADERS = {
       actions: "الإجراءات",
     },
 
+    books: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
+    explanations: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
+    fatwas: {
+      title: "العنوان",
+      category: "القسم",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
     contacts: {
       name: "الاسم",
       email: "البريد الإلكتروني",
@@ -240,6 +261,27 @@ export const TABLE_HEADERS = {
     },
 
     articles: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    books: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    explanations: {
+      title: "Title",
+      category: "Category",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    fatwas: {
       title: "Title",
       category: "Category",
       status: "Status",

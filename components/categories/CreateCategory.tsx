@@ -11,6 +11,7 @@ import {
   useCreateCategoryMutation,
   useGetCategoriesTreeQuery,
 } from "@/store/categories/categoriesApi";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
@@ -39,17 +40,22 @@ type FormState = {
   is_active: boolean;
 };
 
-export default function CreateCategory() {
+type Props = {
+  categoryType: ContentCategoryType;
+};
+
+export default function CreateCategory({ categoryType }: Props) {
   const sessionReady = useSessionReady();
   const router = useRouter();
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages.categories?.createCategory;
+  const basePath = categoryType;
 
-  const { data: tree = [], isLoading: treeLoading } =
-    useGetCategoriesTreeQuery(undefined, { skip: !sessionReady });
+  const { data: tree = [], isLoading: treeLoading } = useGetCategoriesTreeQuery(
+    { type: categoryType },
+    { skip: !sessionReady },
+  );
 
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
@@ -68,12 +74,13 @@ export default function CreateCategory() {
       const res = await createCategory({
         name_ar: form.name_ar,
         name_en: form.name_en,
+        type: categoryType,
         parent_id: form.parent_id ? Number(form.parent_id) : null,
         is_active: form.is_active,
       }).unwrap();
 
       toast.success(res?.message);
-      router.push(`/${lang}/categories`);
+      router.push(`/${lang}/${basePath}/categories`);
     } catch (err: any) {
       const errorData = err?.data ?? err;
       if (errorData?.errors) {
@@ -94,7 +101,7 @@ export default function CreateCategory() {
   }
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -131,7 +138,6 @@ export default function CreateCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.nameAr}
@@ -150,7 +156,6 @@ export default function CreateCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.nameEn}
@@ -169,7 +174,6 @@ export default function CreateCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.parent}
@@ -186,9 +190,7 @@ export default function CreateCategory() {
                     emptyLabel={t?.parentEmpty}
                     selectedLabel={t?.parentSelected}
                   />
-                  <p className="text-sm text-red-500">
-                    {t?.parentHint}
-                  </p>
+                  <p className="text-sm text-red-500">{t?.parentHint}</p>
                 </div>
               </div>
             </section>

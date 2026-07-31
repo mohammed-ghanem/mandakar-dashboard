@@ -44,7 +44,6 @@ export default function CreateRole() {
   const sessionReady = useSessionReady();
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const t = translate?.pages.roles?.createRole;
 
   const {
@@ -137,7 +136,7 @@ export default function CreateRole() {
   }
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">

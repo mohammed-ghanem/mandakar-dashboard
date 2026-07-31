@@ -19,6 +19,7 @@ import {
 
 import { useSessionReady } from "@/hooks/useSessionReady";
 import { useGetCategoriesTreeQuery } from "@/store/categories/categoriesApi";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 import { IContentLink } from "@/types/contentResource";
 
 import TranslateHook from "@/translate/TranslateHook";
@@ -70,7 +71,7 @@ const newKey = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export type EditContentConfig = {
   icon: LucideIcon;
-  basePath: string;
+  basePath: ContentCategoryType;
   pagesKey: string;
   editKey: string;
   failMessage: { ar: string; en: string };
@@ -100,8 +101,6 @@ export default function EditContent({ config }: Props) {
   const router = useRouter();
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages?.[pagesKey]?.[editKey];
 
   const idNum = id != null ? Number(id) : NaN;
@@ -115,8 +114,10 @@ export default function EditContent({ config }: Props) {
     skip: !sessionReady || invalidId,
   });
 
-  const { data: tree = [], isLoading: treeLoading } =
-    useGetCategoriesTreeQuery(undefined, { skip: !sessionReady });
+  const { data: tree = [], isLoading: treeLoading } = useGetCategoriesTreeQuery(
+    { type: basePath },
+    { skip: !sessionReady },
+  );
 
   const [updateItem, { isLoading: isUpdating }] = useUpdateMutation();
 
@@ -263,7 +264,7 @@ export default function EditContent({ config }: Props) {
 
   if (invalidId || isError || !item) {
     return (
-      <div className={dash.formPage} dir={pageDir}>
+      <div className={dash.formPage}>
         <Card className={dash.formCard}>
           <CardContent className="py-10 text-center text-slate-600">
             {t?.notFound}
@@ -276,7 +277,7 @@ export default function EditContent({ config }: Props) {
   const existingAttachments = item.attachments ?? [];
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -302,7 +303,6 @@ export default function EditContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.titleAr}
@@ -319,7 +319,6 @@ export default function EditContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.titleEn}
@@ -347,7 +346,6 @@ export default function EditContent({ config }: Props) {
                 <Label
                   className={cn(
                     "text-sm font-semibold text-slate-800",
-                    labelAlign,
                   )}
                 >
                   {t?.category}
@@ -378,7 +376,6 @@ export default function EditContent({ config }: Props) {
                 <Label
                   className={cn(
                     "text-sm font-semibold text-slate-800",
-                    labelAlign,
                   )}
                 >
                   {t?.youtubeUrl}
@@ -617,7 +614,6 @@ export default function EditContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.seoDescription}
@@ -634,7 +630,6 @@ export default function EditContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.seoKeywords}

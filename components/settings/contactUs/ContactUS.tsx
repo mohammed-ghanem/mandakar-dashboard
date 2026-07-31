@@ -47,7 +47,6 @@ export default function ContactUS() {
   const sessionReady = useSessionReady();
   const translate = TranslateHook();
   const lang = LangUseParams();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const headers = TABLE_HEADERS[lang as "ar" | "en"].contacts;
   const tc = translate?.settings.contactUs;
 
@@ -225,7 +224,6 @@ export default function ContactUS() {
         createLabel=""
         showCreate={false}
         showSkeleton={showSkeleton}
-        dir={pageDir}
       >
         <DataTable
           data={contacts}
@@ -244,7 +242,6 @@ export default function ContactUS() {
       >
         <DialogContent
           className="max-w-lg rounded-2xl border-slate-200 [&>button]:hidden"
-          dir={pageDir}
         >
           <DialogHeader className="flex flex-row items-center justify-between gap-4">
             <DialogTitle className="text-lg font-bold text-slate-900">
@@ -280,7 +277,6 @@ export default function ContactUS() {
       <Dialog open={!!replyModal} onOpenChange={() => setReplyModal(null)}>
         <DialogContent
           className="max-w-lg rounded-2xl border-slate-200 [&>button]:hidden"
-          dir={pageDir}
         >
           <DialogHeader className="flex flex-row items-center justify-between gap-4">
             <DialogTitle className="text-lg font-bold text-slate-900">

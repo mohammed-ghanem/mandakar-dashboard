@@ -18,6 +18,7 @@ import {
 
 import { useSessionReady } from "@/hooks/useSessionReady";
 import { useGetCategoriesTreeQuery } from "@/store/categories/categoriesApi";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 import {
   IContentLink,
 } from "@/types/contentResource";
@@ -87,7 +88,7 @@ const emptyForm: FormState = {
 
 export type CreateContentConfig = {
   icon: LucideIcon;
-  basePath: string;
+  basePath: ContentCategoryType;
   pagesKey: string;
   createKey: string;
   failMessage: { ar: string; en: string };
@@ -113,12 +114,12 @@ export default function CreateContent({ config }: Props) {
   const router = useRouter();
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages?.[pagesKey]?.[createKey];
 
-  const { data: tree = [], isLoading: treeLoading } =
-    useGetCategoriesTreeQuery(undefined, { skip: !sessionReady });
+  const { data: tree = [], isLoading: treeLoading } = useGetCategoriesTreeQuery(
+    { type: basePath },
+    { skip: !sessionReady },
+  );
 
   const [createItem, { isLoading: isCreating }] = useCreateMutation();
 
@@ -221,7 +222,7 @@ export default function CreateContent({ config }: Props) {
   }
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -247,7 +248,6 @@ export default function CreateContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.titleAr}
@@ -265,7 +265,6 @@ export default function CreateContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.titleEn}
@@ -294,7 +293,6 @@ export default function CreateContent({ config }: Props) {
                 <Label
                   className={cn(
                     "text-sm font-semibold text-slate-800",
-                    labelAlign,
                   )}
                 >
                   {t?.category}
@@ -325,7 +323,6 @@ export default function CreateContent({ config }: Props) {
                 <Label
                   className={cn(
                     "text-sm font-semibold text-slate-800",
-                    labelAlign,
                   )}
                 >
                   {t?.youtubeUrl}
@@ -522,7 +519,6 @@ export default function CreateContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.seoDescription}
@@ -539,7 +535,6 @@ export default function CreateContent({ config }: Props) {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.seoKeywords}

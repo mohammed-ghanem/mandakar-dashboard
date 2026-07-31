@@ -1,5 +1,10 @@
-import Categories from "@/components/categories/Categories";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return <Categories />;
+type Props = {
+  params: Promise<{ lang: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { lang } = await params;
+  redirect(`/${lang}/lectures/categories`);
 }

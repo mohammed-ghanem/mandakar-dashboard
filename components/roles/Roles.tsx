@@ -36,7 +36,6 @@ export default function RolesPage() {
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
   const sessionReady = useSessionReady();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
 
   const headers = TABLE_HEADERS[lang].roles;
   const pg = translate?.pages.roles;
@@ -157,7 +156,6 @@ export default function RolesPage() {
       createHref={`/${lang}/roles/create`}
       createLabel={pg?.createRole?.title ?? ""}
       showSkeleton={showSkeleton}
-      dir={pageDir}
     >
       <DataTable
         data={roles}

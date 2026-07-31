@@ -9,7 +9,7 @@ const Navbar = () => {
   const lang = LangUseParams();
 
   return (
-    <nav className="top-0 z-20" dir={lang === "ar" ? "rtl" : "ltr"}>
+    <nav className="top-0 z-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="ms-10 flex h-16 items-center justify-between md:ms-0">
           <div className="hidden md:block" />

@@ -30,7 +30,6 @@ export default function ViewRole() {
   const sessionReady = useSessionReady();
   const translate = TranslateHook();
   const lang = LangUseParams();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const t = translate?.pages.roles?.viewRole;
 
   const idNum = id != null ? Number(id) : NaN;
@@ -51,7 +50,6 @@ export default function ViewRole() {
     return (
       <div
         className={cn(dash.formPage, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.notFound}
       </div>
@@ -59,7 +57,7 @@ export default function ViewRole() {
   }
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">

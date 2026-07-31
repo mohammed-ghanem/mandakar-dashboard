@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "../base/axiosBaseQuery";
+import type { CategoryType } from "@/constants/categoryTypes";
 import {
   ICategory,
   ICategoryFlat,
@@ -8,6 +9,20 @@ import {
   IUpdateCategoryPayload,
   IApiMessageResponse,
 } from "@/types/categories";
+
+export type CategoriesQueryParams = {
+  type: CategoryType;
+  name?: string;
+  parent_id?: number | string | null;
+  roots?: number | string;
+  is_active?: number | string;
+  orderBy?: string;
+};
+
+export type CategoriesTreeParams = {
+  type: CategoryType;
+  is_active?: number | string;
+};
 
 /* =======================
    NORMALIZER
@@ -26,6 +41,7 @@ function normalizeCategory(item: any): ICategory {
     },
     _name: item?._name ?? name?.ar ?? name?.en ?? "",
     slug: item?.slug,
+    type: item?.type,
     parent_id:
       item?.parent_id === null || item?.parent_id === undefined
         ? null
@@ -79,6 +95,33 @@ export function flattenCategories(
   return result;
 }
 
+function removeFromTree(nodes: ICategory[], id: number): boolean {
+  const index = nodes.findIndex((n) => n.id === id);
+  if (index !== -1) {
+    nodes.splice(index, 1);
+    return true;
+  }
+  for (const node of nodes) {
+    if (node.children?.length && removeFromTree(node.children, id)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function toggleInTree(nodes: ICategory[], id: number): boolean {
+  for (const node of nodes) {
+    if (node.id === id) {
+      node.is_active = !node.is_active;
+      return true;
+    }
+    if (node.children?.length && toggleInTree(node.children, id)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /* =======================
    API
 ======================= */
@@ -87,14 +130,11 @@ export const categoriesApi = createApi({
   baseQuery: axiosBaseQuery(),
   tagTypes: ["Categories", "Category"],
   endpoints: (builder) => ({
-    getCategoriesTree: builder.query<
-      ICategory[],
-      { is_active?: number | string } | void
-    >({
+    getCategoriesTree: builder.query<ICategory[], CategoriesTreeParams>({
       query: (params) => ({
         url: "/categories/tree",
         method: "get",
-        params: params ?? undefined,
+        params,
       }),
       transformResponse: (response: any) => {
         const raw =
@@ -106,23 +146,17 @@ export const categoriesApi = createApi({
 
         return Array.isArray(raw) ? raw.map(normalizeCategory) : [];
       },
-      providesTags: ["Categories"],
+      providesTags: (_r, _e, arg) => [
+        { type: "Categories", id: `TREE-${arg.type}` },
+        "Categories",
+      ],
     }),
 
-    getCategories: builder.query<
-      ICategory[],
-      {
-        name?: string;
-        parent_id?: number | string | null;
-        roots?: number | string;
-        is_active?: number | string;
-        orderBy?: string;
-      } | void
-    >({
+    getCategories: builder.query<ICategory[], CategoriesQueryParams>({
       query: (params) => ({
         url: "/categories",
         method: "get",
-        params: params ?? undefined,
+        params,
       }),
       transformResponse: (response: any) => {
         const raw =
@@ -134,12 +168,18 @@ export const categoriesApi = createApi({
 
         return Array.isArray(raw) ? raw.map(normalizeCategory) : [];
       },
-      providesTags: ["Categories"],
+      providesTags: (_r, _e, arg) => [
+        { type: "Categories", id: `LIST-${arg.type}` },
+        "Categories",
+      ],
     }),
 
-    getCategoryById: builder.query<ICategory, number>({
-      query: (id) => ({
-        url: `/categories/${id}`,
+    getCategoryById: builder.query<
+      ICategory,
+      { id: number; type: CategoryType }
+    >({
+      query: ({ id, type }) => ({
+        url: `/categories/${type}/${id}`,
         method: "get",
       }),
       transformResponse: (response: any) => {
@@ -156,7 +196,7 @@ export const categoriesApi = createApi({
 
         return normalizeCategory(raw);
       },
-      providesTags: (_r, _e, id) => [{ type: "Category", id }],
+      providesTags: (_r, _e, { id }) => [{ type: "Category", id }],
     }),
 
     createCategory: builder.mutation<
@@ -178,12 +218,16 @@ export const categoriesApi = createApi({
         }
 
         return {
-          url: "/categories",
+          url: `/categories/${data.type}`,
           method: "post",
           data: formData,
         };
       },
-      invalidatesTags: ["Categories"],
+      invalidatesTags: (_r, _e, arg) => [
+        { type: "Categories", id: `TREE-${arg.type}` },
+        { type: "Categories", id: `LIST-${arg.type}` },
+        "Categories",
+      ],
     }),
 
     updateCategory: builder.mutation<
@@ -209,42 +253,34 @@ export const categoriesApi = createApi({
         }
 
         return {
-          url: `/categories/${id}`,
-          method: "put",
+          url: `/categories/${data.type}/${id}`,
+          method: "post",
           data: formData,
         };
       },
-      invalidatesTags: (_r, _e, { id }) => [
+      invalidatesTags: (_r, _e, { id, data }) => [
+        { type: "Categories", id: `TREE-${data.type}` },
+        { type: "Categories", id: `LIST-${data.type}` },
         "Categories",
         { type: "Category", id },
       ],
     }),
 
-    deleteCategory: builder.mutation<IApiMessageResponse, number>({
-      query: (id) => ({
-        url: `/categories/${id}`,
+    deleteCategory: builder.mutation<
+      IApiMessageResponse,
+      { id: number; type: CategoryType }
+    >({
+      query: ({ id, type }) => ({
+        url: `/categories/${type}/${id}`,
         method: "delete",
       }),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id, type }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
           categoriesApi.util.updateQueryData(
             "getCategoriesTree",
-            undefined,
+            { type },
             (draft: ICategory[]) => {
-              const removeFromTree = (nodes: ICategory[]): boolean => {
-                const index = nodes.findIndex((n) => n.id === id);
-                if (index !== -1) {
-                  nodes.splice(index, 1);
-                  return true;
-                }
-                for (const node of nodes) {
-                  if (node.children?.length && removeFromTree(node.children)) {
-                    return true;
-                  }
-                }
-                return false;
-              };
-              removeFromTree(draft);
+              removeFromTree(draft, id);
             },
           ),
         );
@@ -255,34 +291,29 @@ export const categoriesApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["Categories"],
+      invalidatesTags: (_r, _e, { type }) => [
+        { type: "Categories", id: `TREE-${type}` },
+        { type: "Categories", id: `LIST-${type}` },
+        "Categories",
+      ],
     }),
 
-    toggleCategoryStatus: builder.mutation<{ message: string }, number>({
-      query: (id) => ({
-        url: `/categories/toggle-status/${id}`,
+    toggleCategoryStatus: builder.mutation<
+      { message: string },
+      { id: number; type: CategoryType }
+    >({
+      query: ({ id, type }) => ({
+        url: `/categories/${type}/toggle-status/${id}`,
         method: "post",
       }),
 
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id, type }, { dispatch, queryFulfilled }) {
         const patchTree = dispatch(
           categoriesApi.util.updateQueryData(
             "getCategoriesTree",
-            undefined,
+            { type },
             (draft: ICategory[]) => {
-              const toggleInTree = (nodes: ICategory[]): boolean => {
-                for (const node of nodes) {
-                  if (node.id === id) {
-                    node.is_active = !node.is_active;
-                    return true;
-                  }
-                  if (node.children?.length && toggleInTree(node.children)) {
-                    return true;
-                  }
-                }
-                return false;
-              };
-              toggleInTree(draft);
+              toggleInTree(draft, id);
             },
           ),
         );
@@ -293,8 +324,6 @@ export const categoriesApi = createApi({
           patchTree.undo();
         }
       },
-
-      // no invalidatesTags — optimistic patch only (silent toggle)
     }),
   }),
 });

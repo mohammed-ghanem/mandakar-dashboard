@@ -3,17 +3,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import loginIcon from "@/public/assets/images/loginIcon.svg";
-import LangUseParams from "@/translate/LangUseParams";
-
 const LoginSkeleton = () => {
-  const lang = LangUseParams();
   return (
     <div className="relative font-cairo" dir="rtl">
       <div className="grid lg:grid-cols-2 gap-4 items-center bgForm">
-        <div
-          className="my-10 h-screen md:h-auto"
-          dir={`${lang === "ar" ? "rtl" : "ltr"}`}
-        >
+        <div className="my-10 h-screen md:h-auto" dir="ltr">
           <div className="flex justify-center mb-4">
             <Skeleton className="h-20 w-52" />
           </div>

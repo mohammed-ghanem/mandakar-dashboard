@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { Edit3 } from "lucide-react";
+import { Edit3, Eye } from "lucide-react";
 
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
@@ -17,6 +17,7 @@ import { useSessionReady } from "@/hooks/useSessionReady";
 import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 
 import { IContentItem, IContentListItem } from "@/types/contentResource";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 
 import { Column, DataTable } from "../datatable/DataTable";
 import { toast } from "sonner";
@@ -24,7 +25,7 @@ import DeleteConfirmDialog from "../shared/DeleteConfirmDialog";
 
 export type ContentListConfig = {
   icon: LucideIcon;
-  basePath: string;
+  basePath: ContentCategoryType;
   pagesKey: string;
   titleKey: string;
   createKey: string;
@@ -57,7 +58,6 @@ export default function ContentList({ config }: Props) {
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
   const sessionReady = useSessionReady();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
 
   const headers = TABLE_HEADERS[lang][tableHeadersKey] as {
     title: string;
@@ -150,6 +150,12 @@ export default function ContentList({ config }: Props) {
       align: "center",
       render: (_, item) => (
         <div className="flex justify-center gap-2 flex-wrap">
+          <Link href={`/${lang}/${basePath}/view/${item.id}`}>
+            <Button type="button" size="sm" className={dash.tableView}>
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+
           <Link href={`/${lang}/${basePath}/edit/${item.id}`}>
             <Button type="button" size="sm" className={dash.tableEdit}>
               <Edit3 className="h-4 w-4" />
@@ -178,7 +184,6 @@ export default function ContentList({ config }: Props) {
       createHref={`/${lang}/${basePath}/create`}
       createLabel={pg?.[createKey]?.title ?? ""}
       showSkeleton={showSkeleton}
-      dir={pageDir}
     >
       <DataTable
         data={items}

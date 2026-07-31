@@ -48,8 +48,6 @@ export default function CreateAdmin() {
   const router = useRouter();
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages.admins?.createAdmin;
 
   const { data: rolesResponse, isLoading: rolesLoading } =
@@ -117,7 +115,7 @@ export default function CreateAdmin() {
   const inputIconPad = "ps-10";
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -151,7 +149,6 @@ export default function CreateAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.name}
@@ -172,7 +169,6 @@ export default function CreateAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.email}
@@ -194,7 +190,6 @@ export default function CreateAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.phone}
@@ -212,7 +207,6 @@ export default function CreateAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.password}
@@ -228,7 +222,6 @@ export default function CreateAdmin() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.confirmPassword}

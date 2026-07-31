@@ -1,3 +1,5 @@
+import type { CategoryType } from "@/constants/categoryTypes";
+
 export interface ILocalizedName {
   ar: string;
   en: string;
@@ -14,6 +16,7 @@ export interface ICategory {
   name: ILocalizedName;
   _name?: string;
   slug?: string;
+  type?: CategoryType | string;
   parent_id: number | null;
   depth: number;
   is_active: boolean;
@@ -33,6 +36,7 @@ export interface ICategoryFlat extends ICategory {
 export interface ICreateCategoryPayload {
   name_ar: string;
   name_en: string;
+  type: CategoryType;
   parent_id?: number | null;
   is_active: boolean;
   sort_order?: number;
@@ -41,6 +45,7 @@ export interface ICreateCategoryPayload {
 export interface IUpdateCategoryPayload {
   name_ar: string;
   name_en: string;
+  type: CategoryType;
   parent_id?: number | null;
   is_active: boolean;
   sort_order?: number;

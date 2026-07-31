@@ -4,9 +4,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-import TermsAndConditionsSkeleton, {
-  TermsAndConditionsEditorSkeleton,
-} from "@/components/skeleton/TermsAndConditionsSkeleton";
+import EditorsPageSkeleton, {
+  EditorSkeleton,
+} from "@/components/skeleton/EditorSkeleton";
 import { useSessionReady } from "@/hooks/useSessionReady";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
@@ -28,14 +28,13 @@ import { Label } from "@/components/ui/label";
 
 const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
   ssr: false,
-  loading: () => <TermsAndConditionsEditorSkeleton />,
+  loading: () => <EditorSkeleton />,
 });
 
 export default function TermsAndConditions() {
   const sessionReady = useSessionReady();
   const translate = TranslateHook();
   const lang = LangUseParams();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const t = translate?.settings.termsAndConditions;
 
   const { data, isLoading, isError } = useGetTermsAndConditionsQuery(
@@ -63,14 +62,13 @@ export default function TermsAndConditions() {
   }, [data]);
 
   if (!sessionReady || isLoading) {
-    return <TermsAndConditionsSkeleton />;
+    return <EditorsPageSkeleton />;
   }
 
   if (isError) {
     return (
       <div
         className={cn(dash.formPage, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.loadError}
       </div>
@@ -94,7 +92,7 @@ export default function TermsAndConditions() {
   };
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -108,8 +106,8 @@ export default function TermsAndConditions() {
         <CardContent className={dash.formCardContent}>
           {!editorsReady ? (
             <div className="space-y-8">
-              <TermsAndConditionsEditorSkeleton />
-              <TermsAndConditionsEditorSkeleton />
+              <EditorSkeleton />
+              <EditorSkeleton />
             </div>
           ) : (
             <div className="space-y-8 md:space-y-10">

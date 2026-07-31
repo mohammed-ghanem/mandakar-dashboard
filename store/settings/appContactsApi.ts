@@ -4,47 +4,43 @@ import { axiosBaseQuery } from "../base/axiosBaseQuery";
 import {
   type IAppContactsValue,
   emptyAppContacts,
+  SOCIAL_KEYS,
 } from "@/types/appContacts";
 
-function firstMobile(mobile: unknown): string {
-  if (Array.isArray(mobile)) {
-    return String(mobile[0] ?? "");
-  }
-  if (mobile == null) return "";
-  return String(mobile);
-}
+const SETTINGS_KEY = "website-contacts";
 
 function normalizeAppContacts(raw: any): IAppContactsValue {
   if (!raw || typeof raw !== "object") {
     return emptyAppContacts();
   }
+
   const social = raw.social && typeof raw.social === "object" ? raw.social : {};
+
   return {
-    mobile: firstMobile(raw.mobile),
     whatsapp: String(raw.whatsapp ?? ""),
     email: String(raw.email ?? ""),
     social: {
       facebook: String(social.facebook ?? ""),
       instagram: String(social.instagram ?? ""),
+      snapchat: String(social.snapchat ?? ""),
+      tiktok: String(social.tiktok ?? ""),
       x: String(social.x ?? social.twitter ?? ""),
+      telegram: String(social.telegram ?? ""),
+      youtube: String(social.youtube ?? ""),
     },
   };
 }
 
 function buildAppContactsFormData(value: IAppContactsValue) {
   const fd = new FormData();
-  fd.append("key", "app-contacts");
-  const mobile = value.mobile?.trim() ?? "";
-  if (mobile) {
-    fd.append("value[mobile][]", mobile);
-  } else {
-    fd.append("value[mobile][]", "");
-  }
+  fd.append("key", SETTINGS_KEY);
   fd.append("value[whatsapp]", value.whatsapp ?? "");
   fd.append("value[email]", value.email ?? "");
-  fd.append("value[social][facebook]", value.social?.facebook ?? "");
-  fd.append("value[social][instagram]", value.social?.instagram ?? "");
-  fd.append("value[social][x]", value.social?.x ?? "");
+
+  for (const key of SOCIAL_KEYS) {
+    fd.append(`value[social][${key}]`, value.social?.[key] ?? "");
+  }
+
   return fd;
 }
 
@@ -57,7 +53,7 @@ export const appContactsApi = createApi({
       query: () => ({
         url: "/settings",
         method: "get",
-        params: { key: "app-contacts" },
+        params: { key: SETTINGS_KEY },
       }),
       transformResponse: (response: any) => {
         const row =
@@ -76,7 +72,7 @@ export const appContactsApi = createApi({
       query: (value) => ({
         url: "/settings",
         method: "post",
-        params: { key: "app-contacts" },
+        params: { key: SETTINGS_KEY },
         data: buildAppContactsFormData(value),
         auth: true,
         withCsrf: true,

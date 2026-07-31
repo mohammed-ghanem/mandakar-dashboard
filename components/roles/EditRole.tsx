@@ -48,7 +48,6 @@ export default function EditRole() {
   const sessionReady = useSessionReady();
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
   const t = translate?.pages.roles?.editRole;
 
   const rawId = typeof params.id === "string" ? params.id : "";
@@ -172,7 +171,6 @@ export default function EditRole() {
     return (
       <div
         className={cn(dash.formPageWide, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.notFound}
       </div>
@@ -187,7 +185,6 @@ export default function EditRole() {
     return (
       <div
         className={cn(dash.formPageWide, "text-center text-muted-foreground")}
-        dir={pageDir}
       >
         {t?.notFound}
       </div>
@@ -195,7 +192,7 @@ export default function EditRole() {
   }
 
   return (
-    <div className={dash.formPageWide} dir={pageDir}>
+    <div className={dash.formPageWide}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-start gap-4 text-xl md:text-2xl font-bold text-slate-900">

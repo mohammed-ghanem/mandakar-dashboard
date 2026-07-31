@@ -1,5 +1,10 @@
-import CreateCategory from "@/components/categories/CreateCategory";
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return <CreateCategory />;
+type Props = {
+  params: Promise<{ lang: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { lang } = await params;
+  redirect(`/${lang}/lectures/categories/create`);
 }

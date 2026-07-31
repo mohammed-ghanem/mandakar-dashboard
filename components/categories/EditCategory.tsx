@@ -12,6 +12,7 @@ import {
   useGetCategoryByIdQuery,
   useUpdateCategoryMutation,
 } from "@/store/categories/categoriesApi";
+import type { ContentCategoryType } from "@/constants/categoryTypes";
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
@@ -40,15 +41,18 @@ type FormState = {
   is_active: boolean;
 };
 
-export default function EditCategory() {
+type Props = {
+  categoryType: ContentCategoryType;
+};
+
+export default function EditCategory({ categoryType }: Props) {
   const sessionReady = useSessionReady();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const lang = LangUseParams() as "ar" | "en";
   const translate = TranslateHook();
-  const pageDir = lang === "ar" ? "rtl" : "ltr";
-  const labelAlign = lang === "ar" ? "text-end" : "text-start";
   const t = translate?.pages.categories?.editCategory;
+  const basePath = categoryType;
 
   const idNum = id != null ? Number(id) : NaN;
   const invalidId = id == null || Number.isNaN(idNum);
@@ -57,12 +61,17 @@ export default function EditCategory() {
     data: category,
     isLoading,
     isError,
-  } = useGetCategoryByIdQuery(idNum, {
-    skip: !sessionReady || invalidId,
-  });
+  } = useGetCategoryByIdQuery(
+    { id: idNum, type: categoryType },
+    {
+      skip: !sessionReady || invalidId,
+    },
+  );
 
-  const { data: tree = [], isLoading: treeLoading } =
-    useGetCategoriesTreeQuery(undefined, { skip: !sessionReady });
+  const { data: tree = [], isLoading: treeLoading } = useGetCategoriesTreeQuery(
+    { type: categoryType },
+    { skip: !sessionReady },
+  );
 
   const [updateCategory, { isLoading: isUpdating }] =
     useUpdateCategoryMutation();
@@ -95,13 +104,14 @@ export default function EditCategory() {
         data: {
           name_ar: form.name_ar,
           name_en: form.name_en,
+          type: categoryType,
           parent_id: form.parent_id ? Number(form.parent_id) : null,
           is_active: form.is_active,
         },
       }).unwrap();
 
       toast.success(res?.message);
-      router.push(`/${lang}/categories`);
+      router.push(`/${lang}/${basePath}/categories`);
     } catch (err: any) {
       const errorData = err?.data ?? err;
       if (errorData?.errors) {
@@ -123,7 +133,7 @@ export default function EditCategory() {
 
   if (invalidId || isError || !category) {
     return (
-      <div className={dash.formPage} dir={pageDir}>
+      <div className={dash.formPage}>
         <Card className={dash.formCard}>
           <CardContent className="py-10 text-center text-slate-600">
             {t?.notFound}
@@ -134,7 +144,7 @@ export default function EditCategory() {
   }
 
   return (
-    <div className={dash.formPage} dir={pageDir}>
+    <div className={dash.formPage}>
       <Card className={dash.formCard}>
         <CardHeader className={dash.formCardHeader}>
           <CardTitle className="flex flex-wrap items-center gap-4 text-xl md:text-2xl font-bold text-slate-900">
@@ -165,7 +175,6 @@ export default function EditCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.nameAr}
@@ -184,7 +193,6 @@ export default function EditCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.nameEn}
@@ -203,7 +211,6 @@ export default function EditCategory() {
                   <Label
                     className={cn(
                       "text-sm font-semibold text-slate-800",
-                      labelAlign,
                     )}
                   >
                     {t?.parent}
