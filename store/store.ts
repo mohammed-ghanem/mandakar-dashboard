@@ -18,6 +18,7 @@ import { booksApi } from "./books/booksApi";
 import { explanationsApi } from "./explanations/explanationsApi";
 import { fatwasApi } from "./fatwas/fatwasApi";
 import { swapOrderApi } from "./swapOrder/swapOrderApi";
+import { bannersApi } from "./banners/bannersApi";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     [explanationsApi.reducerPath]: explanationsApi.reducer,
     [fatwasApi.reducerPath]: fatwasApi.reducer,
     [swapOrderApi.reducerPath]: swapOrderApi.reducer,
+    [bannersApi.reducerPath]: bannersApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -60,6 +62,7 @@ export const store = configureStore({
       explanationsApi.middleware,
       fatwasApi.middleware,
       swapOrderApi.middleware,
+      bannersApi.middleware,
     ),
 });
 

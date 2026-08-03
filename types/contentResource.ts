@@ -8,6 +8,20 @@ export interface IContentLink {
   url: string;
 }
 
+/** Attachment as returned from the API (file URL + display title). */
+export interface IContentAttachment {
+  title?: string;
+  url?: string;
+  name?: string;
+  file?: string;
+}
+
+/** Attachment payload for create/update FormData. */
+export interface IContentAttachmentInput {
+  title: string;
+  file: File;
+}
+
 export interface IContentSeo {
   description?: string;
   keywords?: string[];
@@ -29,7 +43,7 @@ export interface IContentItem {
   youtube_url?: string | null;
   image?: string | null;
   audio?: string | null;
-  attachments?: string[] | { url?: string; name?: string }[];
+  attachments?: (string | IContentAttachment)[];
   links?: IContentLink[];
   seo?: IContentSeo | null;
   is_active: boolean;
@@ -57,7 +71,7 @@ export interface ICreateContentPayload {
   is_active: boolean;
   image?: File | null;
   audio?: File | null;
-  attachments?: File[];
+  attachments?: IContentAttachmentInput[];
   links?: IContentLink[];
   seo_description?: string;
   seo_keywords?: string[];

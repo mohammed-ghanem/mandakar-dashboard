@@ -7,7 +7,10 @@ import { Eye, ExternalLink, FileText } from "lucide-react";
 
 import { useSessionReady } from "@/hooks/useSessionReady";
 import type { ContentCategoryType } from "@/constants/categoryTypes";
-import type { IContentItem } from "@/types/contentResource";
+import type {
+  IContentAttachment,
+  IContentItem,
+} from "@/types/contentResource";
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
@@ -40,13 +43,18 @@ type Props = {
   config: ViewContentConfig;
 };
 
-function attachmentUrl(item: string | { url?: string; name?: string }) {
+function attachmentUrl(item: string | IContentAttachment) {
   if (typeof item === "string") return item;
-  return item?.url ?? "";
+  return item?.url || item?.file || "";
 }
 
-function attachmentLabel(
-  item: string | { url?: string; name?: string },
+function attachmentTitle(item: string | IContentAttachment) {
+  if (typeof item === "string") return "";
+  return (item.title || "").trim();
+}
+
+function attachmentFileLabel(
+  item: string | IContentAttachment,
   index: number,
   fallback: string,
 ) {
@@ -54,7 +62,12 @@ function attachmentLabel(
     const parts = item.split("/");
     return parts[parts.length - 1] || `${fallback} ${index + 1}`;
   }
-  return item?.name || attachmentUrl(item) || `${fallback} ${index + 1}`;
+  const url = attachmentUrl(item);
+  return (
+    item?.name ||
+    (url ? url.split("/").pop() : "") ||
+    `${fallback} ${index + 1}`
+  );
 }
 
 export default function ViewContent({ config }: Props) {
@@ -263,6 +276,12 @@ export default function ViewContent({ config }: Props) {
                 {attachments.map((file, index) => {
                   const url = attachmentUrl(file);
                   if (!url) return null;
+                  const title = attachmentTitle(file);
+                  const fileLabel = attachmentFileLabel(
+                    file,
+                    index,
+                    t?.attachmentFallback ?? "",
+                  );
                   return (
                     <li key={`${url}-${index}`}>
                       <a
@@ -271,12 +290,17 @@ export default function ViewContent({ config }: Props) {
                         rel="noreferrer"
                         className={cn(
                           dash.viewFieldBox,
-                          "flex items-center gap-2 text-emerald-700 hover:underline",
+                          "flex items-start gap-2 text-emerald-700 hover:underline",
                         )}
                       >
-                        <FileText className="h-4 w-4 shrink-0" />
-                        <span className="truncate">
-                          {attachmentLabel(file, index, t?.attachmentFallback)}
+                        <FileText className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span className="min-w-0">
+                          {title ? (
+                            <span className="block truncate font-medium text-slate-900">
+                              {title}
+                            </span>
+                          ) : null}
+                          <span className="block truncate">{fileLabel}</span>
                         </span>
                       </a>
                     </li>

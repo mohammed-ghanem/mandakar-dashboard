@@ -28,6 +28,7 @@ import LangUseParams from "@/translate/LangUseParams";
 import { useRouter } from "next/navigation";
 import ProfileSkeleton from "@/components/skeleton/ProfileSkeleton";
 import { dash } from "@/constants/dashboardUi";
+import { getAvatarSrc } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 function UpdateProfile() {
@@ -253,7 +254,9 @@ function UpdateProfile() {
                   className="h-28 w-28 cursor-pointer border-4 border-emerald-100 shadow-md ring-2 ring-white"
                   onClick={!isUploading ? handleImageClick : undefined}
                 >
-                  <AvatarImage src={form.avatar || user?.avatar || ""} />
+                  <AvatarImage
+                    src={getAvatarSrc(form.avatar || user?.avatar)}
+                  />
                   <AvatarFallback className="bg-emerald-50 text-lg font-semibold text-emerald-800">
                     {getInitials(form.name || "User")}
                   </AvatarFallback>

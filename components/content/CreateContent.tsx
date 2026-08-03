@@ -50,7 +50,7 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
   ssr: false,
 });
 
-type AttachmentRow = { key: string; file: File | null };
+type AttachmentRow = { key: string; title: string; file: File | null };
 
 type FormState = {
   title_ar: string;
@@ -80,7 +80,7 @@ const emptyForm: FormState = {
   is_active: true,
   image: null,
   audio: null,
-  attachmentRows: [{ key: newKey(), file: null }],
+  attachmentRows: [{ key: newKey(), title: "", file: null }],
   links: [{ title: "", url: "" }],
   seo_description: "",
   seo_keywords: "",
@@ -154,7 +154,10 @@ export default function CreateContent({ config }: Props) {
   const addAttachmentRow = () => {
     setForm((prev) => ({
       ...prev,
-      attachmentRows: [...prev.attachmentRows, { key: newKey(), file: null }],
+      attachmentRows: [
+        ...prev.attachmentRows,
+        { key: newKey(), title: "", file: null },
+      ],
     }));
   };
 
@@ -180,8 +183,11 @@ export default function CreateContent({ config }: Props) {
 
     try {
       const attachments = form.attachmentRows
-        .map((r) => r.file)
-        .filter((f): f is File => f !== null);
+        .filter((r): r is AttachmentRow & { file: File } => r.file !== null)
+        .map((r) => ({
+          title: r.title.trim(),
+          file: r.file,
+        }));
 
       const res = await createItem({
         title_ar: form.title_ar,
@@ -424,13 +430,35 @@ export default function CreateContent({ config }: Props) {
 
               <div className="space-y-4">
                 {form.attachmentRows.map((row) => (
-                  <div key={row.key} className="space-y-2">
-                    <div className="flex justify-end">
+                  <div
+                    key={row.key}
+                    className="space-y-3 rounded-xl border border-amber-200/50 bg-white/60 p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <Label className="text-sm font-semibold text-slate-800">
+                          {t?.attachmentTitle}
+                        </Label>
+                        <Input
+                          className={cn("h-11", dash.input)}
+                          value={row.title}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              attachmentRows: prev.attachmentRows.map((r) =>
+                                r.key === row.key
+                                  ? { ...r, title: e.target.value }
+                                  : r,
+                              ),
+                            }))
+                          }
+                        />
+                      </div>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
-                        className="text-red-600"
+                        className="mt-7 shrink-0 text-red-600"
                         disabled={form.attachmentRows.length === 1}
                         onClick={() => removeAttachmentRow(row.key)}
                       >

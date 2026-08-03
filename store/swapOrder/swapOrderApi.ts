@@ -8,6 +8,7 @@ import { articlesApi } from "@/store/articles/articlesApi";
 import { booksApi } from "@/store/books/booksApi";
 import { explanationsApi } from "@/store/explanations/explanationsApi";
 import { fatwasApi } from "@/store/fatwas/fatwasApi";
+import { bannersApi } from "@/store/banners/bannersApi";
 import type { SwapOrderPayload, SwapOrderType } from "@/types/swapOrder";
 
 type ApiWithTags = {
@@ -42,6 +43,10 @@ const contentInvalidation: Partial<
   fatwas: {
     api: fatwasApi as ApiWithTags,
     tags: ["Fatwas", "Fatwa"],
+  },
+  banners: {
+    api: bannersApi as ApiWithTags,
+    tags: ["Banners", "Banner"],
   },
 };
 

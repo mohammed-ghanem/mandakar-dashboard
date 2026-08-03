@@ -11,6 +11,8 @@ import {
   BookOpen,
   BookMarked,
   Scale,
+ 
+  Film,
   type LucideIcon,
 } from "lucide-react";
 
@@ -97,6 +99,23 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
   }),
   contentGroup(lang, "fatwas", Scale, "fatwasItems", { withReorder: true }),
   contentGroup(lang, "books", BookMarked, "booksItems", { withReorder: true }),
+  {
+    kind: "group",
+    key: "banners",
+    icon: Film,
+    children: [
+      {
+        href: `/${lang}/banners`,
+        icon: Film,
+        key: "bannersItems",
+      },
+      {
+        href: `/${lang}/banners/reorder`,
+        icon: ArrowUpDown,
+        key: "changeOrder",
+      },
+    ],
+  },
   {
     kind: "link",
     href: `/${lang}/admins`,

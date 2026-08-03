@@ -3,6 +3,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "../base/axiosBaseQuery";
 import {
   IContentItem,
+  IContentAttachment,
   ICreateContentPayload,
   IUpdateContentPayload,
   IApiMessageResponse,
@@ -70,7 +71,7 @@ function normalizeContentItem(item: any): IContentItem {
     youtube_url: item?.youtube_url ?? null,
     image: item?.image ?? null,
     audio: item?.audio ?? null,
-    attachments: item?.attachments ?? [],
+    attachments: normalizeAttachments(item?.attachments),
     links,
     seo,
     is_active: Boolean(
@@ -81,6 +82,23 @@ function normalizeContentItem(item: any): IContentItem {
     created_at: item?.created_at,
     updated_at: item?.updated_at,
   };
+}
+
+function normalizeAttachments(raw: any): IContentAttachment[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw.map((att) => {
+    if (typeof att === "string") {
+      return { url: att, title: "", name: att.split("/").pop() ?? "" };
+    }
+
+    return {
+      title: att?.title ?? "",
+      url: att?.url ?? att?.file ?? att?.path ?? "",
+      name: att?.name ?? att?.original_name ?? "",
+      file: typeof att?.file === "string" ? att.file : undefined,
+    };
+  });
 }
 
 function appendContentFormData(
@@ -106,10 +124,10 @@ function appendContentFormData(
     formData.append("audio", data.audio);
   }
 
-  (data.attachments ?? []).forEach((file) => {
-    if (file instanceof File) {
-      formData.append("attachments[]", file);
-    }
+  (data.attachments ?? []).forEach((att, index) => {
+    if (!(att?.file instanceof File)) return;
+    formData.append(`attachments[${index}][title]`, att.title?.trim() ?? "");
+    formData.append(`attachments[${index}][file]`, att.file);
   });
 
   (data.links ?? [])

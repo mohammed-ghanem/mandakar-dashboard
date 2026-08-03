@@ -91,6 +91,13 @@ export const TABLE_HEADERS = {
       actions: "الإجراءات",
     },
 
+    banners: {
+      title: "العنوان",
+      category: "التصنيف",
+      status: "الحالة",
+      actions: "الإجراءات",
+    },
+
     lectures: {
       title: "العنوان",
       category: "القسم",
@@ -242,6 +249,13 @@ export const TABLE_HEADERS = {
       name: "Name",
       level: "Level",
       parent: "Parent",
+      status: "Status",
+      actions: "Actions",
+    },
+
+    banners: {
+      title: "Title",
+      category: "Category",
       status: "Status",
       actions: "Actions",
     },

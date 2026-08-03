@@ -49,7 +49,7 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
   ssr: false,
 });
 
-type AttachmentRow = { key: string; file: File | null };
+type AttachmentRow = { key: string; title: string; file: File | null };
 
 type FormState = {
   title_ar: string;
@@ -131,7 +131,7 @@ export default function EditContent({ config }: Props) {
     is_active: true,
     image: null,
     audio: null,
-    attachmentRows: [{ key: newKey(), file: null }],
+    attachmentRows: [{ key: newKey(), title: "", file: null }],
     links: [{ title: "", url: "" }],
     seo_description: "",
     seo_keywords: "",
@@ -152,7 +152,7 @@ export default function EditContent({ config }: Props) {
       is_active: Boolean(item.is_active),
       image: null,
       audio: null,
-      attachmentRows: [{ key: newKey(), file: null }],
+      attachmentRows: [{ key: newKey(), title: "", file: null }],
       links:
         item.links && item.links.length > 0
           ? item.links
@@ -192,7 +192,10 @@ export default function EditContent({ config }: Props) {
   const addAttachmentRow = () => {
     setForm((prev) => ({
       ...prev,
-      attachmentRows: [...prev.attachmentRows, { key: newKey(), file: null }],
+      attachmentRows: [
+        ...prev.attachmentRows,
+        { key: newKey(), title: "", file: null },
+      ],
     }));
   };
 
@@ -218,8 +221,11 @@ export default function EditContent({ config }: Props) {
 
     try {
       const attachments = form.attachmentRows
-        .map((r) => r.file)
-        .filter((f): f is File => f !== null);
+        .filter((r): r is AttachmentRow & { file: File } => r.file !== null)
+        .map((r) => ({
+          title: r.title.trim(),
+          file: r.file,
+        }));
 
       const res = await updateItem({
         id: idNum,
@@ -482,35 +488,48 @@ export default function EditContent({ config }: Props) {
                   <p className="text-xs font-medium text-slate-600">
                     {t?.existingAttachments}
                   </p>
-                  {existingAttachments.map((att: string | { url?: string; name?: string }, idx: number) => {
-                    const label =
+                  {existingAttachments.map((att, idx) => {
+                    const title =
                       typeof att === "string"
-                        ? att
-                        : (att as { name?: string; url?: string })?.name ||
-                          (att as { url?: string })?.url ||
-                          String(idx + 1);
+                        ? ""
+                        : (att.title || att.name || "").trim();
                     const href =
                       typeof att === "string"
                         ? att
-                        : (att as { url?: string })?.url;
+                        : att.url || att.file || "";
+                    const fileName =
+                      typeof att === "string"
+                        ? att.split("/").pop() || String(idx + 1)
+                        : att.name ||
+                          (href ? href.split("/").pop() : "") ||
+                          String(idx + 1);
                     return (
                       <div
                         key={idx}
                         className="flex items-center gap-3 rounded-xl border border-amber-200/60 bg-white/95 px-3 py-2.5 text-sm"
                       >
                         <FileText className="h-4 w-4 shrink-0 text-amber-700" />
-                        {href ? (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="truncate text-emerald-700 hover:underline"
-                          >
-                            {label}
-                          </a>
-                        ) : (
-                          <span className="truncate">{label}</span>
-                        )}
+                        <div className="min-w-0 flex-1">
+                          {title ? (
+                            <p className="truncate font-medium text-slate-900">
+                              {title}
+                            </p>
+                          ) : null}
+                          {href ? (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="truncate text-emerald-700 hover:underline"
+                            >
+                              {fileName}
+                            </a>
+                          ) : (
+                            <span className="truncate text-slate-600">
+                              {fileName}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -519,13 +538,35 @@ export default function EditContent({ config }: Props) {
 
               <div className="space-y-4">
                 {form.attachmentRows.map((row) => (
-                  <div key={row.key} className="space-y-2">
-                    <div className="flex justify-end">
+                  <div
+                    key={row.key}
+                    className="space-y-3 rounded-xl border border-amber-200/50 bg-white/60 p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <Label className="text-sm font-semibold text-slate-800">
+                          {t?.attachmentTitle}
+                        </Label>
+                        <Input
+                          className={cn("h-11", dash.input)}
+                          value={row.title}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              attachmentRows: prev.attachmentRows.map((r) =>
+                                r.key === row.key
+                                  ? { ...r, title: e.target.value }
+                                  : r,
+                              ),
+                            }))
+                          }
+                        />
+                      </div>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
-                        className="text-red-600"
+                        className="mt-7 shrink-0 text-red-600"
                         disabled={form.attachmentRows.length === 1}
                         onClick={() => removeAttachmentRow(row.key)}
                       >

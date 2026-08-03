@@ -1,7 +1,7 @@
 import type { CategoryType } from "@/constants/categoryTypes";
 
-/** Postman: categories || lectures || articles || speeches || books || explanations || fatwas */
-export type SwapOrderType = CategoryType | "categories";
+/** Postman: categories || lectures || articles || speeches || books || explanations || fatwas || banners */
+export type SwapOrderType = CategoryType | "categories" | "banners";
 
 export type SwapOrderPayload = {
   type: SwapOrderType;
