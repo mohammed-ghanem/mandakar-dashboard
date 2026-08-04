@@ -157,7 +157,7 @@ export default function ViewBanner() {
                 <Label className="font-semibold text-slate-800">
                   {t?.descriptionAr}
                 </Label>
-                <div className={dash.viewFieldBox whitespace-pre-wrap}>
+                <div className={cn(dash.viewFieldBox, "whitespace-pre-wrap")}>
                   {item.description?.ar || "—"}
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function ViewBanner() {
                 <Label className="font-semibold text-slate-800">
                   {t?.descriptionEn}
                 </Label>
-                <div className={dash.viewFieldBox whitespace-pre-wrap}>
+                <div className={cn(dash.viewFieldBox, "whitespace-pre-wrap")}>
                   {item.description?.en || "—"}
                 </div>
               </div>
