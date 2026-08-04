@@ -20,7 +20,10 @@ import {
 import { useSessionReady } from "@/hooks/useSessionReady";
 import { useGetCategoriesTreeQuery } from "@/store/categories/categoriesApi";
 import type { ContentCategoryType } from "@/constants/categoryTypes";
-import { IContentLink } from "@/types/contentResource";
+import {
+  IContentAttachment,
+  IContentLink,
+} from "@/types/contentResource";
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
@@ -488,7 +491,8 @@ export default function EditContent({ config }: Props) {
                   <p className="text-xs font-medium text-slate-600">
                     {t?.existingAttachments}
                   </p>
-                  {existingAttachments.map((att, idx) => {
+                  {existingAttachments.map(
+                    (att: string | IContentAttachment, idx: number) => {
                     const title =
                       typeof att === "string"
                         ? ""
