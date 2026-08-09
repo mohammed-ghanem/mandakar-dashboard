@@ -28,6 +28,8 @@ import {
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import { dash } from "@/constants/dashboardUi";
+import { normalizeKeywordsInput } from "@/lib/normalizeKeywordsInput";
+import { showApiError } from "@/lib/showApiError";
 import { cn } from "@/lib/utils";
 
 import {
@@ -161,7 +163,7 @@ export default function EditContent({ config }: Props) {
           ? item.links
           : [{ title: "", url: "" }],
       seo_description: item.seo?.description ?? "",
-      seo_keywords: (item.seo?.keywords ?? []).join(", "),
+      seo_keywords: (item.seo?.keywords ?? []).join(","),
     });
     setEditorsReady(true);
   }, [item]);
@@ -254,16 +256,11 @@ export default function EditContent({ config }: Props) {
 
       toast.success(res?.message, { id: toastId });
       router.push(`/${lang}/${basePath}`);
-    } catch (err: any) {
-      const errorData = err?.data ?? err;
-      if (errorData?.errors) {
-        toast.dismiss(toastId);
-        Object.values(errorData.errors).forEach((messages: any) =>
-          messages.forEach((msg: string) => toast.error(msg)),
-        );
-        return;
-      }
-      toast.error(errorData?.message || failMessage[lang], { id: toastId });
+    } catch (err: unknown) {
+      showApiError(err, {
+        toastId,
+        fallback: failMessage[lang],
+      });
     }
   };
 
@@ -683,7 +680,10 @@ export default function EditContent({ config }: Props) {
                     className={cn("h-11", dash.input)}
                     value={form.seo_keywords}
                     onChange={(e) =>
-                      setForm({ ...form, seo_keywords: e.target.value })
+                      setForm({
+                        ...form,
+                        seo_keywords: normalizeKeywordsInput(e.target.value),
+                      })
                     }
                     placeholder={t?.seoKeywordsPlaceholder}
                   />
