@@ -30,6 +30,7 @@ import LangUseParams from "@/translate/LangUseParams";
 import { dash } from "@/constants/dashboardUi";
 import { normalizeKeywordsInput } from "@/lib/normalizeKeywordsInput";
 import { showApiError } from "@/lib/showApiError";
+import { setUploadProgressListener } from "@/lib/uploadProgressBus";
 import { cn } from "@/lib/utils";
 
 import {
@@ -143,6 +144,25 @@ export default function EditContent({ config }: Props) {
   });
 
   const [editorsReady, setEditorsReady] = useState(false);
+  const [preparingKeys, setPreparingKeys] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const isPreparingAttachments = preparingKeys.length > 0;
+  const attachmentLoadingLabel =
+    t?.attachmentLoading ??
+    (lang === "ar" ? "جاري تجهيز الملف..." : "Preparing file...");
+  const attachmentReadyLabel =
+    t?.attachmentReady ?? (lang === "ar" ? "تم تجهيز الملف" : "File ready");
+  const uploadingLabel =
+    t?.uploadingFiles ??
+    (lang === "ar" ? "جاري رفع الملفات..." : "Uploading files...");
+
+  const setRowPreparing = (key: string, preparing: boolean) => {
+    setPreparingKeys((prev) => {
+      if (preparing) return prev.includes(key) ? prev : [...prev, key];
+      return prev.filter((k) => k !== key);
+    });
+  };
 
   useEffect(() => {
     if (!item) return;
@@ -205,6 +225,7 @@ export default function EditContent({ config }: Props) {
   };
 
   const removeAttachmentRow = (key: string) => {
+    setRowPreparing(key, false);
     setForm((prev) => ({
       ...prev,
       attachmentRows:
@@ -222,7 +243,17 @@ export default function EditContent({ config }: Props) {
       return;
     }
 
+    if (isPreparingAttachments) {
+      toast.error(attachmentLoadingLabel);
+      return;
+    }
+
     const toastId = toast.loading(`${t?.processing}...`);
+    setUploadProgress(0);
+    setUploadProgressListener((percent) => {
+      setUploadProgress(percent);
+      toast.loading(`${uploadingLabel} ${percent}%`, { id: toastId });
+    });
 
     try {
       const attachments = form.attachmentRows
@@ -261,6 +292,9 @@ export default function EditContent({ config }: Props) {
         toastId,
         fallback: failMessage[lang],
       });
+    } finally {
+      setUploadProgressListener(null);
+      setUploadProgress(0);
     }
   };
 
@@ -584,11 +618,16 @@ export default function EditContent({ config }: Props) {
                           ),
                         }))
                       }
+                      onPreparingChange={(preparing) =>
+                        setRowPreparing(row.key, preparing)
+                      }
                       labels={{
                         hint: t?.attachmentDropHint,
                         browse: t?.attachmentBrowse,
                         formatsNote: t?.attachmentFormats,
                         invalidType: t?.attachmentInvalid,
+                        loading: attachmentLoadingLabel,
+                        ready: attachmentReadyLabel,
                       }}
                     />
                   </div>
@@ -693,6 +732,21 @@ export default function EditContent({ config }: Props) {
 
             <Separator />
 
+            {isUpdating && uploadProgress > 0 ? (
+              <div className="space-y-2 rounded-xl border border-amber-200/70 bg-amber-50/40 px-3 py-3">
+                <div className="flex items-center justify-between text-xs text-amber-950">
+                  <span>{uploadingLabel}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-amber-100">
+                  <div
+                    className="h-full rounded-full bg-amber-500 transition-all duration-150"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <div className={dash.formFooterBar}>
               <div className="flex flex-wrap items-center gap-3">
                 <Checkbox
@@ -706,10 +760,14 @@ export default function EditContent({ config }: Props) {
 
               <Button
                 type="submit"
-                disabled={isUpdating}
+                disabled={isUpdating || isPreparingAttachments}
                 className={dash.formSubmit}
               >
-                {isUpdating ? `${t?.processing}...` : `${t?.editBtn}`}
+                {isUpdating
+                  ? uploadProgress > 0
+                    ? `${uploadingLabel} ${uploadProgress}%`
+                    : `${t?.processing}...`
+                  : `${t?.editBtn}`}
               </Button>
             </div>
           </form>

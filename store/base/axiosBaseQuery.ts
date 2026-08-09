@@ -3,6 +3,7 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import type { AxiosRequestConfig, AxiosError } from "axios";
 import Cookies from "js-cookie";
 import api, { sanctumApi } from "@/services/api";
+import { reportUploadProgress } from "@/lib/uploadProgressBus";
 
 // CSRF token
 
@@ -84,6 +85,13 @@ export const axiosBaseQuery =
         data,
         params,
         headers,
+        onUploadProgress:
+          typeof FormData !== "undefined" && data instanceof FormData
+            ? (event) => {
+                if (!event.total) return;
+                reportUploadProgress((event.loaded / event.total) * 100);
+              }
+            : undefined,
       });
 
       // console.log("✅ Response success:", result.status, result.data);

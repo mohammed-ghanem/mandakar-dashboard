@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { FileText, Trash2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2, FileText, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { readFileWithProgress } from "@/lib/readFileWithProgress";
 import { cn } from "@/lib/utils";
 
 export type FileDropzoneLabels = {
@@ -12,6 +13,8 @@ export type FileDropzoneLabels = {
   browse: string;
   formatsNote: string;
   invalidType: string;
+  loading?: string;
+  ready?: string;
 };
 
 const defaultLabels: FileDropzoneLabels = {
@@ -19,6 +22,8 @@ const defaultLabels: FileDropzoneLabels = {
   browse: "Browse files",
   formatsNote: "PDF, DOC, DOCX, ZIP...",
   invalidType: "Please upload a valid file.",
+  loading: "Preparing file...",
+  ready: "File ready",
 };
 
 function formatSize(bytes: number) {
@@ -30,6 +35,7 @@ function formatSize(bytes: number) {
 type FileDropzoneProps = {
   file: File | null;
   onFileChange: (file: File | null) => void;
+  onPreparingChange?: (preparing: boolean) => void;
   labels?: Partial<FileDropzoneLabels>;
   disabled?: boolean;
   className?: string;
@@ -39,13 +45,19 @@ type FileDropzoneProps = {
 export default function FileDropzone({
   file,
   onFileChange,
+  onPreparingChange,
   labels,
   disabled,
   className,
   accept = ".pdf,.doc,.docx,.zip,.rar,application/pdf",
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const prepareIdRef = useRef(0);
+  const onPreparingChangeRef = useRef(onPreparingChange);
+  onPreparingChangeRef.current = onPreparingChange;
   const [isDragging, setIsDragging] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   const L: FileDropzoneLabels = {
     hint: labels?.hint?.trim() ? labels.hint : defaultLabels.hint,
@@ -56,15 +68,64 @@ export default function FileDropzone({
     invalidType: labels?.invalidType?.trim()
       ? labels.invalidType
       : defaultLabels.invalidType,
+    loading: labels?.loading?.trim()
+      ? labels.loading
+      : defaultLabels.loading,
+    ready: labels?.ready?.trim() ? labels.ready : defaultLabels.ready,
   };
 
-  const handlePick = (picked: File | null) => {
+  useEffect(() => {
+    onPreparingChangeRef.current?.(isPreparing);
+  }, [isPreparing]);
+
+  useEffect(() => {
+    return () => {
+      prepareIdRef.current += 1;
+      onPreparingChangeRef.current?.(false);
+    };
+  }, []);
+
+  const handlePick = async (picked: File | null) => {
     if (!picked) return;
     if (!picked.name || picked.size <= 0) {
       toast.error(L.invalidType);
       return;
     }
-    onFileChange(picked);
+
+    const prepareId = ++prepareIdRef.current;
+    setIsPreparing(true);
+    setLoadProgress(0);
+    onFileChange(null);
+
+    try {
+      await readFileWithProgress(picked, (percent) => {
+        if (prepareId !== prepareIdRef.current) return;
+        setLoadProgress(percent);
+      });
+
+      if (prepareId !== prepareIdRef.current) return;
+
+      setLoadProgress(100);
+      onFileChange(picked);
+      window.setTimeout(() => {
+        if (prepareId !== prepareIdRef.current) return;
+        setIsPreparing(false);
+      }, 200);
+    } catch {
+      if (prepareId !== prepareIdRef.current) return;
+      setIsPreparing(false);
+      setLoadProgress(0);
+      toast.error(L.invalidType);
+      onFileChange(null);
+    }
+  };
+
+  const clearFile = () => {
+    prepareIdRef.current += 1;
+    setIsPreparing(false);
+    setLoadProgress(0);
+    onFileChange(null);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   return (
@@ -74,9 +135,9 @@ export default function FileDropzone({
         type="file"
         accept={accept}
         className="hidden"
-        disabled={disabled}
+        disabled={disabled || isPreparing}
         onChange={(e) => {
-          handlePick(e.target.files?.[0] ?? null);
+          void handlePick(e.target.files?.[0] ?? null);
           if (inputRef.current) inputRef.current.value = "";
         }}
       />
@@ -84,18 +145,18 @@ export default function FileDropzone({
       <div
         role="button"
         tabIndex={0}
-        aria-disabled={disabled}
+        aria-disabled={disabled || isPreparing}
         className={cn(
           "group relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 outline-none",
           "focus-visible:ring-2 focus-visible:ring-amber-400/80 focus-visible:ring-offset-2",
-          disabled && "pointer-events-none opacity-50",
+          (disabled || isPreparing) && "pointer-events-none opacity-50",
           isDragging
             ? "scale-[1.01] border-amber-500 bg-linear-to-br from-amber-100/90 via-orange-50 to-amber-50 shadow-lg shadow-amber-500/15"
             : "border-amber-200/90 bg-linear-to-br from-amber-50/40 via-white to-orange-50/30 hover:border-amber-400/70 hover:shadow-md hover:shadow-amber-900/5",
         )}
         onDragOver={(e) => {
           e.preventDefault();
-          if (!disabled) setIsDragging(true);
+          if (!disabled && !isPreparing) setIsDragging(true);
         }}
         onDragLeave={(e) => {
           e.preventDefault();
@@ -104,16 +165,18 @@ export default function FileDropzone({
         onDrop={(e) => {
           e.preventDefault();
           setIsDragging(false);
-          if (disabled) return;
-          handlePick(e.dataTransfer.files?.[0] ?? null);
+          if (disabled || isPreparing) return;
+          void handlePick(e.dataTransfer.files?.[0] ?? null);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            inputRef.current?.click();
+            if (!disabled && !isPreparing) inputRef.current?.click();
           }
         }}
-        onClick={() => !disabled && inputRef.current?.click()}
+        onClick={() => {
+          if (!disabled && !isPreparing) inputRef.current?.click();
+        }}
       >
         <div className="relative flex flex-col items-center gap-3 px-4 py-8 md:py-10">
           <div
@@ -135,7 +198,7 @@ export default function FileDropzone({
             variant="secondary"
             size="sm"
             className="pointer-events-auto mt-1 border border-amber-200/80 bg-white/90 text-amber-900 shadow-sm hover:bg-amber-50"
-            disabled={disabled}
+            disabled={disabled || isPreparing}
             onClick={(e) => {
               e.stopPropagation();
               inputRef.current?.click();
@@ -146,7 +209,22 @@ export default function FileDropzone({
         </div>
       </div>
 
-      {file ? (
+      {isPreparing ? (
+        <div className="space-y-2 rounded-xl border border-amber-200/70 bg-amber-50/50 px-3 py-3">
+          <div className="flex items-center justify-between text-xs text-amber-950">
+            <span>{L.loading}</span>
+            <span>{loadProgress}%</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-amber-100">
+            <div
+              className="h-full rounded-full bg-amber-500 transition-all duration-150"
+              style={{ width: `${loadProgress}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {file && !isPreparing ? (
         <div
           className="flex items-center gap-3 rounded-xl border border-amber-200/60 bg-white/95 px-3 py-2.5 shadow-sm ring-1 ring-amber-900/5"
           onClick={(e) => e.stopPropagation()}
@@ -158,8 +236,11 @@ export default function FileDropzone({
             <p className="truncate text-sm font-semibold text-slate-800">
               {file.name}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {formatSize(file.size)}
+            <p className="flex items-center gap-1.5 text-xs text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                {L.ready} · {formatSize(file.size)}
+              </span>
             </p>
           </div>
           <Button
@@ -168,10 +249,7 @@ export default function FileDropzone({
             size="icon"
             className="shrink-0 text-red-600 hover:bg-red-50 hover:text-red-700"
             disabled={disabled}
-            onClick={() => {
-              onFileChange(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
+            onClick={clearFile}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
