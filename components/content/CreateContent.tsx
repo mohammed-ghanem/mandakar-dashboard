@@ -127,25 +127,16 @@ export default function CreateContent({ config }: Props) {
   const [createItem, { isLoading: isCreating }] = useCreateMutation();
 
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [preparingKeys, setPreparingKeys] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const isPreparingAttachments = preparingKeys.length > 0;
-  const attachmentLoadingLabel =
-    t?.attachmentLoading ??
-    (lang === "ar" ? "جاري تجهيز الملف..." : "Preparing file...");
   const attachmentReadyLabel =
-    t?.attachmentReady ?? (lang === "ar" ? "تم تجهيز الملف" : "File ready");
+    t?.attachmentReady ??
+    (lang === "ar"
+      ? "تم اختيار الملف — الرفع يتم عند الإنشاء"
+      : "File selected — uploads when you save");
   const uploadingLabel =
     t?.uploadingFiles ??
     (lang === "ar" ? "جاري رفع الملفات..." : "Uploading files...");
-
-  const setRowPreparing = (key: string, preparing: boolean) => {
-    setPreparingKeys((prev) => {
-      if (preparing) return prev.includes(key) ? prev : [...prev, key];
-      return prev.filter((k) => k !== key);
-    });
-  };
 
   const updateLink = (
     index: number,
@@ -184,7 +175,6 @@ export default function CreateContent({ config }: Props) {
   };
 
   const removeAttachmentRow = (key: string) => {
-    setRowPreparing(key, false);
     setForm((prev) => ({
       ...prev,
       attachmentRows:
@@ -199,11 +189,6 @@ export default function CreateContent({ config }: Props) {
 
     if (!form.category_id) {
       toast.error(t?.categoryRequired ?? "");
-      return;
-    }
-
-    if (isPreparingAttachments) {
-      toast.error(attachmentLoadingLabel);
       return;
     }
 
@@ -247,6 +232,7 @@ export default function CreateContent({ config }: Props) {
       showApiError(err, {
         toastId,
         fallback: failMessage[lang],
+        lang,
       });
     } finally {
       setUploadProgressListener(null);
@@ -506,15 +492,11 @@ export default function CreateContent({ config }: Props) {
                           ),
                         }))
                       }
-                      onPreparingChange={(preparing) =>
-                        setRowPreparing(row.key, preparing)
-                      }
                       labels={{
                         hint: t?.attachmentDropHint,
                         browse: t?.attachmentBrowse,
                         formatsNote: t?.attachmentFormats,
                         invalidType: t?.attachmentInvalid,
-                        loading: attachmentLoadingLabel,
                         ready: attachmentReadyLabel,
                       }}
                     />
@@ -648,7 +630,7 @@ export default function CreateContent({ config }: Props) {
 
               <Button
                 type="submit"
-                disabled={isCreating || isPreparingAttachments}
+                disabled={isCreating}
                 className={dash.formSubmit}
               >
                 {isCreating

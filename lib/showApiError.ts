@@ -5,6 +5,25 @@ function isHtmlMessage(value: string) {
   return trimmed.startsWith("<!doctype") || trimmed.startsWith("<html");
 }
 
+function isNetworkFailureMessage(value: string) {
+  const lower = value.trim().toLowerCase();
+  return (
+    lower === "network error" ||
+    lower.includes("err_network") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror") ||
+    lower.includes("err_connection") ||
+    lower.includes("econnaborted") ||
+    lower.includes("timeout")
+  );
+}
+
+function networkFailureMessage(lang: "ar" | "en") {
+  return lang === "ar"
+    ? "فشل رفع الملف (انقطع الاتصال). غالباً حجم الملف أكبر من الحد المسموح على السيرفر. قلّل الحجم أو ارفع حد الرفع من الباك/Nginx."
+    : "File upload failed (connection dropped). The file is likely larger than the server allows. Use a smaller file or raise the upload limit on the backend/Nginx.";
+}
+
 function collectMessages(value: unknown, out: string[]) {
   if (value == null) return;
 
@@ -49,8 +68,10 @@ export function showApiError(
   options?: {
     toastId?: string | number;
     fallback?: string;
+    lang?: "ar" | "en";
   },
 ) {
+  const lang = options?.lang ?? "ar";
   const fallback = options?.fallback?.trim() || "Something went wrong";
   const toastId = options?.toastId;
   const { status, payload } = resolveErrorPayload(err);
@@ -71,15 +92,27 @@ export function showApiError(
     }
   }
 
-  if (messages.length === 0 && status === 413) {
-    messages.push(fallback);
+  if (messages.length === 0 && (status === 413 || status === 0 || status == null)) {
+    const rawMsg =
+      typeof payload === "string"
+        ? payload
+        : typeof (data as { message?: unknown })?.message === "string"
+          ? String((data as { message: string }).message)
+          : "";
+    if (!rawMsg || isNetworkFailureMessage(rawMsg) || status === 413) {
+      messages.push(networkFailureMessage(lang));
+    }
   }
 
-  if (messages.length === 0) {
-    messages.push(fallback);
+  const normalized = messages.map((msg) =>
+    isNetworkFailureMessage(msg) ? networkFailureMessage(lang) : msg,
+  );
+
+  if (normalized.length === 0) {
+    normalized.push(fallback);
   }
 
-  const unique = [...new Set(messages)];
+  const unique = [...new Set(normalized)];
 
   unique.forEach((msg, index) => {
     if (index === 0 && toastId !== undefined) {

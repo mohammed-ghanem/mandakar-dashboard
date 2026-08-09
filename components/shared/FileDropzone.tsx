@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { CheckCircle2, FileText, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { readFileWithProgress } from "@/lib/readFileWithProgress";
 import { cn } from "@/lib/utils";
 
 export type FileDropzoneLabels = {
@@ -13,7 +12,6 @@ export type FileDropzoneLabels = {
   browse: string;
   formatsNote: string;
   invalidType: string;
-  loading?: string;
   ready?: string;
 };
 
@@ -22,8 +20,7 @@ const defaultLabels: FileDropzoneLabels = {
   browse: "Browse files",
   formatsNote: "PDF, DOC, DOCX, ZIP...",
   invalidType: "Please upload a valid file.",
-  loading: "Preparing file...",
-  ready: "File ready",
+  ready: "File selected — uploads when you save",
 };
 
 function formatSize(bytes: number) {
@@ -35,7 +32,6 @@ function formatSize(bytes: number) {
 type FileDropzoneProps = {
   file: File | null;
   onFileChange: (file: File | null) => void;
-  onPreparingChange?: (preparing: boolean) => void;
   labels?: Partial<FileDropzoneLabels>;
   disabled?: boolean;
   className?: string;
@@ -45,19 +41,13 @@ type FileDropzoneProps = {
 export default function FileDropzone({
   file,
   onFileChange,
-  onPreparingChange,
   labels,
   disabled,
   className,
   accept = ".pdf,.doc,.docx,.zip,.rar,application/pdf",
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const prepareIdRef = useRef(0);
-  const onPreparingChangeRef = useRef(onPreparingChange);
-  onPreparingChangeRef.current = onPreparingChange;
   const [isDragging, setIsDragging] = useState(false);
-  const [isPreparing, setIsPreparing] = useState(false);
-  const [loadProgress, setLoadProgress] = useState(0);
 
   const L: FileDropzoneLabels = {
     hint: labels?.hint?.trim() ? labels.hint : defaultLabels.hint,
@@ -68,62 +58,19 @@ export default function FileDropzone({
     invalidType: labels?.invalidType?.trim()
       ? labels.invalidType
       : defaultLabels.invalidType,
-    loading: labels?.loading?.trim()
-      ? labels.loading
-      : defaultLabels.loading,
     ready: labels?.ready?.trim() ? labels.ready : defaultLabels.ready,
   };
 
-  useEffect(() => {
-    onPreparingChangeRef.current?.(isPreparing);
-  }, [isPreparing]);
-
-  useEffect(() => {
-    return () => {
-      prepareIdRef.current += 1;
-      onPreparingChangeRef.current?.(false);
-    };
-  }, []);
-
-  const handlePick = async (picked: File | null) => {
+  const handlePick = (picked: File | null) => {
     if (!picked) return;
     if (!picked.name || picked.size <= 0) {
       toast.error(L.invalidType);
       return;
     }
-
-    const prepareId = ++prepareIdRef.current;
-    setIsPreparing(true);
-    setLoadProgress(0);
-    onFileChange(null);
-
-    try {
-      await readFileWithProgress(picked, (percent) => {
-        if (prepareId !== prepareIdRef.current) return;
-        setLoadProgress(percent);
-      });
-
-      if (prepareId !== prepareIdRef.current) return;
-
-      setLoadProgress(100);
-      onFileChange(picked);
-      window.setTimeout(() => {
-        if (prepareId !== prepareIdRef.current) return;
-        setIsPreparing(false);
-      }, 200);
-    } catch {
-      if (prepareId !== prepareIdRef.current) return;
-      setIsPreparing(false);
-      setLoadProgress(0);
-      toast.error(L.invalidType);
-      onFileChange(null);
-    }
+    onFileChange(picked);
   };
 
   const clearFile = () => {
-    prepareIdRef.current += 1;
-    setIsPreparing(false);
-    setLoadProgress(0);
     onFileChange(null);
     if (inputRef.current) inputRef.current.value = "";
   };
@@ -135,9 +82,9 @@ export default function FileDropzone({
         type="file"
         accept={accept}
         className="hidden"
-        disabled={disabled || isPreparing}
+        disabled={disabled}
         onChange={(e) => {
-          void handlePick(e.target.files?.[0] ?? null);
+          handlePick(e.target.files?.[0] ?? null);
           if (inputRef.current) inputRef.current.value = "";
         }}
       />
@@ -145,18 +92,18 @@ export default function FileDropzone({
       <div
         role="button"
         tabIndex={0}
-        aria-disabled={disabled || isPreparing}
+        aria-disabled={disabled}
         className={cn(
           "group relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 outline-none",
           "focus-visible:ring-2 focus-visible:ring-amber-400/80 focus-visible:ring-offset-2",
-          (disabled || isPreparing) && "pointer-events-none opacity-50",
+          disabled && "pointer-events-none opacity-50",
           isDragging
             ? "scale-[1.01] border-amber-500 bg-linear-to-br from-amber-100/90 via-orange-50 to-amber-50 shadow-lg shadow-amber-500/15"
             : "border-amber-200/90 bg-linear-to-br from-amber-50/40 via-white to-orange-50/30 hover:border-amber-400/70 hover:shadow-md hover:shadow-amber-900/5",
         )}
         onDragOver={(e) => {
           e.preventDefault();
-          if (!disabled && !isPreparing) setIsDragging(true);
+          if (!disabled) setIsDragging(true);
         }}
         onDragLeave={(e) => {
           e.preventDefault();
@@ -165,17 +112,17 @@ export default function FileDropzone({
         onDrop={(e) => {
           e.preventDefault();
           setIsDragging(false);
-          if (disabled || isPreparing) return;
-          void handlePick(e.dataTransfer.files?.[0] ?? null);
+          if (disabled) return;
+          handlePick(e.dataTransfer.files?.[0] ?? null);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            if (!disabled && !isPreparing) inputRef.current?.click();
+            if (!disabled) inputRef.current?.click();
           }
         }}
         onClick={() => {
-          if (!disabled && !isPreparing) inputRef.current?.click();
+          if (!disabled) inputRef.current?.click();
         }}
       >
         <div className="relative flex flex-col items-center gap-3 px-4 py-8 md:py-10">
@@ -198,7 +145,7 @@ export default function FileDropzone({
             variant="secondary"
             size="sm"
             className="pointer-events-auto mt-1 border border-amber-200/80 bg-white/90 text-amber-900 shadow-sm hover:bg-amber-50"
-            disabled={disabled || isPreparing}
+            disabled={disabled}
             onClick={(e) => {
               e.stopPropagation();
               inputRef.current?.click();
@@ -209,22 +156,7 @@ export default function FileDropzone({
         </div>
       </div>
 
-      {isPreparing ? (
-        <div className="space-y-2 rounded-xl border border-amber-200/70 bg-amber-50/50 px-3 py-3">
-          <div className="flex items-center justify-between text-xs text-amber-950">
-            <span>{L.loading}</span>
-            <span>{loadProgress}%</span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-amber-100">
-            <div
-              className="h-full rounded-full bg-amber-500 transition-all duration-150"
-              style={{ width: `${loadProgress}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {file && !isPreparing ? (
+      {file ? (
         <div
           className="flex items-center gap-3 rounded-xl border border-amber-200/60 bg-white/95 px-3 py-2.5 shadow-sm ring-1 ring-amber-900/5"
           onClick={(e) => e.stopPropagation()}

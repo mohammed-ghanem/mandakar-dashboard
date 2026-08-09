@@ -11,6 +11,10 @@ const api = axios.create({
   withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
+  // Large PDF attachments (books/articles) need a long window.
+  timeout: 10 * 60 * 1000,
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
   headers: {
     "Accept": "application/json",
     "Content-Type": "application/json",
