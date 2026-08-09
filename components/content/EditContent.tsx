@@ -503,8 +503,12 @@ export default function EditContent({ config }: Props) {
                 </Button>
               </div>
 
+              <span className="mb-4 text-xs font-medium leading-relaxed text-red-600">
+                {t?.attachmentPdfSizeWarning}
+              </span>
+
               {existingAttachments.length > 0 ? (
-                <div className="mb-4 space-y-2">
+                <div className="mb-4 space-y-2 mt-4">
                   <p className="text-xs font-medium text-slate-600">
                     {t?.existingAttachments}
                   </p>
@@ -610,6 +614,7 @@ export default function EditContent({ config }: Props) {
                         formatsNote: t?.attachmentFormats,
                         invalidType: t?.attachmentInvalid,
                         ready: attachmentReadyLabel,
+                        pdfTooLarge: t?.attachmentPdfTooLarge,
                       }}
                     />
                   </div>

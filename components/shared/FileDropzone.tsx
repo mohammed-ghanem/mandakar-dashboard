@@ -5,7 +5,13 @@ import { CheckCircle2, FileText, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { MAX_PDF_ATTACHMENT_BYTES } from "@/constants/attachmentLimits";
 import { cn } from "@/lib/utils";
+
+function isPdfFile(file: File) {
+  const name = file.name.toLowerCase();
+  return file.type === "application/pdf" || name.endsWith(".pdf");
+}
 
 export type FileDropzoneLabels = {
   hint: string;
@@ -13,6 +19,7 @@ export type FileDropzoneLabels = {
   formatsNote: string;
   invalidType: string;
   ready?: string;
+  pdfTooLarge?: string;
 };
 
 const defaultLabels: FileDropzoneLabels = {
@@ -21,6 +28,7 @@ const defaultLabels: FileDropzoneLabels = {
   formatsNote: "PDF, DOC, DOCX, ZIP...",
   invalidType: "Please upload a valid file.",
   ready: "File selected — uploads when you save",
+  pdfTooLarge: "This PDF exceeds 64 MB. Please choose a smaller file.",
 };
 
 function formatSize(bytes: number) {
@@ -59,12 +67,19 @@ export default function FileDropzone({
       ? labels.invalidType
       : defaultLabels.invalidType,
     ready: labels?.ready?.trim() ? labels.ready : defaultLabels.ready,
+    pdfTooLarge: labels?.pdfTooLarge?.trim()
+      ? labels.pdfTooLarge
+      : defaultLabels.pdfTooLarge,
   };
 
   const handlePick = (picked: File | null) => {
     if (!picked) return;
     if (!picked.name || picked.size <= 0) {
       toast.error(L.invalidType);
+      return;
+    }
+    if (isPdfFile(picked) && picked.size > MAX_PDF_ATTACHMENT_BYTES) {
+      toast.error(L.pdfTooLarge);
       return;
     }
     onFileChange(picked);

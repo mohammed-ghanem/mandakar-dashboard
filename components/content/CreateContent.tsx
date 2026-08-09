@@ -445,7 +445,11 @@ export default function CreateContent({ config }: Props) {
                 </Button>
               </div>
 
-              <div className="space-y-4">
+              <span className="mb-4 text-xs font-medium leading-relaxed text-red-600">
+                {t?.attachmentPdfSizeWarning}
+              </span>
+
+              <div className="space-y-4 mt-4">
                 {form.attachmentRows.map((row) => (
                   <div
                     key={row.key}
@@ -498,6 +502,7 @@ export default function CreateContent({ config }: Props) {
                         formatsNote: t?.attachmentFormats,
                         invalidType: t?.attachmentInvalid,
                         ready: attachmentReadyLabel,
+                        pdfTooLarge: t?.attachmentPdfTooLarge,
                       }}
                     />
                   </div>
