@@ -417,6 +417,7 @@ export default function CreateContent({ config }: Props) {
               <AudioDropzone
                 file={form.audio}
                 onFileChange={(file) => setForm({ ...form, audio: file })}
+                onRemove={() => setForm((prev) => ({ ...prev, audio: null }))}
                 labels={{
                   hint: t?.audioDropHint,
                   browse: t?.audioBrowse,

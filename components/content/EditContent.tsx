@@ -27,6 +27,7 @@ import {
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
+import { useDeleteAudioMutation } from "@/store/media/mediaApi";
 import { dash } from "@/constants/dashboardUi";
 import { normalizeKeywordsInput } from "@/lib/normalizeKeywordsInput";
 import { showApiError } from "@/lib/showApiError";
@@ -126,6 +127,8 @@ export default function EditContent({ config }: Props) {
   );
 
   const [updateItem, { isLoading: isUpdating }] = useUpdateMutation();
+  const [deleteAudio, { isLoading: isDeletingAudio }] =
+    useDeleteAudioMutation();
 
   const [form, setForm] = useState<FormState>({
     title_ar: "",
@@ -145,6 +148,7 @@ export default function EditContent({ config }: Props) {
 
   const [editorsReady, setEditorsReady] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [existingAudioUrl, setExistingAudioUrl] = useState<string | undefined>();
 
   const attachmentReadyLabel =
     t?.attachmentReady ??
@@ -154,6 +158,8 @@ export default function EditContent({ config }: Props) {
   const uploadingLabel =
     t?.uploadingFiles ??
     (lang === "ar" ? "جاري رفع الملفات..." : "Uploading files...");
+  const deleteAudioFail =
+    lang === "ar" ? "فشل حذف الملف الصوتي" : "Failed to delete audio file";
 
   useEffect(() => {
     if (!item) return;
@@ -176,6 +182,7 @@ export default function EditContent({ config }: Props) {
       seo_description: item.seo?.description ?? "",
       seo_keywords: (item.seo?.keywords ?? []).join(","),
     });
+    setExistingAudioUrl(item.audio || undefined);
     setEditorsReady(true);
   }, [item]);
 
@@ -223,6 +230,36 @@ export default function EditContent({ config }: Props) {
           ? prev.attachmentRows
           : prev.attachmentRows.filter((r) => r.key !== key),
     }));
+  };
+
+  const handleRemoveAudio = async () => {
+    // New local file only — clear selection, no API call.
+    if (form.audio) {
+      setForm((prev) => ({ ...prev, audio: null }));
+      return;
+    }
+
+    if (!existingAudioUrl || invalidId) {
+      setExistingAudioUrl(undefined);
+      return;
+    }
+
+    try {
+      const res = await deleteAudio({
+        type: basePath,
+        id: idNum,
+      }).unwrap();
+      toast.success(
+        res?.message ||
+          (lang === "ar" ? "تم حذف الملف الصوتي" : "Audio deleted"),
+      );
+      setExistingAudioUrl(undefined);
+    } catch (err: unknown) {
+      showApiError(err, {
+        fallback: deleteAudioFail,
+        lang,
+      });
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -473,8 +510,10 @@ export default function EditContent({ config }: Props) {
               </div>
               <AudioDropzone
                 file={form.audio}
-                existingAudioUrl={item.audio || undefined}
+                existingAudioUrl={existingAudioUrl}
                 onFileChange={(file) => setForm({ ...form, audio: file })}
+                onRemove={handleRemoveAudio}
+                removing={isDeletingAudio}
                 labels={{
                   hint: t?.audioDropHint,
                   browse: t?.audioBrowse,

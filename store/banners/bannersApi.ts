@@ -62,6 +62,7 @@ export const bannersApi = createApi({
       query: () => ({
         url: "/banners",
         method: "get",
+        params: { page: 0, limit: 0 },
       }),
       transformResponse: (response: any) => {
         const raw =

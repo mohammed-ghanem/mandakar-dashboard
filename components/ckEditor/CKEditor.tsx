@@ -55,6 +55,7 @@ import translationsEn from "ckeditor5/translations/en.js";
 import "ckeditor5/ckeditor5.css";
 import "./style.css";
 import PasteWordCleanup from "./plugins/PasteWordCleanup";
+import InsertQaTemplate from "./plugins/InsertQaTemplate";
 
 interface CkEditorProps {
   editorData: string;
@@ -106,6 +107,7 @@ const CkEditor: FC<CkEditorProps> = ({
         Paragraph,
         PasteFromOffice,
         PasteWordCleanup,
+        InsertQaTemplate,
         GeneralHtmlSupport,
         PictureEditing,
         Table,
@@ -140,6 +142,7 @@ const CkEditor: FC<CkEditorProps> = ({
         "link",
         "uploadImage",
         "insertTable",
+        "insertQaTemplate",
         "blockQuote",
         "code",
         "codeBlock",
@@ -207,6 +210,22 @@ const CkEditor: FC<CkEditorProps> = ({
             },
             attributes: {
               dir: true,
+              class: true,
+            },
+            classes: true,
+          },
+          {
+            name: "div",
+            classes: true,
+            attributes: {
+              class: true,
+            },
+          },
+          {
+            name: /^h[1-6]$/,
+            classes: true,
+            attributes: {
+              class: true,
             },
           },
           {

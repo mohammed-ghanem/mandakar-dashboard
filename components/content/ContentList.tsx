@@ -18,6 +18,10 @@ import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 
 import { IContentItem, IContentListItem } from "@/types/contentResource";
 import type { ContentCategoryType } from "@/constants/categoryTypes";
+import {
+  TABLE_TITLE_MAX_CHARS,
+  truncateTableText,
+} from "@/constants/tableText";
 
 import { Column, DataTable } from "../datatable/DataTable";
 import { toast } from "sonner";
@@ -119,12 +123,19 @@ export default function ContentList({ config }: Props) {
     {
       key: lang === "ar" ? "title_ar" : "title_en",
       header: headers.title,
+      render: (value) => {
+        const full = String(value ?? "");
+        return (
+          <span title={full} className="block max-w-[28rem]">
+            {truncateTableText(full, TABLE_TITLE_MAX_CHARS)}
+          </span>
+        );
+      },
     },
     {
       key: "category_name",
       header: headers.category,
-    },
-    {
+    },    {
       key: "is_active",
       header: headers.status,
       align: "center",
@@ -190,6 +201,15 @@ export default function ContentList({ config }: Props) {
         columns={columns}
         isSkeleton={showSkeleton}
         searchPlaceholder={`${pg?.searchPlaceholder}`}
+        statusFilter={{
+          key: "is_active",
+          labels: {
+            title: lang === "ar" ? "البحث بالحالة" : "Filter by status",
+            all: lang === "ar" ? "الكل" : "All",
+            active: pg?.active ?? (lang === "ar" ? "نشط" : "Active"),
+            inactive: pg?.inactive ?? (lang === "ar" ? "غير نشط" : "Inactive"),
+          },
+        }}
         className={dash.dataTableOuter}
         tableCardClassName={dash.dataTableCard}
         tableHeaderClassName={dash.dataTableHeader}

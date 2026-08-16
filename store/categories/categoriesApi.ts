@@ -254,7 +254,7 @@ export const categoriesApi = createApi({
 
         return {
           url: `/categories/${data.type}/${id}`,
-          method: "post",
+          method: "put",
           data: formData,
         };
       },

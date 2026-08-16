@@ -165,7 +165,7 @@ function CategoryBranch({
   const name = categoryName(category, lang);
 
   return (
-    <li className="relative">
+    <li className="relative list-none">
       {!isLast ? (
         <span
           aria-hidden

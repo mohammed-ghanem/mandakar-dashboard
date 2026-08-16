@@ -162,6 +162,15 @@ export default function RolesPage() {
         columns={columns}
         isSkeleton={showSkeleton}
         searchPlaceholder={`${pg?.searchPlaceholder}`}
+        statusFilter={{
+          key: "is_active",
+          labels: {
+            title: lang === "ar" ? "البحث بالحالة" : "Filter by status",
+            all: lang === "ar" ? "الكل" : "All",
+            active: pg?.active ?? (lang === "ar" ? "نشط" : "Active"),
+            inactive: pg?.inactive ?? (lang === "ar" ? "غير نشط" : "Inactive"),
+          },
+        }}
         className={dash.dataTableOuter}
         tableCardClassName={dash.dataTableCard}
         tableHeaderClassName={dash.dataTableHeader}

@@ -16,6 +16,7 @@ import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import { dash } from "@/constants/dashboardUi";
 import { cn } from "@/lib/utils";
+import "@/components/ckEditor/qa-block.css";
 
 import {
   Card,

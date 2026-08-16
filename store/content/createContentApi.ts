@@ -172,6 +172,7 @@ export function createContentApi<
         query: () => ({
           url: `/${basePath}`,
           method: "get",
+          params: { page: 0, limit: 0 },
         }),
         transformResponse: (response: any) => {
           const raw =

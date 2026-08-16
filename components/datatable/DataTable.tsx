@@ -2,20 +2,44 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
 
 export type Column<T> = {
   key: keyof T;
   header: React.ReactNode | (() => React.ReactNode);
   align?: "left" | "center" | "right";
   render?: (value: any, row: T) => React.ReactNode;
+};
+
+export type StatusFilterValue = "all" | "active" | "inactive";
+
+export type StatusFilterConfig = {
+  /** Boolean field on each row (default: is_active). */
+  key?: string;
+  labels?: {
+    title?: string;
+    all?: string;
+    active?: string;
+    inactive?: string;
+  };
 };
 
 interface DataTableProps<T> {
@@ -26,18 +50,17 @@ interface DataTableProps<T> {
   searchPlaceholder?: string;
   onToggleStatus?: (row: T) => void;
   isSkeleton?: boolean;
-  /** Extra classes on the outer wrapper (spacing, input/table tweaks per page). */
   className?: string;
-  /** Classes for the bordered card that wraps the `<table>`. */
   tableCardClassName?: string;
-  /** Override/extend table header row background. */
   tableHeaderClassName?: string;
+  /** Separate status filter (does not change status — only filters the list). */
+  statusFilter?: StatusFilterConfig | boolean;
 }
 
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
-  pageSizeOptions = [5 , 10, 25, 50, 100],
+  pageSizeOptions = [5, 10, 25, 50, 100],
   defaultPageSize = 10,
   searchPlaceholder = "Search...",
   onToggleStatus,
@@ -45,23 +68,56 @@ export function DataTable<T extends Record<string, any>>({
   className,
   tableCardClassName,
   tableHeaderClassName,
+  statusFilter,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<StatusFilterValue>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
-  /* 🔍 Search */
+  const enableStatusFilter = Boolean(statusFilter);
+  const statusKey =
+    typeof statusFilter === "object" && statusFilter?.key
+      ? statusFilter.key
+      : "is_active";
+  const statusLabels = {
+    title:
+      (typeof statusFilter === "object" && statusFilter.labels?.title) ||
+      "البحث بالحالة",
+    all:
+      (typeof statusFilter === "object" && statusFilter.labels?.all) || "الكل",
+    active:
+      (typeof statusFilter === "object" && statusFilter.labels?.active) ||
+      "نشط",
+    inactive:
+      (typeof statusFilter === "object" && statusFilter.labels?.inactive) ||
+      "غير نشط",
+  };
+
   const filteredData = useMemo(() => {
     if (isSkeleton) return [];
-    if (!search) return data;
-    return data.filter((row) =>
-      Object.values(row).some((value) =>
-        String(value).toLowerCase().includes(search.toLowerCase())
-      )
-    );
-  }, [data, search, isSkeleton]);
 
-  /* 📄 Pagination */
+    let rows = data;
+
+    if (enableStatusFilter && status !== "all") {
+      rows = rows.filter((row) => {
+        const active = Boolean(row[statusKey]);
+        return status === "active" ? active : !active;
+      });
+    }
+
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
+
+    return rows.filter((row) =>
+      Object.entries(row).some(([key, value]) => {
+        if (key === statusKey) return false;
+        if (value == null || typeof value === "boolean") return false;
+        return String(value).toLowerCase().includes(q);
+      }),
+    );
+  }, [data, search, status, enableStatusFilter, statusKey, isSkeleton]);
+
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
 
   const paginatedData = useMemo(() => {
@@ -71,20 +127,41 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Top Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Input
-          disabled={isSkeleton}
-          placeholder={searchPlaceholder}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-sm focus-visible:ring-0 focus-visible:border-gray-300 border-gray-300 py-5 px-2.5"
-        />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <Input
+            disabled={isSkeleton}
+            placeholder={searchPlaceholder}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-sm focus-visible:ring-0 focus-visible:border-gray-300 border-gray-300 py-5 px-2.5"
+          />
 
-        {/* Page Size */}
+          {enableStatusFilter ? (
+            <div className="flex max-w-sm flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-500">
+                {statusLabels.title}
+              </label>
+              <select
+                disabled={isSkeleton}
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value as StatusFilterValue);
+                  setPage(1);
+                }}
+                className="h-10 w-full rounded-md border border-gray-300 bg-background px-2.5 text-sm focus:outline-none"
+              >
+                <option value="all">{statusLabels.all}</option>
+                <option value="active">{statusLabels.active}</option>
+                <option value="inactive">{statusLabels.inactive}</option>
+              </select>
+            </div>
+          ) : null}
+        </div>
+
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Show</span>
           <select
@@ -106,32 +183,33 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      {/* Table */}
       <div
         className={cn(
           "rounded-xl border bg-white shadow-sm overflow-hidden",
-          tableCardClassName
+          tableCardClassName,
         )}
       >
         <Table>
           <TableHeader
-            className={cn(!tableHeaderClassName && "bg-slate-100", tableHeaderClassName)}
+            className={cn(
+              !tableHeaderClassName && "bg-slate-100",
+              tableHeaderClassName,
+            )}
           >
             <TableRow>
               {columns.map((col) => (
                 <TableHead
                   style={{ borderRight: "1px solid #e5e7eb", textAlign: "start" }}
                   key={String(col.key)}
-                  className={`fontBold hover:bg-slate-100! ${col.align === "center"
-                    ? "text-right"
-                    : col.align === "right"
+                  className={`fontBold hover:bg-slate-100! ${
+                    col.align === "center"
                       ? "text-right"
-                      : ""
-                    }`}
+                      : col.align === "right"
+                        ? "text-right"
+                        : ""
+                  }`}
                 >
-                  {typeof col.header === "function"
-                    ? col.header()
-                    : col.header}
+                  {typeof col.header === "function" ? col.header() : col.header}
                 </TableHead>
               ))}
             </TableRow>
@@ -140,12 +218,13 @@ export function DataTable<T extends Record<string, any>>({
           <TableBody>
             {isSkeleton ? (
               Array.from({ length: pageSize }).map((_, rowIndex) => (
-                <TableRow
-                  key={rowIndex}>
+                <TableRow key={rowIndex}>
                   {columns.map((col, colIndex) => (
-                    <TableCell key={colIndex}
+                    <TableCell
+                      key={colIndex}
                       style={{ borderRight: "1px solid #e5e7eb" }}
-                      className="py-4">
+                      className="py-4"
+                    >
                       <Skeleton className="h-4 w-full rounded" />
                     </TableCell>
                   ))}
@@ -154,23 +233,20 @@ export function DataTable<T extends Record<string, any>>({
             ) : paginatedData.length ? (
               paginatedData.map((row, index) => (
                 <TableRow
-                  key={index}
-                  // odd & even bg colors
+                  key={row.id != null ? String(row.id) : index}
                   className="odd:bg-white hover:odd:bg-white even:bg-slate-50 hover:even:bg-slate-50"
-                  // className={`
-                  //     ${index % 2 === 0 ? "bg-white " : "bg-slate-50"}
-                  //   `}
                 >
                   {columns.map((col) => (
                     <TableCell
                       style={{ borderRight: "1px solid #e5e7eb" }}
                       key={String(col.key)}
-                      className={`py-4 ${col.align === "center"
-                        ? "text-center"
-                        : col.align === "right"
-                          ? "text-right"
-                          : ""
-                        }`}
+                      className={`py-4 ${
+                        col.align === "center"
+                          ? "text-center"
+                          : col.align === "right"
+                            ? "text-right"
+                            : ""
+                      }`}
                     >
                       {col.key === "status" && onToggleStatus ? (
                         <div className="flex justify-center items-center gap-2">
@@ -184,9 +260,10 @@ export function DataTable<T extends Record<string, any>>({
                         </div>
                       ) : col.render ? (
                         col.render(row[col.key], row)
+                      ) : row[col.key] == null ? (
+                        "-"
                       ) : (
-                        // String(row[col.key])
-                        row[col.key] == null ? "-" : String(row[col.key])
+                        String(row[col.key])
                       )}
                     </TableCell>
                   ))}
@@ -206,17 +283,17 @@ export function DataTable<T extends Record<string, any>>({
         </Table>
       </div>
 
-      {/* Footer */}
       <div className="flex flex-wrap items-center justify-between gap-4" dir="ltr">
         <span className="text-sm text-muted-foreground">
           {isSkeleton
             ? "Loading..."
-            : `Showing ${(page - 1) * pageSize + 1}–${Math.min(
-              page * pageSize,
-              filteredData.length
-            )} of ${filteredData.length}`}
+            : filteredData.length === 0
+              ? "Showing 0 of 0"
+              : `Showing ${(page - 1) * pageSize + 1}–${Math.min(
+                  page * pageSize,
+                  filteredData.length,
+                )} of ${filteredData.length}`}
         </span>
-
 
         <div className="flex gap-1 ">
           <Button
@@ -242,7 +319,6 @@ export function DataTable<T extends Record<string, any>>({
             size="icon"
             variant="outline"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            // disabled={page === totalPages}
             disabled={isSkeleton || page === totalPages}
           >
             <ChevronRight className="h-4 w-4" />
@@ -252,7 +328,6 @@ export function DataTable<T extends Record<string, any>>({
             size="icon"
             variant="outline"
             onClick={() => setPage(totalPages)}
-            // disabled={page === totalPages}
             disabled={isSkeleton || page === totalPages}
           >
             <ChevronsRight className="h-4 w-4" />

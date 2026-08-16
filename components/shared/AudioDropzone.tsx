@@ -17,10 +17,13 @@ export type AudioDropzoneLabels = {
 type AudioDropzoneProps = {
   file: File | null;
   onFileChange: (file: File | null) => void;
+  /** Called when trash is pressed (new or existing audio). Prefer over clearing file only. */
+  onRemove?: () => void | Promise<void>;
   existingAudioUrl?: string;
   className?: string;
   accept?: string;
   showRemoveButton?: boolean;
+  removing?: boolean;
   labels?: AudioDropzoneLabels;
 };
 
@@ -40,10 +43,12 @@ function isAudioFile(file: File) {
 export default function AudioDropzone({
   file,
   onFileChange,
+  onRemove,
   existingAudioUrl,
   className = "",
   accept = "audio/*",
   showRemoveButton = true,
+  removing = false,
   labels,
 }: AudioDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -184,9 +189,16 @@ export default function AudioDropzone({
               variant="destructive"
               size="icon"
               className="rounded-xl shrink-0 self-end sm:self-center"
+              disabled={removing}
               onClick={() => {
-                onFileChange(null);
-                if (inputRef.current) inputRef.current.value = "";
+                void (async () => {
+                  if (onRemove) {
+                    await onRemove();
+                  } else {
+                    onFileChange(null);
+                  }
+                  if (inputRef.current) inputRef.current.value = "";
+                })();
               }}
             >
               <Trash2 className="h-4 w-4" />
