@@ -126,7 +126,7 @@ export default function ContentList({ config }: Props) {
       render: (value) => {
         const full = String(value ?? "");
         return (
-          <span title={full} className="block max-w-[28rem]">
+          <span title={full} className="block max-w-md">
             {truncateTableText(full, TABLE_TITLE_MAX_CHARS)}
           </span>
         );
