@@ -107,7 +107,12 @@ export const axiosBaseQuery =
       return {
         error: {
           status: err.response?.status,
-          data: err.response?.data || err.message,
+          data: err.response?.data ?? {
+            message: err.message,
+            code: err.code,
+            // No HTTP response — connection dropped before Laravel answered.
+            network: true,
+          },
         },
       };
     }
