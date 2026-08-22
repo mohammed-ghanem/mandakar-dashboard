@@ -11,8 +11,8 @@ const api = axios.create({
   withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
-  // Large PDF attachments (books/articles) need a long window.
-  timeout: 10 * 60 * 1000,
+  // Large audio/PDF uploads can take well over 10 minutes on slow links.
+  timeout: 30 * 60 * 1000,
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
   headers: {

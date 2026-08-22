@@ -20,8 +20,14 @@ function isNetworkFailureMessage(value: string) {
 
 function connectionDroppedMessage(lang: "ar" | "en") {
   return lang === "ar"
-    ? "انقطع الاتصال أثناء الرفع قبل وصول رد من السيرفر. غالباً الحد ما زال عند Nginx/البروكسي أو مهلة الاتصال (مش Laravel فقط) — راجع client_max_body_size و proxy_read_timeout."
-    : "Connection dropped during upload before the server responded. A proxy/Nginx body limit or timeout is likely still in place (not only Laravel) — check client_max_body_size and proxy_read_timeout.";
+    ? "انقطع الاتصال أثناء الرفع قبل وصول رد من السيرفر. غالبًا مهلة المتصفح/Nginx/البروكسي انتهت — جرّب ملف أصغر أو ارفع المهلات."
+    : "Connection dropped during upload before the server responded. Often a browser/Nginx/proxy timeout — try a smaller file or raise timeouts.";
+}
+
+function clientTimeoutMessage(lang: "ar" | "en") {
+  return lang === "ar"
+    ? "انتهت مهلة الرفع من المتصفح قبل اكتمال الطلب. الملف كبير أو الاتصال بطيء — أعد المحاولة أو ارفع المهلة."
+    : "The browser upload timed out before the request finished. The file is large or the connection is slow — retry or raise the client timeout.";
 }
 
 function payloadTooLargeMessage(lang: "ar" | "en") {
@@ -111,17 +117,35 @@ export function showApiError(
   const toastId = options?.toastId;
   const { status, payload } = resolveErrorPayload(err);
 
-  // Helpful for Network tab debugging.
-  console.error("[API Error]", { status, payload, err });
+  // Use warn — console.error triggers Next.js red overlay and hides toasts.
+  console.warn("[API Error]", { status, payload, err });
 
   const backendMessages = extractBackendMessages(payload);
 
   let messages: string[] = [...backendMessages];
+  let isTimeout = false;
 
   if (messages.length === 0) {
     if (status === 413) {
       messages.push(payloadTooLargeMessage(lang));
     } else {
+      const code =
+        payload != null && typeof payload === "object"
+          ? String((payload as { code?: string }).code ?? "")
+          : "";
+      const msgFromPayload =
+        typeof payload === "string"
+          ? payload
+          : payload != null &&
+              typeof payload === "object" &&
+              typeof (payload as { message?: unknown }).message === "string"
+            ? String((payload as { message: string }).message)
+            : "";
+
+      isTimeout =
+        code === "ECONNABORTED" ||
+        msgFromPayload.toLowerCase().includes("timeout");
+
       const isNetwork =
         status == null ||
         status === 0 ||
@@ -130,7 +154,9 @@ export function showApiError(
           typeof payload === "object" &&
           (payload as { network?: boolean }).network === true);
 
-      if (isNetwork) {
+      if (isTimeout) {
+        messages.push(clientTimeoutMessage(lang));
+      } else if (isNetwork) {
         messages.push(connectionDroppedMessage(lang));
       } else {
         messages.push(fallback);
@@ -139,12 +165,13 @@ export function showApiError(
   }
 
   const unique = [...new Set(messages.map((m) => m.trim()).filter(Boolean))];
+  const duration = isTimeout || status == null ? 12000 : 6000;
 
   unique.forEach((msg, index) => {
     if (index === 0 && toastId !== undefined) {
-      toast.error(msg, { id: toastId });
+      toast.error(msg, { id: toastId, duration });
       return;
     }
-    toast.error(msg);
+    toast.error(msg, { duration });
   });
 }
