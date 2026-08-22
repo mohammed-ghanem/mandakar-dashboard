@@ -2,9 +2,7 @@ type UploadProgressListener = (percent: number) => void;
 
 let listener: UploadProgressListener | null = null;
 
-export function setUploadProgressListener(
-  next: UploadProgressListener | null,
-) {
+export function setUploadProgressListener(next: UploadProgressListener | null) {
   listener = next;
 }
 

@@ -16,7 +16,7 @@ const api = axios.create({
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
   headers: {
-    "Accept": "application/json",
+    Accept: "application/json",
     "Content-Type": "application/json",
     "api-key": API_KEY,
     "Api-Version": "v1",
@@ -30,7 +30,7 @@ export const sanctumApi = axios.create({
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
-    "Accept": "application/json",
+    Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
@@ -38,7 +38,9 @@ export const sanctumApi = axios.create({
 // Helper function to get CSRF token
 const getCSRFTokenFromDocument = (): string | null => {
   if (typeof document === "undefined") return null;
-  const match = document.cookie.split("; ").find((row) => row.startsWith("XSRF-TOKEN="));
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("XSRF-TOKEN="));
   return match ? decodeURIComponent(match.split("=")[1]) : null;
 };
 
@@ -50,7 +52,7 @@ api.interceptors.request.use(
     // Language
     const lang =
       typeof document !== "undefined"
-        ? document.cookie.match(/lang=(ar|en)/)?.[1] ?? "ar"
+        ? (document.cookie.match(/lang=(ar|en)/)?.[1] ?? "ar")
         : "ar";
     config.headers["Accept-Language"] = lang;
 
@@ -74,7 +76,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default api;
