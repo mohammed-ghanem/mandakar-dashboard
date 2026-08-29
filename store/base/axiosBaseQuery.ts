@@ -4,6 +4,10 @@ import type { AxiosRequestConfig, AxiosError } from "axios";
 import Cookies from "js-cookie";
 import api, { sanctumApi } from "@/services/api";
 import { reportUploadProgress } from "@/lib/uploadProgressBus";
+import {
+  handleSessionExpired,
+  isUnauthenticatedError,
+} from "@/lib/handleSessionExpired";
 
 // CSRF token
 
@@ -15,13 +19,38 @@ const ensureCSRFToken = async () => {
   }
 
   if (!csrfPromise) {
-    csrfPromise = sanctumApi.get("/sanctum/csrf-cookie").then(() => {
-      return Cookies.get("XSRF-TOKEN") || null;
-    });
+    csrfPromise = sanctumApi
+      .get("/sanctum/csrf-cookie")
+      .then(() => Cookies.get("XSRF-TOKEN") || null)
+      .catch(() => null)
+      .finally(() => {
+        csrfPromise = null;
+      });
   }
 
   return csrfPromise;
 };
+
+function normalizeAxiosErrorData(err: AxiosError): unknown {
+  const responseData = err.response?.data;
+
+  if (responseData != null && responseData !== "") {
+    if (typeof responseData === "string") {
+      try {
+        return JSON.parse(responseData) as unknown;
+      } catch {
+        return { message: responseData };
+      }
+    }
+    return responseData;
+  }
+
+  return {
+    message: err.message,
+    code: err.code,
+    network: true,
+  };
+}
 
 export const axiosBaseQuery =
   (): BaseQueryFn<
@@ -98,21 +127,20 @@ export const axiosBaseQuery =
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
+      const errorData = normalizeAxiosErrorData(err);
 
-      // try another one if the error is 419 (CSRF token mismatch)
       if (err.response?.status === 419) {
         Cookies.remove("XSRF-TOKEN");
+      }
+
+      if (isUnauthenticatedError(err.response?.status, errorData)) {
+        handleSessionExpired({ requestUrl: url });
       }
 
       return {
         error: {
           status: err.response?.status,
-          data: err.response?.data ?? {
-            message: err.message,
-            code: err.code,
-            // No HTTP response — connection dropped before Laravel answered.
-            network: true,
-          },
+          data: errorData,
         },
       };
     }

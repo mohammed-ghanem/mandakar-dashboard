@@ -3,14 +3,35 @@
 import { Activity, CircleDashed, CircleCheckBig } from "lucide-react";
 import TranslateHook from "@/translate/TranslateHook";
 import { cn } from "@/lib/utils";
-import { dashboardMock } from "./mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  emptyStatistics,
+  useGetStatisticsQuery,
+} from "@/store/statistics/statisticsApi";
+
+function HealthSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-white/80 bg-white/80 p-6 shadow-sm">
+        <Skeleton className="h-40 w-40 rounded-full" />
+        <Skeleton className="mt-4 h-4 w-48" />
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+        <Skeleton className="h-24 rounded-2xl" />
+        <Skeleton className="h-24 rounded-2xl" />
+        <Skeleton className="h-24 rounded-2xl sm:col-span-2 lg:col-span-1" />
+      </div>
+    </div>
+  );
+}
 
 export default function PublishingHealth() {
   const translate = TranslateHook();
   const t = translate?.pages?.dashboard;
-  const { active, inactive, publishedThisWeek } = dashboardMock.publishing;
-  const total = active + inactive || 1;
-  const activePct = Math.round((active / total) * 100);
+  const { data, isLoading } = useGetStatisticsQuery();
+
+  const { active, inactive, addedThisWeek, activePercentage } =
+    data?.publishingHealth ?? emptyStatistics.publishingHealth;
 
   return (
     <section
@@ -30,53 +51,57 @@ export default function PublishingHealth() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_1fr]">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-white/80 bg-white/80 p-6 shadow-sm">
-          <div
-            className="relative flex h-40 w-40 items-center justify-center rounded-full"
-            style={{
-              background: `conic-gradient(#059669 ${activePct}%, #e2e8f0 0)`,
-            }}
-          >
-            <div className="flex h-28 w-28 flex-col items-center justify-center rounded-full bg-white shadow-inner">
-              <span className="text-3xl font-bold tabular-nums text-slate-900">
-                {activePct}%
-              </span>
-              <span className="text-xs text-slate-500">{t?.active}</span>
+      {isLoading ? (
+        <HealthSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_1fr]">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/80 bg-white/80 p-6 shadow-sm">
+            <div
+              className="relative flex h-40 w-40 items-center justify-center rounded-full"
+              style={{
+                background: `conic-gradient(#059669 ${activePercentage}%, #e2e8f0 0)`,
+              }}
+            >
+              <div className="flex h-28 w-28 flex-col items-center justify-center rounded-full bg-white shadow-inner">
+                <span className="text-3xl font-bold tabular-nums text-slate-900">
+                  {activePercentage}%
+                </span>
+                <span className="text-xs text-slate-500">{t?.active}</span>
+              </div>
             </div>
+            <p className="mt-4 text-center text-sm text-slate-600">
+              {t?.healthRingHint}
+            </p>
           </div>
-          <p className="mt-4 text-center text-sm text-slate-600">
-            {t?.healthRingHint}
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-2xl border border-emerald-100 bg-white/90 p-4 shadow-sm">
-            <div className="mb-2 flex items-center gap-2 text-emerald-800">
-              <CircleCheckBig className="h-4 w-4" />
-              <span className="text-sm font-semibold">{t?.active}</span>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="rounded-2xl border border-emerald-100 bg-white/90 p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-2 text-emerald-800">
+                <CircleCheckBig className="h-4 w-4" />
+                <span className="text-sm font-semibold">{t?.active}</span>
+              </div>
+              <p className="text-2xl font-bold tabular-nums text-slate-900">
+                {active}
+              </p>
             </div>
-            <p className="text-2xl font-bold tabular-nums text-slate-900">
-              {active}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-            <div className="mb-2 flex items-center gap-2 text-slate-600">
-              <CircleDashed className="h-4 w-4" />
-              <span className="text-sm font-semibold">{t?.inactive}</span>
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-2 text-slate-600">
+                <CircleDashed className="h-4 w-4" />
+                <span className="text-sm font-semibold">{t?.inactive}</span>
+              </div>
+              <p className="text-2xl font-bold tabular-nums text-slate-900">
+                {inactive}
+              </p>
             </div>
-            <p className="text-2xl font-bold tabular-nums text-slate-900">
-              {inactive}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-teal-100 bg-white/90 p-4 shadow-sm sm:col-span-2 lg:col-span-1">
-            <p className="text-sm text-slate-600">{t?.publishedThisWeek}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">
-              {publishedThisWeek}
-            </p>
+            <div className="rounded-2xl border border-teal-100 bg-white/90 p-4 shadow-sm sm:col-span-2 lg:col-span-1">
+              <p className="text-sm text-slate-600">{t?.publishedThisWeek}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">
+                {addedThisWeek}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

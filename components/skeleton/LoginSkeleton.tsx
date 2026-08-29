@@ -1,57 +1,43 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
-import loginIcon from "@/public/assets/images/loginIcon.svg";
+import AuthSkeletonShell, {
+  AuthBar,
+  AuthButtonBar,
+} from "@/components/skeleton/AuthSkeletonShell";
+
 const LoginSkeleton = () => {
   return (
-    <div className="relative font-cairo" dir="rtl">
-      <div className="grid lg:grid-cols-2 gap-4 items-center bgForm">
-        <div className="my-10 h-screen md:h-auto" dir="ltr">
-          <div className="flex justify-center mb-4">
-            <Skeleton className="h-20 w-52" />
-          </div>
-          <Skeleton className="h-8 w-52 mx-auto mb-8 " />
+    <AuthSkeletonShell>
+      <AuthBar className="mx-auto mb-8 h-8 w-52" />
 
-          <div className="p-4 w-[95%] md:w-[80%] mx-auto">
-            <div className="mb-4">
-              <Skeleton className="h-4 w-24 mb-2" />
-
-              <div className="relative">
-                <Skeleton className="absolute inset-e-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full" />
-                <Skeleton className="h-10 w-full rounded-md" />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <Skeleton className="h-4 w-24 mb-2" />
-
-              <div className="relative">
-                <Skeleton className="h-10 w-full rounded-md" />
-                <Skeleton className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between mb-4 mt-2">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-4 w-4 rounded-sm" />
-                <Skeleton className="h-4 w-16" />
-              </div>
-
-              <Skeleton className="h-4 w-24" />
-            </div>
-
-            <Skeleton className="h-12 w-[50%] mx-auto rounded-lg mt-5" />
+      <div className="mx-auto w-[95%] p-4 md:w-[80%]">
+        <div className="mb-4">
+          <AuthBar className="mb-2 h-4 w-24" />
+          <div className="relative">
+            <AuthBar className="absolute inset-e-3 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full" />
+            <AuthBar className="h-10 w-full rounded-md" />
           </div>
         </div>
 
-        <div className="relative hidden lg:flex h-screen items-center justify-center ">
-          <div className="h-[90%]">
-            <Image src={loginIcon} alt="bg" width={300} height={300} />
+        <div className="mb-4">
+          <AuthBar className="mb-2 h-4 w-24" />
+          <div className="relative">
+            <AuthBar className="h-10 w-full rounded-md" />
+            <AuthBar className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full" />
           </div>
         </div>
+
+        <div className="mt-2 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AuthBar className="h-4 w-4 rounded-sm" />
+            <AuthBar className="h-4 w-16" />
+          </div>
+          <AuthBar className="h-4 w-24" />
+        </div>
+
+        <AuthButtonBar />
       </div>
-    </div>
+    </AuthSkeletonShell>
   );
 };
 

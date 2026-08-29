@@ -1,44 +1,34 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import AuthSkeletonShell, {
+  AuthBar,
+  AuthButtonBar,
+} from "@/components/skeleton/AuthSkeletonShell";
 import LangUseParams from "@/translate/LangUseParams";
 
 const ResetPasswordSkeleton = () => {
   const lang = LangUseParams();
 
   return (
-    <div className="relative  font-cairo" dir="rtl">
-      <div className="grid lg:grid-cols-2 gap-4 items-center bgForm">
-        <div className="my-10" dir="ltr">
-          <Skeleton className="h-7 md:h-8 w-56 mx-auto mb-6" />
+    <AuthSkeletonShell>
+      <AuthBar className="mx-auto mb-6 h-7 w-56 md:h-8" />
 
-          <div className="p-4 w-[95%] md:w-[80%] mx-auto">
-            {[1, 2].map((_, index) => (
-              <div key={index} className="mb-4">
-                <Skeleton
-                  className={`h-4 w-36 mb-2 ${
-                    lang === "ar" ? "ml-auto" : ""
-                  }`}
-                />
-
-                <div className="relative">
-                  <Skeleton className="h-10 w-full rounded-md" />
-                  <Skeleton className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full" />
-                </div>
-              </div>
-            ))}
-
-            <Skeleton className="h-12 w-[50%] mx-auto rounded-lg mt-8" />
+      <div className="mx-auto w-[95%] p-4 md:w-[80%]">
+        {[1, 2].map((index) => (
+          <div key={index} className="mb-4">
+            <AuthBar
+              className={`mb-2 h-4 w-36 ${lang === "ar" ? "ml-auto" : ""}`}
+            />
+            <div className="relative">
+              <AuthBar className="h-10 w-full rounded-md" />
+              <AuthBar className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full" />
+            </div>
           </div>
-        </div>
+        ))}
 
-        <div className="relative hidden lg:flex  h-screen items-center justify-center">
-          <div className="h-[50%] w-[60%]">
-            <Skeleton className="w-full h-full rounded-xl" />
-          </div>
-        </div>
+        <AuthButtonBar />
       </div>
-    </div>
+    </AuthSkeletonShell>
   );
 };
 

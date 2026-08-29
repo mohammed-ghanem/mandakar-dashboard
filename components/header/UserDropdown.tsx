@@ -11,6 +11,9 @@ import TranslateHook from "@/translate/TranslateHook";
 import LogoutButton from "../auth/logout/LogoutButton";
 import { NavbarUserSkeleton } from "@/components/skeleton/NavbarSkeleton";
 import { getAvatarSrc } from "@/lib/avatar";
+import { ACCESS_TOKEN_COOKIE } from "@/lib/authCookies";
+import { extractProfileUser } from "@/lib/profileUser";
+import { useSessionReady } from "@/hooks/useSessionReady";
 
 interface UserDropdownProps {
   showUserName?: boolean;
@@ -26,13 +29,14 @@ export default function UserDropdown({
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
-  const token = Cookies.get("access_token");
+  const sessionReady = useSessionReady();
+  const token = sessionReady ? Cookies.get(ACCESS_TOKEN_COOKIE) : undefined;
 
   const { data: profileData, isLoading } = useGetProfileQuery(undefined, {
-    skip: !token,
+    skip: !sessionReady || !token,
   });
 
-  const user = profileData?.data || profileData?.user || profileData || null;
+  const user = extractProfileUser(profileData);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -51,11 +55,11 @@ export default function UserDropdown({
       document.removeEventListener("mousedown", handleClick);
   }, [isLogoutDialogOpen]);
 
-  if (!token) return null;
-
-  if (isLoading || !user) {
+  if (!sessionReady || isLoading || (Boolean(token) && !user)) {
     return <NavbarUserSkeleton />;
   }
+
+  if (!token) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>

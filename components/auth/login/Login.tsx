@@ -3,6 +3,7 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useLoginMutation } from "@/store/auth/authApi";
+import { showApiError } from "@/lib/showApiError";
 import { toast } from "sonner";
 import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -51,19 +52,14 @@ const Login = () => {
       const res = await login(form).unwrap();
       toast.success(res?.message);
       router.replace(`/${lang}`);
-    } catch (err: any) {
-      const errorData = err?.data ?? err;
-
-      if (errorData?.errors) {
-        Object.values(errorData.errors).forEach((messages: any) =>
-          messages.forEach((msg: string) => toast.error(msg))
-        );
-        return;
-      }
-
-      if (errorData?.message) {
-        toast.error(errorData.message);
-      }
+    } catch (err: unknown) {
+      showApiError(err, {
+        lang: lang === "en" ? "en" : "ar",
+        fallback:
+          lang === "ar"
+            ? "فشل تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور."
+            : "Login failed. Check your email and password.",
+      });
     }
   };
 

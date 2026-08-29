@@ -92,8 +92,26 @@ function extractBackendMessages(payload: unknown): string[] {
   if (messages.length === 0 && "message" in data) {
     collectMessages(data.message, messages);
   }
+  if (messages.length === 0 && "msg" in data) {
+    collectMessages(data.msg, messages);
+  }
   if (messages.length === 0 && "error" in data) {
     collectMessages(data.error, messages);
+  }
+  if (
+    messages.length === 0 &&
+    "data" in data &&
+    data.data != null &&
+    typeof data.data === "object"
+  ) {
+    const nested = data.data as Record<string, unknown>;
+    if ("message" in nested) collectMessages(nested.message, messages);
+    if (messages.length === 0 && "msg" in nested) {
+      collectMessages(nested.msg, messages);
+    }
+    if (messages.length === 0 && "errors" in nested) {
+      collectMessages(nested.errors, messages);
+    }
   }
 
   // Drop pure network strings if they slipped into message.
@@ -146,13 +164,17 @@ export function showApiError(
         code === "ECONNABORTED" ||
         msgFromPayload.toLowerCase().includes("timeout");
 
+      const isHttpError =
+        status != null && status >= 400 && status < 600;
+
       const isNetwork =
-        status == null ||
-        status === 0 ||
-        (typeof payload === "string" && isNetworkFailureMessage(payload)) ||
-        (payload != null &&
-          typeof payload === "object" &&
-          (payload as { network?: boolean }).network === true);
+        !isHttpError &&
+        (status == null ||
+          status === 0 ||
+          (typeof payload === "string" && isNetworkFailureMessage(payload)) ||
+          (payload != null &&
+            typeof payload === "object" &&
+            (payload as { network?: boolean }).network === true));
 
       if (isTimeout) {
         messages.push(clientTimeoutMessage(lang));

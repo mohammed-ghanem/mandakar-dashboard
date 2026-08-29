@@ -44,15 +44,26 @@ export const rolesApi = createApi({
       query: ({ id }) => ({
         url: `/roles/${id}`,
         method: "get",
+        auth: true,
       }),
       transformResponse: (res: any) => {
-        return (
+        const role =
           res?.data?.data?.role ??
           res?.data?.role ??
           res?.data?.data ??
           res?.role ??
-          null
-        );
+          null;
+
+        if (!role || typeof role !== "object") return null;
+
+        const record = role as Record<string, unknown>;
+        const groupedPerms = record.permissions ?? record.role_permissions;
+
+        return {
+          ...record,
+          permissions: groupedPerms,
+          role_permissions: record.role_permissions ?? groupedPerms,
+        };
       },
       providesTags: (result, error, arg) => [{ type: "Role", id: arg.id }],
       keepUnusedDataFor: 300,
@@ -98,6 +109,15 @@ export const rolesApi = createApi({
         "Roles",
         { type: "Role", id: arg.id },
       ],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          const { authApi } = await import("@/store/auth/authApi");
+          dispatch(authApi.util.invalidateTags(["Profile"]));
+        } catch {
+          // Keep the role update error on the form.
+        }
+      },
     }),
 
     /* ===================== DELETE ROLE ===================== */

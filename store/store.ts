@@ -20,6 +20,7 @@ import { fatwasApi } from "./fatwas/fatwasApi";
 import { swapOrderApi } from "./swapOrder/swapOrderApi";
 import { bannersApi } from "./banners/bannersApi";
 import { mediaApi } from "./media/mediaApi";
+import { statisticsApi } from "./statistics/statisticsApi";
 
 export const store = configureStore({
   reducer: {
@@ -43,6 +44,7 @@ export const store = configureStore({
     [swapOrderApi.reducerPath]: swapOrderApi.reducer,
     [bannersApi.reducerPath]: bannersApi.reducer,
     [mediaApi.reducerPath]: mediaApi.reducer,
+    [statisticsApi.reducerPath]: statisticsApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -66,6 +68,7 @@ export const store = configureStore({
       swapOrderApi.middleware,
       bannersApi.middleware,
       mediaApi.middleware,
+      statisticsApi.middleware,
     ),
 });
 

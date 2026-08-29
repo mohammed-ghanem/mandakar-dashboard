@@ -1,6 +1,9 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import AuthSkeletonShell, {
+  AuthBar,
+  AuthButtonBar,
+} from "@/components/skeleton/AuthSkeletonShell";
 import LangUseParams from "@/translate/LangUseParams";
 
 const CODE_LENGTH = 4;
@@ -9,48 +12,32 @@ const VerifyCodeSkeleton = () => {
   const lang = LangUseParams();
 
   return (
-    <div className="relative  font-cairo" dir="rtl">
-      <div className="grid lg:grid-cols-2 gap-4 items-center">
-        <div className="my-10" dir="ltr">
-          <Skeleton className="h-7 md:h-8 w-56 mx-auto mb-6" />
+    <AuthSkeletonShell>
+      <AuthBar className="mx-auto mb-6 h-7 w-56 md:h-8" />
 
-          <div className="p-4 w-[95%] md:w-[80%] mx-auto">
-            <div className="mb-6">
-              <Skeleton
-                className={`h-4 w-28 mb-3 ${
-                  lang === "ar" ? "ml-auto" : ""
-                }`}
-              />
-              <Skeleton className="h-12 w-full rounded-md" />
-            </div>
+      <div className="mx-auto w-[95%] p-4 md:w-[80%]">
+        <div className="mb-6">
+          <AuthBar
+            className={`mb-3 h-4 w-28 ${lang === "ar" ? "ml-auto" : ""}`}
+          />
+          <AuthBar className="h-12 w-full rounded-md" />
+        </div>
 
-            <div className="mb-6">
-              <Skeleton
-                className={`h-4 w-24 mb-3 ${
-                  lang === "ar" ? "ml-auto" : ""
-                }`}
-              />
-
-              <div className="flex gap-3 justify-center">
-                {Array.from({ length: CODE_LENGTH }).map((_, index) => (
-                  <Skeleton key={index} className="w-14 h-14 rounded-md" />
-                ))}
-              </div>
-            </div>
-
-            <Skeleton className="h-12 w-[50%] mx-auto rounded-lg mt-8" />
-
-            <Skeleton className="h-4 w-32 mx-auto mt-5" />
+        <div className="mb-6">
+          <AuthBar
+            className={`mb-3 h-4 w-24 ${lang === "ar" ? "ml-auto" : ""}`}
+          />
+          <div className="flex justify-center gap-3">
+            {Array.from({ length: CODE_LENGTH }).map((_, index) => (
+              <AuthBar key={index} className="h-14 w-14 rounded-md" />
+            ))}
           </div>
         </div>
 
-        <div className="relative hidden lg:flex h-screen items-center justify-center">
-          <div className="h-[50%] w-[60%]">
-            <Skeleton className="w-full h-full rounded-xl" />
-          </div>
-        </div>
+        <AuthButtonBar />
+        <AuthBar className="mx-auto mt-5 h-4 w-32" />
       </div>
-    </div>
+    </AuthSkeletonShell>
   );
 };
 

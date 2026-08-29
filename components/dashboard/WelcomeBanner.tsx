@@ -4,11 +4,13 @@ import { LayoutDashboard, Sparkles } from "lucide-react";
 import TranslateHook from "@/translate/TranslateHook";
 import { dash } from "@/constants/dashboardUi";
 import { cn } from "@/lib/utils";
-import { dashboardMock } from "./mockData";
+import { useGetStatisticsQuery } from "@/store/statistics/statisticsApi";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function WelcomeBanner() {
   const translate = TranslateHook();
   const t = translate?.pages?.dashboard;
+  const { data, isLoading } = useGetStatisticsQuery();
 
   return (
     <section
@@ -43,9 +45,13 @@ export default function WelcomeBanner() {
           <Sparkles className="h-5 w-5 shrink-0 opacity-90" />
           <div className="leading-tight">
             <p className="text-xs text-white/80">{t?.totalContentLabel}</p>
-            <p className="text-2xl font-bold tabular-nums">
-              {dashboardMock.totals.visits.toLocaleString()}
-            </p>
+            {isLoading ? (
+              <Skeleton className="mt-1 h-8 w-20 bg-white/20" />
+            ) : (
+              <p className="text-2xl font-bold tabular-nums">
+                {(data?.totalVisits ?? 0).toLocaleString()}
+              </p>
+            )}
           </div>
         </div>
       </div>

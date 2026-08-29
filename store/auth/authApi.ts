@@ -2,6 +2,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { axiosBaseQuery } from "@/store/base/axiosBaseQuery";
+import { setAccessToken } from "@/lib/authCookies";
 
 
 export const authApi = createApi({
@@ -19,15 +20,15 @@ export const authApi = createApi({
                 withCsrf: true,
             }),
             async onQueryStarted(_, { queryFulfilled }) {
+                try {
+                    const { data }: any = await queryFulfilled;
 
-                const { data }: any = await queryFulfilled;
-
-                const token = data?.data?.access_token;
-                if (token) {
-                    Cookies.set("access_token", token, {
-                        expires: 7,
-                        secure: process.env.NODE_ENV === "production",
-                    });
+                    const token = data?.data?.access_token;
+                    if (token) {
+                        setAccessToken(token);
+                    }
+                } catch {
+                    // Login failed — do not persist token.
                 }
             },
         }),
@@ -39,15 +40,11 @@ export const authApi = createApi({
                 auth: true, // لإضافة Authorization header
                 withCsrf: true, // للـ CSRF protection
             }),
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_, { queryFulfilled }) {
                 try {
                     await queryFulfilled;
-                    console.log("✅ Logout successful");
-
-                    // يمكنك هنا تنظيف أي بيانات cached أخرى إذا لزم الأمر
-                    dispatch(authApi.util.invalidateTags(['Profile']));
-                } catch (error) {
-                    console.error("❌ Logout failed:", error);
+                } catch {
+                    // Logout still continues on the client.
                 }
             },
         }),
@@ -192,11 +189,7 @@ export const authApi = createApi({
                     // 1. إذا كان هناك access_token جديد في الاستجابة، قم بتحديثه
                     const newToken = data?.data?.access_token || data?.access_token;
                     if (newToken) {
-                        Cookies.set("access_token", newToken, {
-                            expires: 7,
-                            secure: process.env.NODE_ENV === "production",
-                            path: "/",
-                        });
+                        setAccessToken(newToken);
                         console.log("✅ Access token updated after password change");
                     }
                     // get data for user for update cache

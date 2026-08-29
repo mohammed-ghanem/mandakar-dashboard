@@ -21,19 +21,31 @@ export type SidebarLinkItem = {
   href: string;
   icon: LucideIcon;
   key: string;
+  /** Permission module key — omit for always-visible links (dashboard). */
+  module?: string;
+  always?: boolean;
 };
 
 export type SidebarChildItem = {
   href: string;
   icon: LucideIcon;
   key: string;
+  module?: string;
 };
 
 export type SidebarGroupItem = {
   kind: "group";
   key: string;
   icon: LucideIcon;
+  module?: string;
   children: SidebarChildItem[];
+};
+
+export type SettingsLinkItem = {
+  href: string;
+  key: string;
+  module?: string;
+  always?: boolean;
 };
 
 export type SidebarNavItem = SidebarLinkItem | SidebarGroupItem;
@@ -70,6 +82,7 @@ function contentGroup(
     kind: "group" as const,
     key,
     icon,
+    module: key,
     children,
   };
 }
@@ -80,12 +93,14 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
     href: `/${lang}`,
     icon: Home,
     key: "dashboard",
+    always: true,
   },
   {
     kind: "link",
     href: `/${lang}/about-sheikh`,
     icon: MessageCircleMore,
     key: "aboutUS",
+    module: "about_sheikh",
   },
   contentGroup(lang, "lectures", TvMinimalPlay, "lecturesItems", {
     withReorder: true,
@@ -103,6 +118,7 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
     kind: "group",
     key: "banners",
     icon: Film,
+    module: "banners",
     children: [
       {
         href: `/${lang}/banners`,
@@ -121,31 +137,37 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
     href: `/${lang}/admins`,
     icon: Users,
     key: "admins",
+    module: "admins",
   },
   {
     kind: "link",
     href: `/${lang}/roles`,
     icon: ShieldCheck,
     key: "roles",
+    module: "roles",
   },
 ];
 
-export const settingsLinks = (lang: string) => [
+export const settingsLinks = (lang: string): SettingsLinkItem[] => [
   {
     href: `/${lang}/privacy-policy`,
     key: "privacyPolicy",
+    module: "privacy_policy",
   },
   {
     href: `/${lang}/terms-conditions`,
     key: "termsAndConditions",
+    module: "terms_and_conditions",
   },
   {
     href: `/${lang}/profile`,
     key: "profile",
+    always: true,
   },
   {
     href: `/${lang}/app-contacts`,
     key: "appContacts",
+    module: "app_contacts",
   },
 ];
 

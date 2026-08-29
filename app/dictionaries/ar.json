@@ -13,6 +13,8 @@
       "kpiCategories": "الأقسام",
       "kpiAdmins": "المستخدمين",
       "kpiRoles": "الأدوار",
+      "statisticsError": "تعذّر تحميل الإحصائيات. حاول مرة أخرى.",
+      "noPermission": "ليس لديك صلاحية الدخول إلى هذه الصفحة.",
       "modulesTitle": "توزيع المحتوى",
       "modulesDescription": "عدد كل نوع من المحتوى مع حالة النشر.",
       "active": "نشط",

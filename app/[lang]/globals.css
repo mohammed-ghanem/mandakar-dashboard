@@ -238,3 +238,9 @@ input[data-slot="input"]:-webkit-autofill:active {
   background: #fff;
   color: #000;
 }
+.authSkeleton {
+  background-color: #e4d3b4;
+}
+.authSkeletonBtn {
+  background-color: #9f8452;
+}

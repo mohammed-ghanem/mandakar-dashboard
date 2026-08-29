@@ -13,6 +13,8 @@
       "kpiCategories": "Categories",
       "kpiAdmins": "Users",
       "kpiRoles": "Roles",
+      "statisticsError": "Could not load statistics. Please try again.",
+      "noPermission": "You do not have permission to access this page.",
       "modulesTitle": "Content distribution",
       "modulesDescription": "Count and publish status for each content type.",
       "active": "Active",

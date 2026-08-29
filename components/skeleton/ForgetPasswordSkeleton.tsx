@@ -1,42 +1,32 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import AuthSkeletonShell, {
+  AuthBar,
+  AuthButtonBar,
+} from "@/components/skeleton/AuthSkeletonShell";
 import LangUseParams from "@/translate/LangUseParams";
 
 const ForgetPasswordSkeleton = () => {
   const lang = LangUseParams();
 
   return (
-    <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
-      <div className="grid lg:grid-cols-2 gap-4 items-center">
-        <div className="my-10" style={{ direction: "ltr" }}>
-          <Skeleton className="h-7 md:h-8 w-48 mx-auto mb-6" />
+    <AuthSkeletonShell>
+      <AuthBar className="mx-auto mb-6 h-7 w-48 md:h-8" />
 
-          <div className="p-4 w-[95%] md:w-[80%] mx-auto relative">
-            <div className="mb-4">
-              <Skeleton
-                className={`h-4 w-24 mb-2 ${
-                  lang === "ar" ? "ml-auto" : ""
-                }`}
-              />
-
-              <div className="relative">
-                <Skeleton className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full" />
-                <Skeleton className="h-10 w-full rounded-md" />
-              </div>
-            </div>
-
-            <Skeleton className="h-12 w-[50%] mx-auto rounded-lg mt-8" />
+      <div className="relative mx-auto w-[95%] p-4 md:w-[80%]">
+        <div className="mb-4">
+          <AuthBar
+            className={`mb-2 h-4 w-24 ${lang === "ar" ? "ml-auto" : ""}`}
+          />
+          <div className="relative">
+            <AuthBar className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full" />
+            <AuthBar className="h-10 w-full rounded-md" />
           </div>
         </div>
 
-        <div className="relative hidden lg:flex bkMainColor h-screen items-center justify-center">
-          <div className="h-[50%] w-[60%]">
-            <Skeleton className="w-full h-full rounded-xl" />
-          </div>
-        </div>
+        <AuthButtonBar />
       </div>
-    </div>
+    </AuthSkeletonShell>
   );
 };
 

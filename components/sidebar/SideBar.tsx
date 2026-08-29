@@ -18,9 +18,12 @@ import {
   isNavHrefActive,
   isGroupActive,
   type SidebarGroupItem,
+  type SidebarLinkItem,
+  type SettingsLinkItem,
 } from "./sidebarLinks";
 import Image from "next/image";
 import logo from "@/public/assets/images/logo.svg";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 const SideBar = () => {
   const lang = LangUseParams() as string;
@@ -29,6 +32,28 @@ const SideBar = () => {
 
   const [openSettings, setOpenSettings] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const { hasModuleAccess, canAccessHref, isReady } = useUserPermissions();
+
+  const canShowLink = (item: {
+    always?: boolean;
+    module?: string;
+    href: string;
+  }) => {
+    if (item.always) return true;
+    if (item.module) return hasModuleAccess(item.module);
+    return canAccessHref(item.href, lang);
+  };
+
+  const visibleMainLinks = mainLinks(lang).filter((item) => {
+    if (item.kind === "link") {
+      return canShowLink(item);
+    }
+    return item.module ? hasModuleAccess(item.module) : true;
+  });
+
+  const visibleSettingsLinks = settingsLinks(lang).filter((link) =>
+    canShowLink(link),
+  );
 
   const isActive = (href: string) => isNavHrefActive(pathname, href, lang);
 
@@ -46,7 +71,7 @@ const SideBar = () => {
     }
 
     const next: Record<string, boolean> = {};
-    for (const item of mainLinks(lang)) {
+    for (const item of visibleMainLinks) {
       if (item.kind === "group" && isGroupActive(pathname, item, lang)) {
         next[item.key] = true;
       }
@@ -122,6 +147,7 @@ const SideBar = () => {
   };
 
   if (!lang || !translate) return <SidebarSkeleton />;
+  if (!isReady) return <SidebarSkeleton />;
 
   return (
     <aside
@@ -147,65 +173,69 @@ const SideBar = () => {
 
       <nav className="flex-1">
         <ul className="space-y-1 p-2">
-          {mainLinks(lang).map((item) => {
+          {visibleMainLinks.map((item) => {
             if (item.kind === "group") {
               return renderGroup(item);
             }
 
+            const linkItem = item as SidebarLinkItem;
+
             return (
-              <li key={item.href}>
+              <li key={linkItem.href}>
                 <Link
-                  href={item.href}
-                  className={linkClass(isActive(item.href))}
+                  href={linkItem.href}
+                  className={linkClass(isActive(linkItem.href))}
                 >
-                  <item.icon size={18} />
+                  <linkItem.icon size={18} />
                   <span className="hidden md:inline">
-                    {translate.sidebar[item.key]}
+                    {translate.sidebar[linkItem.key]}
                   </span>
                 </Link>
               </li>
             );
           })}
 
-          <li>
-            <button
-              type="button"
-              onClick={() => setOpenSettings(!openSettings)}
-              className={groupButtonClass(isSettingsActive())}
-            >
-              <span className="flex items-center gap-2">
-                <Settings size={18} />
-                <span className="hidden md:inline">
-                  {translate.sidebar.settings}
-                </span>
-              </span>
-
-              <ChevronDown
-                size={16}
-                className={`hidden md:inline transition-transform ${
-                  openSettings ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <div
-              className={`md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300 
-              ${openSettings ? " opacity-100" : "max-h-0 opacity-0"}`}
-            >
-              {settingsLinks(lang).map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`${linkClass(isActive(link.href))} text-[16px]`}
-                >
-                  <ShieldCheck size={16} />
+          {visibleSettingsLinks.length > 0 && (
+            <li>
+              <button
+                type="button"
+                onClick={() => setOpenSettings(!openSettings)}
+                className={groupButtonClass(isSettingsActive())}
+              >
+                <span className="flex items-center gap-2">
+                  <Settings size={18} />
                   <span className="hidden md:inline">
-                    {translate.sidebar[link.key]}
+                    {translate.sidebar.settings}
                   </span>
-                </Link>
-              ))}
-            </div>
-          </li>
+                </span>
+
+                <ChevronDown
+                  size={16}
+                  className={`hidden md:inline transition-transform ${
+                    openSettings ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300 
+              ${openSettings ? " opacity-100" : "max-h-0 opacity-0"}`}
+              >
+                {visibleSettingsLinks.map((link: SettingsLinkItem) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`${linkClass(isActive(link.href))} text-[16px]`}
+                  >
+                    <ShieldCheck size={16} />
+                    <span className="hidden md:inline">
+                      {translate.sidebar[link.key]}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </li>
+          )}
         </ul>
       </nav>
     </aside>
