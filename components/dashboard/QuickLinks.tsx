@@ -27,7 +27,7 @@ type QuickItem = {
 };
 
 export default function QuickLinks() {
-  const lang = LangUseParams();
+  const lang = LangUseParams() ?? "ar";
   const translate = TranslateHook();
   const t = translate?.pages?.dashboard;
   const { canAccessHref, isReady } = useUserPermissions();

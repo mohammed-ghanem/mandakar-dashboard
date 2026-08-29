@@ -59,7 +59,7 @@ function mergeProfileWithRole(profile: unknown, roleData: unknown) {
 }
 
 export function useUserPermissions() {
-  const lang = LangUseParams();
+  const lang = LangUseParams() ?? "ar";
   const {
     data: profile,
     isLoading: profileLoading,
