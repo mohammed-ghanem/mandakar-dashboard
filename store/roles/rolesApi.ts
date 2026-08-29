@@ -63,7 +63,7 @@ export const rolesApi = createApi({
           ...record,
           permissions: groupedPerms,
           role_permissions: record.role_permissions ?? groupedPerms,
-        };
+        } as unknown as Role;
       },
       providesTags: (result, error, arg) => [{ type: "Role", id: arg.id }],
       keepUnusedDataFor: 300,

@@ -55,11 +55,12 @@ export default function UserDropdown({
       document.removeEventListener("mousedown", handleClick);
   }, [isLogoutDialogOpen]);
 
-  if (!sessionReady || isLoading || (Boolean(token) && !user)) {
+  if (!sessionReady || isLoading) {
     return <NavbarUserSkeleton />;
   }
 
   if (!token) return null;
+  if (!user) return <NavbarUserSkeleton />;
 
   return (
     <div className="relative" ref={dropdownRef}>
