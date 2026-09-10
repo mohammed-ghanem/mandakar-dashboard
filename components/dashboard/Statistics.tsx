@@ -14,41 +14,21 @@ import {
   emptyStatistics,
   useGetStatisticsQuery,
 } from "@/store/statistics/statisticsApi";
+import { getAccent, kpiAccents, type AccentKey } from "@/constants/navAccents";
 
 type KpiKey = keyof typeof emptyStatistics.quickStats;
 
 type KpiConfig = {
   key: KpiKey;
   icon: LucideIcon;
-  accent: string;
-  ring: string;
+  accent: AccentKey;
 };
 
 const kpiConfig: KpiConfig[] = [
-  {
-    key: "content",
-    icon: Library,
-    accent: "from-emerald-100 to-teal-50 text-emerald-800",
-    ring: "ring-emerald-200/70",
-  },
-  {
-    key: "categories",
-    icon: FolderTree,
-    accent: "from-teal-100 to-cyan-50 text-teal-800",
-    ring: "ring-teal-200/70",
-  },
-  {
-    key: "admins",
-    icon: Users,
-    accent: "from-amber-100 to-orange-50 text-amber-900",
-    ring: "ring-amber-200/70",
-  },
-  {
-    key: "roles",
-    icon: ShieldCheck,
-    accent: "from-slate-100 to-slate-50 text-slate-800",
-    ring: "ring-slate-200/80",
-  },
+  { key: "content", icon: Library, accent: kpiAccents.content },
+  { key: "categories", icon: FolderTree, accent: kpiAccents.categories },
+  { key: "admins", icon: Users, accent: kpiAccents.admins },
+  { key: "roles", icon: ShieldCheck, accent: kpiAccents.roles },
 ];
 
 function StatisticsSkeleton() {
@@ -57,14 +37,14 @@ function StatisticsSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <article
           key={index}
-          className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm ring-1 ring-slate-900/3"
+          className="relative overflow-hidden rounded-2xl border border-[#e4d3b4]/70 bg-white p-5 shadow-sm"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-9 w-16" />
             </div>
-            <Skeleton className="h-11 w-11 rounded-xl" />
+            <Skeleton className="h-12 w-12 rounded-2xl" />
           </div>
         </article>
       ))}
@@ -102,39 +82,62 @@ export default function Statistics() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {kpiConfig.map((item) => (
-              <article
-                key={item.key}
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5",
-                  "shadow-sm ring-1 ring-slate-900/3",
-                )}
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-s-0 top-0 h-full w-1.5 bg-linear-to-b from-emerald-500 to-teal-600 opacity-80"
-                />
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-slate-600">
-                      {labels[item.key]}
-                    </p>
-                    <p className="text-3xl font-bold tabular-nums text-slate-900">
-                      {totals[item.key]}
-                    </p>
-                  </div>
-                  <span
+            {kpiConfig.map((item) => {
+              const tone = getAccent(item.accent);
+
+              return (
+                <article
+                  key={item.key}
+                  className={cn(
+                    "group relative overflow-hidden rounded-2xl border border-[#e4d3b4]/60 p-5",
+                    "bg-linear-to-br shadow-md ring-1 transition duration-300",
+                    "hover:-translate-y-0.5 hover:shadow-lg",
+                    tone.wash,
+                    tone.ring,
+                    tone.glow,
+                  )}
+                >
+                  <div
+                    aria-hidden
                     className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br shadow-inner ring-1",
-                      item.accent,
-                      item.ring,
+                      "pointer-events-none absolute inset-x-0 top-0 h-1 opacity-90",
+                      tone.bar,
                     )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                  </span>
-                </div>
-              </article>
-            ))}
+                  />
+                  <div
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute -inset-e-6 -top-6 h-24 w-24 rounded-full opacity-30 blur-2xl transition group-hover:opacity-50",
+                      tone.bar,
+                    )}
+                  />
+
+                  <div className="relative flex items-start justify-between gap-3">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-slate-600">
+                        {labels[item.key]}
+                      </p>
+                      <p
+                        className={cn(
+                          "text-3xl font-bold tabular-nums tracking-tight",
+                          tone.ink,
+                        )}
+                      >
+                        {totals[item.key].toLocaleString()}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 group-hover:scale-105",
+                        tone.chip,
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </>
       )}

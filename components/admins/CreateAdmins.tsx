@@ -195,7 +195,7 @@ export default function CreateAdmin() {
                     {t?.phone}
                   </Label>
                   <PhoneInput
-                    country="eg"
+                    country="kw"
                     value={form.mobile}
                     onChange={(v) => setForm({ ...form, mobile: v })}
                     containerClass="!w-full"

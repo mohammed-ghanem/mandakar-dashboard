@@ -241,7 +241,7 @@ export default function EditAdmin() {
                     rules={{ required: true }}
                     render={({ field }) => (
                       <PhoneInput
-                        country="eg"
+                        country="kw"
                         value={field.value}
                         onChange={field.onChange}
                         containerClass="!w-full"

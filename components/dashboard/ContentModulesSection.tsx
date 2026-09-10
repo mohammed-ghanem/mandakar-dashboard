@@ -13,6 +13,7 @@ import TranslateHook from "@/translate/TranslateHook";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetStatisticsQuery } from "@/store/statistics/statisticsApi";
+import { getAccent, moduleAccents } from "@/constants/navAccents";
 
 const moduleOrder = [
   "lectures",
@@ -32,35 +33,17 @@ const icons: Record<string, LucideIcon> = {
   books: BookMarked,
 };
 
-const barTone: Record<string, string> = {
-  lectures: "bg-emerald-600",
-  speeches: "bg-teal-600",
-  articles: "bg-cyan-600",
-  explanations: "bg-sky-600",
-  fatwas: "bg-amber-500",
-  books: "bg-lime-600",
-};
-
-const softTone: Record<string, string> = {
-  lectures: "from-emerald-50/80 to-white ring-emerald-100",
-  speeches: "from-teal-50/80 to-white ring-teal-100",
-  articles: "from-cyan-50/80 to-white ring-cyan-100",
-  explanations: "from-sky-50/80 to-white ring-sky-100",
-  fatwas: "from-amber-50/80 to-white ring-amber-100",
-  books: "from-lime-50/80 to-white ring-lime-100",
-};
-
 function ModulesSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
         <article
           key={index}
-          className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm ring-1 ring-slate-200/80"
+          className="rounded-2xl border border-[#e4d3b4]/70 bg-white p-5 shadow-sm"
         >
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Skeleton className="h-10 w-10 rounded-xl" />
+              <Skeleton className="h-11 w-11 rounded-2xl" />
               <Skeleton className="h-5 w-24" />
             </div>
             <Skeleton className="h-8 w-12" />
@@ -110,6 +93,7 @@ export default function ContentModulesSection() {
               inactive: 0,
             };
             const Icon = icons[key] ?? FileText;
+            const tone = getAccent(moduleAccents[key]);
             const activePct = mod.total
               ? Math.round((mod.active / mod.total) * 100)
               : 0;
@@ -118,38 +102,55 @@ export default function ContentModulesSection() {
               <article
                 key={key}
                 className={cn(
-                  "rounded-2xl border border-slate-200/90 bg-linear-to-br p-5 shadow-sm ring-1",
-                  softTone[key],
+                  "group relative overflow-hidden rounded-2xl border border-[#e4d3b4]/55 p-5",
+                  "bg-linear-to-br shadow-md ring-1 transition duration-300",
+                  "hover:-translate-y-0.5 hover:shadow-lg",
+                  tone.wash,
+                  tone.ring,
+                  tone.glow,
                 )}
               >
-                <div className="mb-4 flex items-start justify-between gap-3">
+                <div
+                  aria-hidden
+                  className={cn(
+                    "pointer-events-none absolute -inset-e-8 -top-8 h-28 w-28 rounded-full opacity-25 blur-2xl transition group-hover:opacity-40",
+                    tone.bar,
+                  )}
+                />
+
+                <div className="relative mb-4 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-800 shadow-sm ring-1 ring-slate-200/80">
+                    <span
+                      className={cn(
+                        "flex h-11 w-11 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition group-hover:scale-105",
+                        tone.chip,
+                      )}
+                    >
                       <Icon className="h-5 w-5" />
                     </span>
                     <p className="font-semibold text-slate-900">
                       {moduleLabels[key]}
                     </p>
                   </div>
-                  <p className="text-2xl font-bold tabular-nums text-slate-900">
-                    {mod.total}
+                  <p className={cn("text-2xl font-bold tabular-nums", tone.ink)}>
+                    {mod.total.toLocaleString()}
                   </p>
                 </div>
 
-                <div className="mb-3 h-2.5 overflow-hidden rounded-full bg-white/80 ring-1 ring-slate-200/60">
+                <div className="relative mb-3 h-2.5 overflow-hidden rounded-full bg-white/80 ring-1 ring-black/5">
                   <div
                     className={cn(
-                      "h-full rounded-full transition-all",
-                      barTone[key],
+                      "h-full rounded-full transition-all duration-500",
+                      tone.bar,
                     )}
                     style={{ width: `${activePct}%` }}
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-600">
+                <div className="relative flex items-center justify-between text-xs text-slate-600">
                   <span>
                     {t?.active}:{" "}
-                    <strong className="text-emerald-700">{mod.active}</strong>
+                    <strong className={tone.ink}>{mod.active}</strong>
                   </span>
                   <span>
                     {t?.inactive}:{" "}

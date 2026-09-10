@@ -1228,6 +1228,7 @@
         "imageLoading": "Loading image...",
         "isActive": "Active",
         "processing": "Creating banner",
+        "uploadingFiles": "Uploading image...",
         "createBtn": "Create banner",
         "failMessage": "Failed to create banner"
       },
@@ -1252,6 +1253,7 @@
         "imageLoading": "Loading image...",
         "isActive": "Active",
         "processing": "Saving changes",
+        "uploadingFiles": "Uploading image...",
         "editBtn": "Save changes",
         "failMessage": "Failed to save changes",
         "notFound": "Banner not found"

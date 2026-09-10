@@ -16,6 +16,7 @@ import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import { dash } from "@/constants/dashboardUi";
 import { cn } from "@/lib/utils";
+import { setUploadProgressListener } from "@/lib/uploadProgressBus";
 
 import {
   Card,
@@ -66,6 +67,7 @@ export default function EditBanner() {
 
   const [updateBanner, { isLoading: isUpdating }] = useUpdateBannerMutation();
   const [ready, setReady] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [form, setForm] = useState<FormState>({
     title_ar: "",
     title_en: "",
@@ -76,6 +78,10 @@ export default function EditBanner() {
     is_active: true,
     image: null,
   });
+
+  const uploadingLabel =
+    t?.uploadingFiles ??
+    (lang === "ar" ? "جاري رفع الصورة..." : "Uploading image...");
 
   useEffect(() => {
     if (!item) return;
@@ -101,6 +107,12 @@ export default function EditBanner() {
     }
 
     const toastId = toast.loading(`${t?.processing}...`);
+    setUploadProgress(0);
+    setUploadProgressListener((percent) => {
+      const value = Math.round(percent);
+      setUploadProgress(value);
+      toast.loading(`${uploadingLabel} ${value}%`, { id: toastId });
+    });
 
     try {
       const res = await updateBanner({
@@ -129,6 +141,9 @@ export default function EditBanner() {
         return;
       }
       toast.error(errorData?.message || t?.failMessage, { id: toastId });
+    } finally {
+      setUploadProgressListener(null);
+      setUploadProgress(0);
     }
   };
 
@@ -267,7 +282,6 @@ export default function EditBanner() {
                     className={cn("h-11", dash.input)}
                     value={form.url}
                     onChange={(e) => setForm({ ...form, url: e.target.value })}
-                    placeholder="https://www.youtube.com/watch?v=..."
                   />
                 </div>
               </div>
@@ -294,6 +308,21 @@ export default function EditBanner() {
 
             <Separator />
 
+            {isUpdating && uploadProgress > 0 ? (
+              <div className="space-y-2 rounded-xl border border-amber-200/70 bg-amber-50/40 px-3 py-3">
+                <div className="flex items-center justify-between text-xs text-amber-950">
+                  <span>{uploadingLabel}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-amber-100">
+                  <div
+                    className="h-full rounded-full bg-amber-500 transition-all duration-150"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <div className={dash.formFooterBar}>
               <div className="flex flex-wrap items-center gap-3">
                 <Checkbox
@@ -309,7 +338,11 @@ export default function EditBanner() {
                 disabled={isUpdating}
                 className={dash.formSubmit}
               >
-                {isUpdating ? `${t?.processing}...` : t?.editBtn}
+                {isUpdating
+                  ? uploadProgress > 0
+                    ? `${uploadingLabel} ${uploadProgress}%`
+                    : `${t?.processing}...`
+                  : t?.editBtn}
               </Button>
             </div>
           </form>

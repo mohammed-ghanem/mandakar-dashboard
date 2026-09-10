@@ -1200,12 +1200,12 @@
       "reorderHint": "غيّر ترتيب البنرات كما ستظهر في الموقع. استخدم الأسهم أو القائمة للانتقال مباشرة (مثل من 6 إلى 2).",
       "reorderEmpty": "لا توجد بنرات للترتيب.",
       "categories": {
-        "lecture": "محاضرة",
-        "speech": "خطبة",
-        "article": "مقال",
-        "book": "كتاب",
-        "explanation": "شرح علمي",
-        "fatwa": "فتوى"
+        "lecture": "المحاضرات",
+        "speech": "الخطب",
+        "article": "المقالات",
+        "book": "الكتب والرسائل",
+        "explanation": "الشروح العلمية",
+        "fatwa": "الفتاوى"
       },
       "createBanner": {
         "title": "إنشاء بنر جديد",
@@ -1228,6 +1228,7 @@
         "imageLoading": "جارى تحميل الصورة...",
         "isActive": "نشط",
         "processing": "جارى إنشاء البنر",
+        "uploadingFiles": "جاري رفع الصورة...",
         "createBtn": "إنشاء البنر",
         "failMessage": "فشل إنشاء البنر"
       },
@@ -1252,6 +1253,7 @@
         "imageLoading": "جارى تحميل الصورة...",
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
+        "uploadingFiles": "جاري رفع الصورة...",
         "editBtn": "حفظ التغييرات",
         "failMessage": "فشل حفظ التغييرات",
         "notFound": "البنر غير موجود"

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Settings,
   ChevronDown,
-  ShieldCheck,
+  type LucideIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,8 @@ import {
 import Image from "next/image";
 import logo from "@/public/assets/images/logo.svg";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { cn } from "@/lib/utils";
+import { getAccent, sidebarAccents } from "@/constants/navAccents";
 
 const SideBar = () => {
   const lang = LangUseParams() as string;
@@ -81,23 +83,49 @@ const SideBar = () => {
     }
   }, [pathname, lang]);
 
+  const IconChip = ({
+    icon: Icon,
+    accentKey,
+    size = 18,
+    compact = false,
+  }: {
+    icon: LucideIcon;
+    accentKey: string;
+    size?: number;
+    compact?: boolean;
+    active?: boolean;
+  }) => {
+    const tone = getAccent(sidebarAccents[accentKey] ?? "gold");
+    return (
+      <span
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded-lg ring-1 ring-black/5 transition",
+          compact ? "h-7 w-7" : "h-8 w-8",
+          tone.chip,
+        )}
+      >
+        <Icon size={size} strokeWidth={2} />
+      </span>
+    );
+  };
+
   const linkClass = (active: boolean) =>
-    `group flex items-center justify-center md:justify-start
-     gap-0 md:gap-2 p-2 rounded font-semibold transition
-     ${
-       active
-         ? "activeLink text-white hover-mainColor rounded-e-4xl "
-         : "scoundColor hover-mainColor rounded-l-4xl "
-     }`;
+    cn(
+      "group flex items-center justify-center md:justify-start",
+      "gap-0 md:gap-2.5 px-2.5 py-2 rounded-2xl font-semibold transition-all duration-300",
+      active
+        ? "sidebarActiveLink"
+        : "scoundColor hover:bg-white/60 hover:shadow-sm hover:shadow-slate-400/10 rounded-2xl",
+    );
 
   const groupButtonClass = (active: boolean) =>
-    `w-full flex items-center justify-center md:justify-between
-     p-2 rounded-md text-sm transition font-bold
-     ${
-       active
-         ? "activeLink hover-mainColor"
-         : "text-gray-600 hover:bg-gray-100"
-     }`;
+    cn(
+      "w-full flex items-center justify-center md:justify-between",
+      "px-2.5 py-2 rounded-2xl text-sm transition-all duration-300 font-bold",
+      active
+        ? "sidebarActiveLink"
+        : "text-gray-600 hover:bg-white/60 hover:shadow-sm hover:shadow-slate-400/10",
+    );
 
   const renderGroup = (group: SidebarGroupItem) => {
     const groupActive = isGroupActive(pathname, group, lang);
@@ -111,7 +139,7 @@ const SideBar = () => {
           className={groupButtonClass(groupActive)}
         >
           <span className="flex items-center gap-2">
-            <group.icon size={18} />
+            <IconChip icon={group.icon} accentKey={group.key} />
             <span className="hidden md:inline">
               {translate.sidebar[group.key]}
             </span>
@@ -119,28 +147,40 @@ const SideBar = () => {
 
           <ChevronDown
             size={16}
-            className={`hidden md:inline transition-transform ${
-              open ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "hidden md:inline transition-transform",
+              groupActive ? "opacity-80" : "text-slate-500",
+              open && "rotate-180",
+            )}
           />
         </button>
 
         <div
-          className={`md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300 
-          ${open ? "opacity-100" : "max-h-0 opacity-0"}`}
+          className={cn(
+            "md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300",
+            open ? "opacity-100" : "max-h-0 opacity-0",
+          )}
         >
-          {group.children.map((child) => (
-            <Link
-              key={child.href}
-              href={child.href}
-              className={`${linkClass(isActive(child.href))} text-[16px]`}
-            >
-              <child.icon size={16} />
-              <span className="hidden md:inline">
-                {translate.sidebar[child.key]}
-              </span>
-            </Link>
-          ))}
+          {group.children.map((child) => {
+            const childActive = isActive(child.href);
+            return (
+              <Link
+                key={child.href}
+                href={child.href}
+                className={cn(linkClass(childActive), "text-[15px]")}
+              >
+                <IconChip
+                  icon={child.icon}
+                  accentKey={child.key}
+                  size={14}
+                  compact
+                />
+                <span className="hidden md:inline">
+                  {translate.sidebar[child.key]}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </li>
     );
@@ -172,7 +212,7 @@ const SideBar = () => {
       </div>
 
       <nav className="flex-1">
-        <ul className="space-y-1 p-2">
+        <ul className="space-y-1.5 p-2">
           {visibleMainLinks.map((item) => {
             if (item.kind === "group") {
               return renderGroup(item);
@@ -186,7 +226,7 @@ const SideBar = () => {
                   href={linkItem.href}
                   className={linkClass(isActive(linkItem.href))}
                 >
-                  <linkItem.icon size={18} />
+                  <IconChip icon={linkItem.icon} accentKey={linkItem.key} />
                   <span className="hidden md:inline">
                     {translate.sidebar[linkItem.key]}
                   </span>
@@ -203,7 +243,7 @@ const SideBar = () => {
                 className={groupButtonClass(isSettingsActive())}
               >
                 <span className="flex items-center gap-2">
-                  <Settings size={18} />
+                  <IconChip icon={Settings} accentKey="settings" />
                   <span className="hidden md:inline">
                     {translate.sidebar.settings}
                   </span>
@@ -211,28 +251,40 @@ const SideBar = () => {
 
                 <ChevronDown
                   size={16}
-                  className={`hidden md:inline transition-transform ${
-                    openSettings ? "rotate-180" : ""
-                  }`}
+                  className={cn(
+                    "hidden md:inline transition-transform",
+                    isSettingsActive() ? "opacity-80" : "text-slate-500",
+                    openSettings && "rotate-180",
+                  )}
                 />
               </button>
 
               <div
-                className={`md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300 
-              ${openSettings ? " opacity-100" : "max-h-0 opacity-0"}`}
+                className={cn(
+                  "md:ms-6 mt-1 ms-3 space-y-1 overflow-hidden transition-all duration-300",
+                  openSettings ? "opacity-100" : "max-h-0 opacity-0",
+                )}
               >
-                {visibleSettingsLinks.map((link: SettingsLinkItem) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`${linkClass(isActive(link.href))} text-[16px]`}
-                  >
-                    <ShieldCheck size={16} />
-                    <span className="hidden md:inline">
-                      {translate.sidebar[link.key]}
-                    </span>
-                  </Link>
-                ))}
+                {visibleSettingsLinks.map((link: SettingsLinkItem) => {
+                  const linkActive = isActive(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={cn(linkClass(linkActive), "text-[15px]")}
+                    >
+                      <IconChip
+                        icon={link.icon}
+                        accentKey={link.key}
+                        size={14}
+                        compact
+                      />
+                      <span className="hidden md:inline">
+                        {translate.sidebar[link.key]}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             </li>
           )}

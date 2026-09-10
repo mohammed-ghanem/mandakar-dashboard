@@ -11,8 +11,10 @@ import {
   BookOpen,
   BookMarked,
   Scale,
- 
   Film,
+  User,
+  ScrollText,
+  Phone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -44,6 +46,7 @@ export type SidebarGroupItem = {
 export type SettingsLinkItem = {
   href: string;
   key: string;
+  icon: LucideIcon;
   module?: string;
   always?: boolean;
 };
@@ -152,21 +155,25 @@ export const settingsLinks = (lang: string): SettingsLinkItem[] => [
   {
     href: `/${lang}/privacy-policy`,
     key: "privacyPolicy",
+    icon: ShieldCheck,
     module: "privacy_policy",
   },
   {
     href: `/${lang}/terms-conditions`,
     key: "termsAndConditions",
+    icon: ScrollText,
     module: "terms_and_conditions",
   },
   {
     href: `/${lang}/profile`,
     key: "profile",
+    icon: User,
     always: true,
   },
   {
     href: `/${lang}/app-contacts`,
     key: "appContacts",
+    icon: Phone,
     module: "app_contacts",
   },
 ];
