@@ -75,7 +75,11 @@ export const swapOrderApi = createApi({
           await queryFulfilled;
           if (skipInvalidate) return;
 
-          if (type === "categories") {
+          if (
+            type === "categories" ||
+            type === "sub_categories" ||
+            type === "sub_sub_categories"
+          ) {
             dispatch(
               categoriesApi.util.invalidateTags(["Categories", "Category"]),
             );

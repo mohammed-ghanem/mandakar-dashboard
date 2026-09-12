@@ -244,6 +244,33 @@
         "notFound": "Role not found"
       }
     },
+    "activityLogs": {
+      "title": "Activity log",
+      "listDescription": "Track actions and changes made inside the dashboard.",
+      "searchPlaceholder": "Search activity logs...",
+      "view": {
+        "title": "Activity details",
+        "description": "View action details and related changes",
+        "descriptionLabel": "Description",
+        "module": "Module",
+        "action": "Action",
+        "date": "Date",
+        "causer": "Performed by",
+        "causerName": "Name",
+        "causerEmail": "Email",
+        "causerType": "Type",
+        "subject": "Affected subject",
+        "subjectType": "Type",
+        "subjectLabel": "Label",
+        "changes": "Changes",
+        "changeField": "Field",
+        "changeOld": "Old value",
+        "changeNew": "New value",
+        "noChanges": "No recorded changes",
+        "backBtn": "Back",
+        "notFound": "Activity log not found"
+      }
+    },
     "categories": {
       "categoriesTitle": "Categories",
       "listDescription": "Manage categories, subcategories, and nested levels for linking content later.",
@@ -300,11 +327,19 @@
     },
     "swapOrder": {
       "title": "Change order",
-      "description": "Reorder with arrows or jump straight to a target position.",
+      "description": "Reorder content and categories with arrows or jump straight to a target position.",
       "tabItems": "Content",
       "tabRootCategories": "Main categories",
+      "tabCategories": "Categories",
+      "levelRoot": "Main",
+      "levelSub": "Sub",
+      "levelSubSub": "Sub-sub",
       "itemsHint": "Change item order as it will appear on the site. Use the dropdown to jump (e.g. from 6 to 2).",
       "categoriesHint": "Reorder main categories only (not subcategories). Use the dropdown to jump to any position.",
+      "rootCategoriesHint": "Reorder the main categories for this module.",
+      "subCategoriesHint": "Reorder subcategories under each main category (each group is independent).",
+      "subSubCategoriesHint": "Reorder nested subcategories under each subcategory (each group is independent).",
+      "underParent": "Under",
       "position": "#",
       "itemTitle": "Title",
       "actions": "Order",
@@ -312,7 +347,10 @@
       "moveDown": "Move down",
       "goTo": "To",
       "emptyItems": "No items to reorder.",
-      "emptyCategories": "No main categories to reorder."
+      "emptyCategories": "No main categories to reorder.",
+      "emptyRootCategories": "No main categories to reorder.",
+      "emptySubCategories": "No subcategories to reorder.",
+      "emptySubSubCategories": "No nested subcategories to reorder."
     },
     "lectures": {
       "lecturesTitle": "Lectures",
@@ -1288,6 +1326,7 @@
     "articlesItems": "Articles",
     "roles": "Roles & permissions",
     "admins": "Users",
+    "activityLogs": "Activity log",
     "students": "Students",
     "examArticleReviews": "Essay question reviews",
     "doctors": "Teaching staff",

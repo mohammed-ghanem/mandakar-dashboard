@@ -151,6 +151,16 @@ export const TABLE_HEADERS = {
       actions: "الإجراءات",
     },
 
+    activityLogs: {
+      description: "الوصف",
+      module: "الوحدة",
+      action: "الإجراء",
+      causer: "المنفّذ",
+      subject: "العنصر",
+      date: "التاريخ",
+      actions: "الإجراءات",
+    },
+
     examArticleReviews: {
       student: "اسم الطالب",
       question: "السؤال",
@@ -310,6 +320,16 @@ export const TABLE_HEADERS = {
       message: "Message",
       date: "Date",
       status: "Status",
+      actions: "Actions",
+    },
+
+    activityLogs: {
+      description: "Description",
+      module: "Module",
+      action: "Action",
+      causer: "Performed by",
+      subject: "Subject",
+      date: "Date",
       actions: "Actions",
     },
 

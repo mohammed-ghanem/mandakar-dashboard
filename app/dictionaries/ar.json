@@ -244,6 +244,33 @@
         "notFound": "الدور غير موجود"
       }
     },
+    "activityLogs": {
+      "title": "سجل النشاطات",
+      "listDescription": "متابعة الإجراءات والتغييرات التي تمت داخل لوحة التحكم.",
+      "searchPlaceholder": "ابحث في سجل النشاطات...",
+      "view": {
+        "title": "تفاصيل النشاط",
+        "description": "عرض تفاصيل الإجراء والتغييرات المرتبطة به",
+        "descriptionLabel": "الوصف",
+        "module": "الوحدة",
+        "action": "الإجراء",
+        "date": "التاريخ",
+        "causer": "المنفّذ",
+        "causerName": "الاسم",
+        "causerEmail": "البريد الإلكتروني",
+        "causerType": "النوع",
+        "subject": "العنصر المتأثر",
+        "subjectType": "النوع",
+        "subjectLabel": "العنوان",
+        "changes": "التغييرات",
+        "changeField": "الحقل",
+        "changeOld": "القيمة السابقة",
+        "changeNew": "القيمة الجديدة",
+        "noChanges": "لا توجد تغييرات مسجلة",
+        "backBtn": "العودة",
+        "notFound": "سجل النشاط غير موجود"
+      }
+    },
     "categories": {
       "categoriesTitle": "الأقسام",
       "listDescription": "إدارة الأقسام والأقسام الفرعية والفرعية الفرعية لربطها لاحقاً بالمحتوى.",
@@ -300,11 +327,19 @@
     },
     "swapOrder": {
       "title": "تغيير الترتيب",
-      "description": "رتّب العناصر بالأسهم أو بالانتقال المباشر لرقم الترتيب المطلوب.",
+      "description": "رتّب العناصر والأقسام بالأسهم أو بالانتقال المباشر لرقم الترتيب المطلوب.",
       "tabItems": "المحتوى",
       "tabRootCategories": "الأقسام الرئيسية",
+      "tabCategories": "الأقسام",
+      "levelRoot": "رئيسية",
+      "levelSub": "فرعية",
+      "levelSubSub": "فرعي فرعي",
       "itemsHint": "غيّر ترتيب العناصر كما ستظهر في الموقع. استخدم القائمة للانتقال مباشرة (مثل من 6 إلى 2).",
       "categoriesHint": "غيّر ترتيب الأقسام الرئيسية فقط (بدون الفرعية). استخدم القائمة للانتقال مباشرة لأي رقم.",
+      "rootCategoriesHint": "رتّب الأقسام الرئيسية لهذا الموضوع.",
+      "subCategoriesHint": "رتّب الأقسام الفرعية تحت كل قسم رئيسي (كل مجموعة مستقلة).",
+      "subSubCategoriesHint": "رتّب الأقسام الفرعي‑فرعي تحت كل قسم فرعي (كل مجموعة مستقلة).",
+      "underParent": "تحت",
       "position": "#",
       "itemTitle": "العنوان",
       "actions": "الترتيب",
@@ -312,7 +347,10 @@
       "moveDown": "تحريك لأسفل",
       "goTo": "إلى",
       "emptyItems": "لا توجد عناصر للترتيب.",
-      "emptyCategories": "لا توجد أقسام رئيسية للترتيب."
+      "emptyCategories": "لا توجد أقسام رئيسية للترتيب.",
+      "emptyRootCategories": "لا توجد أقسام رئيسية للترتيب.",
+      "emptySubCategories": "لا توجد أقسام فرعية للترتيب.",
+      "emptySubSubCategories": "لا توجد أقسام فرعي‑فرعي للترتيب."
     },
     "lectures": {
       "lecturesTitle": "المحاضرات",
@@ -1288,6 +1326,7 @@
     "articlesItems": "المقالات",
     "roles": "الصلاحيات والمهام",
     "admins": "المستخدمين",
+    "activityLogs": "سجل النشاطات",
     "students": "الطلاب",
     "examArticleReviews": "مراجعة الأسئلة المقالية",
     "doctors": "اعضاء هيئة التدريس",

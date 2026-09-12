@@ -155,6 +155,7 @@ export const sidebarAccents: Record<string, AccentKey> = {
   bannersItems: "coral",
   admins: "slate",
   roles: "forest",
+  activityLogs: "slate",
   settings: "bronze",
   privacyPolicy: "slate",
   termsAndConditions: "ochre",

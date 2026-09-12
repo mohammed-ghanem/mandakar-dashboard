@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowUpDown, FolderTree } from "lucide-react";
+import { ArrowUpDown, FolderTree, Layers2, Network } from "lucide-react";
 
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
@@ -11,27 +11,54 @@ import { useSessionReady } from "@/hooks/useSessionReady";
 import { useGetCategoriesTreeQuery } from "@/store/categories/categoriesApi";
 import { cn } from "@/lib/utils";
 import type { ContentReorderConfig } from "@/constants/reorderResources";
+import type { ICategory } from "@/types/categories";
 import type { IContentItem } from "@/types/contentResource";
-import type { SwapOrderItem } from "@/types/swapOrder";
+import type { SwapOrderItem, SwapOrderType } from "@/types/swapOrder";
 
-type TabKey = "items" | "categories";
+type MainTabKey = "items" | "categories";
+type CategoryLevelKey = "root" | "sub" | "subSub";
+
+type ReorderGroup = {
+  key: string;
+  parentLabel?: string;
+  type: SwapOrderType;
+  items: SwapOrderItem[];
+};
 
 type Props = {
   config: ContentReorderConfig;
 };
 
+function sortByOrder<T extends { id: number; sort_order?: number }>(list: T[]) {
+  const hasOrder = list.some((item) => (item.sort_order ?? 0) > 0);
+  if (!hasOrder) return [...list];
+  return [...list].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id,
+  );
+}
+
+function categoryLabel(item: ICategory, lang: "ar" | "en") {
+  return (
+    item._name ||
+    item.name?.[lang] ||
+    item.name?.ar ||
+    item.name?.en ||
+    `#${item.id}`
+  );
+}
+
+function toSwapItems(list: ICategory[], lang: "ar" | "en"): SwapOrderItem[] {
+  return sortByOrder(list).map((item) => ({
+    id: item.id,
+    label: categoryLabel(item, lang),
+  }));
+}
+
 function toOrderedContentItems(
   list: IContentItem[],
   lang: "ar" | "en",
 ): SwapOrderItem[] {
-  const hasOrder = list.some((item) => (item.sort_order ?? 0) > 0);
-  const sorted = hasOrder
-    ? [...list].sort(
-        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id,
-      )
-    : [...list];
-
-  return sorted.map((item) => ({
+  return sortByOrder(list).map((item) => ({
     id: item.id,
     label:
       item._title ||
@@ -40,6 +67,59 @@ function toOrderedContentItems(
       item.title?.en ||
       `#${item.id}`,
   }));
+}
+
+function buildRootGroups(
+  tree: ICategory[],
+  lang: "ar" | "en",
+): ReorderGroup[] {
+  const items = toSwapItems(tree, lang);
+  if (!items.length) return [];
+  return [
+    {
+      key: "root",
+      type: "categories",
+      items,
+    },
+  ];
+}
+
+function buildSubGroups(
+  tree: ICategory[],
+  lang: "ar" | "en",
+): ReorderGroup[] {
+  return tree.flatMap((root) => {
+    const children = root.children ?? [];
+    if (!children.length) return [];
+    return [
+      {
+        key: `sub-${root.id}`,
+        parentLabel: categoryLabel(root, lang),
+        type: "sub_categories" as const,
+        items: toSwapItems(children, lang),
+      },
+    ];
+  });
+}
+
+function buildSubSubGroups(
+  tree: ICategory[],
+  lang: "ar" | "en",
+): ReorderGroup[] {
+  return tree.flatMap((root) =>
+    (root.children ?? []).flatMap((sub) => {
+      const children = sub.children ?? [];
+      if (!children.length) return [];
+      return [
+        {
+          key: `subsub-${sub.id}`,
+          parentLabel: `${categoryLabel(root, lang)} › ${categoryLabel(sub, lang)}`,
+          type: "sub_sub_categories" as const,
+          items: toSwapItems(children, lang),
+        },
+      ];
+    }),
+  );
 }
 
 export default function ContentReorder({ config }: Props) {
@@ -51,7 +131,9 @@ export default function ContentReorder({ config }: Props) {
   const t = translate?.pages?.swapOrder;
   const dashboard = translate?.pages?.dashboard;
   const sessionReady = useSessionReady();
-  const [tab, setTab] = useState<TabKey>("items");
+  const [mainTab, setMainTab] = useState<MainTabKey>("items");
+  const [categoryLevel, setCategoryLevel] =
+    useState<CategoryLevelKey>("root");
 
   const { data: contentList = [], isLoading: contentLoading } = useGetListQuery(
     undefined,
@@ -66,35 +148,59 @@ export default function ContentReorder({ config }: Props) {
     [contentList, lang],
   );
 
-  const categoryItems: SwapOrderItem[] = useMemo(() => {
-    const hasOrder = categoryTree.some((item) => (item.sort_order ?? 0) > 0);
-    const roots = hasOrder
-      ? [...categoryTree].sort(
-          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id,
-        )
-      : [...categoryTree];
-
-    return roots.map((item) => ({
-      id: item.id,
-      label:
-        item._name ||
-        item.name?.[lang] ||
-        item.name?.ar ||
-        item.name?.en ||
-        `#${item.id}`,
-    }));
-  }, [categoryTree, lang]);
+  const categoryGroups = useMemo(() => {
+    if (categoryLevel === "root") return buildRootGroups(categoryTree, lang);
+    if (categoryLevel === "sub") return buildSubGroups(categoryTree, lang);
+    return buildSubSubGroups(categoryTree, lang);
+  }, [categoryTree, categoryLevel, lang]);
 
   const itemsTabLabel = dashboard?.[moduleLabelKey] ?? t?.tabItems;
 
-  const tabs = [
+  const mainTabs = [
     { key: "items" as const, label: itemsTabLabel, icon: ItemsIcon },
     {
       key: "categories" as const,
-      label: t?.tabRootCategories,
+      label: t?.tabCategories ?? t?.tabRootCategories,
       icon: FolderTree,
     },
   ];
+
+  const categoryLevels = [
+    {
+      key: "root" as const,
+      label: t?.levelRoot ?? t?.tabRootCategories,
+      icon: FolderTree,
+      hint: t?.rootCategoriesHint ?? t?.categoriesHint,
+      empty: t?.emptyRootCategories ?? t?.emptyCategories,
+    },
+    {
+      key: "sub" as const,
+      label: t?.levelSub,
+      icon: Layers2,
+      hint: t?.subCategoriesHint,
+      empty: t?.emptySubCategories,
+    },
+    {
+      key: "subSub" as const,
+      label: t?.levelSubSub,
+      icon: Network,
+      hint: t?.subSubCategoriesHint,
+      empty: t?.emptySubSubCategories,
+    },
+  ];
+
+  const activeLevelMeta =
+    categoryLevels.find((level) => level.key === categoryLevel) ??
+    categoryLevels[0];
+
+  const listLabels = {
+    positionLabel: t?.position ?? "",
+    titleLabel: t?.itemTitle ?? "",
+    actionsLabel: t?.actions ?? "",
+    moveUpLabel: t?.moveUp ?? "",
+    moveDownLabel: t?.moveDown ?? "",
+    goToLabel: t?.goTo ?? "",
+  };
 
   return (
     <IndexListPage
@@ -108,13 +214,13 @@ export default function ContentReorder({ config }: Props) {
     >
       <div className="space-y-5 px-2 md:px-4">
         <div className="flex flex-wrap gap-2 rounded-2xl bg-slate-50/80 p-1.5 ring-1 ring-slate-200/80">
-          {tabs.map(({ key, label, icon: Icon }) => {
-            const active = tab === key;
+          {mainTabs.map(({ key, label, icon: Icon }) => {
+            const active = mainTab === key;
             return (
               <button
                 key={key}
                 type="button"
-                onClick={() => setTab(key)}
+                onClick={() => setMainTab(key)}
                 className={cn(
                   "inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors sm:flex-none",
                   active
@@ -129,36 +235,84 @@ export default function ContentReorder({ config }: Props) {
           })}
         </div>
 
-        <p className="text-sm text-slate-600">
-          {tab === "items" ? t?.itemsHint : t?.categoriesHint}
-        </p>
-
-        {tab === "items" ? (
-          <SwapOrderList
-            type={contentType}
-            items={contentItems}
-            isLoading={contentLoading}
-            emptyLabel={t?.emptyItems ?? ""}
-            positionLabel={t?.position ?? ""}
-            titleLabel={t?.itemTitle ?? ""}
-            actionsLabel={t?.actions ?? ""}
-            moveUpLabel={t?.moveUp ?? ""}
-            moveDownLabel={t?.moveDown ?? ""}
-            goToLabel={t?.goTo ?? ""}
-          />
+        {mainTab === "items" ? (
+          <>
+            <p className="text-sm text-slate-600">{t?.itemsHint}</p>
+            <SwapOrderList
+              type={contentType}
+              items={contentItems}
+              isLoading={contentLoading}
+              emptyLabel={t?.emptyItems ?? ""}
+              {...listLabels}
+            />
+          </>
         ) : (
-          <SwapOrderList
-            type="categories"
-            items={categoryItems}
-            isLoading={categoriesLoading}
-            emptyLabel={t?.emptyCategories ?? ""}
-            positionLabel={t?.position ?? ""}
-            titleLabel={t?.itemTitle ?? ""}
-            actionsLabel={t?.actions ?? ""}
-            moveUpLabel={t?.moveUp ?? ""}
-            moveDownLabel={t?.moveDown ?? ""}
-            goToLabel={t?.goTo ?? ""}
-          />
+          <>
+            <div className="flex flex-wrap gap-2 rounded-2xl bg-white p-1.5 ring-1 ring-slate-200/80">
+              {categoryLevels.map(({ key, label, icon: Icon }) => {
+                const active = categoryLevel === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setCategoryLevel(key)}
+                    className={cn(
+                      "inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors sm:flex-none",
+                      active
+                        ? "bg-slate-800 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <p className="text-sm text-slate-600">{activeLevelMeta.hint}</p>
+
+            {categoriesLoading ? (
+              <SwapOrderList
+                type="categories"
+                items={[]}
+                isLoading
+                emptyLabel={activeLevelMeta.empty ?? ""}
+                {...listLabels}
+              />
+            ) : categoryGroups.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-slate-500">
+                {activeLevelMeta.empty}
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {categoryGroups.map((group) => (
+                  <section
+                    key={group.key}
+                    className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/40 p-3 md:p-4"
+                  >
+                    {group.parentLabel ? (
+                      <header className="flex flex-wrap items-center gap-2 px-1">
+                        <span className="inline-flex h-7 items-center rounded-lg bg-white px-2.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200/80">
+                          {t?.underParent ?? "تحت"}
+                        </span>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          {group.parentLabel}
+                        </h3>
+                      </header>
+                    ) : null}
+
+                    <SwapOrderList
+                      type={group.type}
+                      items={group.items}
+                      emptyLabel={activeLevelMeta.empty ?? ""}
+                      {...listLabels}
+                    />
+                  </section>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </IndexListPage>

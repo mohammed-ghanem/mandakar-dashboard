@@ -15,6 +15,7 @@ import {
   User,
   ScrollText,
   Phone,
+  History,
   type LucideIcon,
 } from "lucide-react";
 
@@ -148,6 +149,13 @@ export const mainLinks = (lang: string): SidebarNavItem[] => [
     icon: ShieldCheck,
     key: "roles",
     module: "roles",
+  },
+  {
+    kind: "link",
+    href: `/${lang}/activity-logs`,
+    icon: History,
+    key: "activityLogs",
+    module: "activity_logs",
   },
 ];
 

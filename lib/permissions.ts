@@ -29,6 +29,12 @@ const MODULE_ROUTE_ALIASES: Record<string, string[]> = {
   ],
   "app-contacts": ["app_contacts", "app-contacts", "contacts", "settings"],
   "contact-us": ["contact_us", "contact-us", "contacts", "settings"],
+  "activity-logs": [
+    "activity_logs",
+    "activity-logs",
+    "activitylogs",
+    "activity_log",
+  ],
   article: ["articles"],
   articel: ["articles"],
   categories: ["lectures"],
@@ -59,6 +65,14 @@ const MODULE_LABEL_HINTS: Record<string, string[]> = {
   privacy_policy: ["privacy_policy", "privacy", "خصوصية", "سياسة"],
   terms_and_conditions: ["terms_and_conditions", "terms", "شروط", "أحكام"],
   app_contacts: ["app_contacts", "contacts", "تواصل"],
+  activity_logs: [
+    "activity_logs",
+    "activity-logs",
+    "activitylogs",
+    "activity log",
+    "نشاط",
+    "سجل",
+  ],
 };
 
 function inferModuleKeysFromText(value: string, keys: Set<string>) {
@@ -638,6 +652,12 @@ const MODULE_KEY_ALIASES: Record<string, string[]> = {
     "settings",
   ],
   app_contacts: ["app_contacts", "app-contacts", "contacts", "settings"],
+  activity_logs: [
+    "activity_logs",
+    "activity-logs",
+    "activitylogs",
+    "activity_log",
+  ],
 };
 
 export function permissionMatchesModule(
