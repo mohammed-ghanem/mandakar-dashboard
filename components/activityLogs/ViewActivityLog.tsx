@@ -185,10 +185,10 @@ export default function ViewActivityLog() {
                     className="grid grid-cols-3 gap-2 border-b border-slate-100 px-4 py-3 text-sm text-slate-800 last:border-b-0"
                   >
                     <span className="font-medium">{field}</span>
-                    <span className="break-words text-slate-600">
+                    <span className="wrap-break-word text-slate-600">
                       {formatValue(change?.old)}
                     </span>
-                    <span className="break-words text-emerald-800">
+                    <span className="wrap-break-word text-emerald-800">
                       {formatValue(change?.new)}
                     </span>
                   </div>
