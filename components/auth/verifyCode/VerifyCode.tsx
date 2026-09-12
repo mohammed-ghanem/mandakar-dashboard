@@ -210,7 +210,7 @@ const VerifyCode = () => {
               alt="logo"
               width={220}
               height={86}
-              className="h-auto w-full max-w-[220px] object-contain"
+              className="h-auto w-full max-w-55 object-contain"
               priority
             />
           </div>
