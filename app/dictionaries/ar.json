@@ -84,7 +84,8 @@
       "processing": "جارى التحقق",
       "verify": "تحقق",
       "resendCode": " اعادة ارسال رمز التحقق ",
-      "pendingResendCode": " جارى اعادة ارسال رمز التحقق "
+      "pendingResendCode": " جارى اعادة ارسال رمز التحقق ",
+      "resendCooldown": "إعادة الإرسال بعد {time}"
     },
     "resetPassword": {
       "title": "انشاء كلمة المرور الجديدة",
@@ -334,7 +335,8 @@
       "levelRoot": "رئيسية",
       "levelSub": "فرعية",
       "levelSubSub": "فرعي فرعي",
-      "itemsHint": "غيّر ترتيب العناصر كما ستظهر في الموقع. استخدم القائمة للانتقال مباشرة (مثل من 6 إلى 2).",
+      "itemsHint": "اختر قسمًا من التبويبات ثم رتّب عناصره فقط (كل قسم مستقل). استخدم القائمة للانتقال مباشرة (مثل من 6 إلى 2).",
+      "uncategorized": "بدون قسم",
       "categoriesHint": "غيّر ترتيب الأقسام الرئيسية فقط (بدون الفرعية). استخدم القائمة للانتقال مباشرة لأي رقم.",
       "rootCategoriesHint": "رتّب الأقسام الرئيسية لهذا الموضوع.",
       "subCategoriesHint": "رتّب الأقسام الفرعية تحت كل قسم رئيسي (كل مجموعة مستقلة).",
@@ -470,7 +472,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "المحاضرة غير موجودة"
+        "notFound": "المحاضرة غير موجودة",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",
@@ -614,7 +617,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "الخطبة غير موجودة"
+        "notFound": "الخطبة غير موجودة",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",
@@ -758,7 +762,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "المقال غير موجود"
+        "notFound": "المقال غير موجود",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",
@@ -848,7 +853,8 @@
         "seoKeywordsPlaceholder": "افصل بين الكلمات بفاصلة",
         "isActive": "نشط",
         "processing": "جارى انشاء الكتاب",
-        "createBtn": "انشاء الكتاب"
+        "createBtn": "انشاء الكتاب",
+        "deleteAttachment": "حذف المرفق"
       },
       "editBook": {
         "title": "تعديل الكتاب",
@@ -905,7 +911,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "الكتاب غير موجود"
+        "notFound": "الكتاب غير موجود",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",
@@ -995,7 +1002,8 @@
         "seoKeywordsPlaceholder": "افصل بين الكلمات بفاصلة",
         "isActive": "نشط",
         "processing": "جارى انشاء الشرح",
-        "createBtn": "انشاء الشرح"
+        "createBtn": "انشاء الشرح",
+        "deleteAttachment": "حذف المرفق"
       },
       "editExplanation": {
         "title": "تعديل الشرح",
@@ -1052,7 +1060,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "الشرح غير موجود"
+        "notFound": "الشرح غير موجود",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",
@@ -1142,7 +1151,8 @@
         "seoKeywordsPlaceholder": "افصل بين الكلمات بفاصلة",
         "isActive": "نشط",
         "processing": "جارى انشاء الفتوى",
-        "createBtn": "انشاء الفتوى"
+        "createBtn": "انشاء الفتوى",
+        "deleteAttachment": "حذف المرفق"
       },
       "editFatwa": {
         "title": "تعديل الفتوى",
@@ -1199,7 +1209,8 @@
         "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات",
-        "notFound": "الفتوى غير موجودة"
+        "notFound": "الفتوى غير موجودة",
+        "deleteAttachment": "حذف المرفق"
       },
       "viewContent": {
         "title": "عرض التفاصيل",

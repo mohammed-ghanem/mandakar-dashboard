@@ -200,10 +200,12 @@ export default function CreateContent({ config }: Props) {
     });
 
     try {
+      const fallbackAttachmentTitle =
+        form.title_ar.trim() || form.title_en.trim();
       const attachments = form.attachmentRows
         .filter((r): r is AttachmentRow & { file: File } => r.file !== null)
         .map((r) => ({
-          title: r.title.trim(),
+          title: r.title.trim() || fallbackAttachmentTitle,
           file: r.file,
         }));
 

@@ -84,7 +84,8 @@
       "processing": "Verifying",
       "verify": "Verify",
       "resendCode": "Resend verification code",
-      "pendingResendCode": "Resending verification code"
+      "pendingResendCode": "Resending verification code",
+      "resendCooldown": "Resend available in {time}"
     },
     "resetPassword": {
       "title": "Create new password",
@@ -334,7 +335,8 @@
       "levelRoot": "Main",
       "levelSub": "Sub",
       "levelSubSub": "Sub-sub",
-      "itemsHint": "Change item order as it will appear on the site. Use the dropdown to jump (e.g. from 6 to 2).",
+      "itemsHint": "Pick a category tab, then reorder only that category’s items (each category is independent). Use the dropdown to jump (e.g. from 6 to 2).",
+      "uncategorized": "Uncategorized",
       "categoriesHint": "Reorder main categories only (not subcategories). Use the dropdown to jump to any position.",
       "rootCategoriesHint": "Reorder the main categories for this module.",
       "subCategoriesHint": "Reorder subcategories under each main category (each group is independent).",
@@ -470,7 +472,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Lecture not found"
+        "notFound": "Lecture not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",
@@ -614,7 +617,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Speech not found"
+        "notFound": "Speech not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",
@@ -758,7 +762,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Article not found"
+        "notFound": "Article not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",
@@ -848,7 +853,8 @@
         "seoKeywordsPlaceholder": "Separate keywords with commas",
         "isActive": "Active",
         "processing": "Creating book",
-        "createBtn": "Create book"
+        "createBtn": "Create book",
+        "deleteAttachment": "Delete attachment"
       },
       "editBook": {
         "title": "Edit book",
@@ -905,7 +911,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Book not found"
+        "notFound": "Book not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",
@@ -995,7 +1002,8 @@
         "seoKeywordsPlaceholder": "Separate keywords with commas",
         "isActive": "Active",
         "processing": "Creating explanation",
-        "createBtn": "Create explanation"
+        "createBtn": "Create explanation",
+        "deleteAttachment": "Delete attachment"
       },
       "editExplanation": {
         "title": "Edit explanation",
@@ -1052,7 +1060,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Explanation not found"
+        "notFound": "Explanation not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",
@@ -1142,7 +1151,8 @@
         "seoKeywordsPlaceholder": "Separate keywords with commas",
         "isActive": "Active",
         "processing": "Creating fatwa",
-        "createBtn": "Create fatwa"
+        "createBtn": "Create fatwa",
+        "deleteAttachment": "Delete attachment"
       },
       "editFatwa": {
         "title": "Edit fatwa",
@@ -1199,7 +1209,8 @@
         "isActive": "Active",
         "processing": "Saving changes",
         "editBtn": "Save changes",
-        "notFound": "Fatwa not found"
+        "notFound": "Fatwa not found",
+        "deleteAttachment": "Delete attachment"
       },
       "viewContent": {
         "title": "View details",

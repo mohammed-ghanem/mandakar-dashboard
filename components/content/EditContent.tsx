@@ -15,6 +15,7 @@ import {
   Type,
   ImageIcon,
   FileText,
+  Loader2,
 } from "lucide-react";
 
 import { useSessionReady } from "@/hooks/useSessionReady";
@@ -27,7 +28,7 @@ import {
 
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
-import { useDeleteAudioMutation } from "@/store/media/mediaApi";
+import { useDeleteAudioMutation, useDeleteAttachmentMutation } from "@/store/media/mediaApi";
 import { dash } from "@/constants/dashboardUi";
 import { normalizeKeywordsInput } from "@/lib/normalizeKeywordsInput";
 import { showApiError } from "@/lib/showApiError";
@@ -58,6 +59,14 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
 
 type AttachmentRow = { key: string; title: string; file: File | null };
 
+type ExistingAttachmentEdit = {
+  key: string;
+  id?: number;
+  title: string;
+  url: string;
+  name: string;
+};
+
 type FormState = {
   title_ar: string;
   title_en: string;
@@ -68,6 +77,7 @@ type FormState = {
   is_active: boolean;
   image: File | null;
   audio: File | null;
+  existingAttachments: ExistingAttachmentEdit[];
   attachmentRows: AttachmentRow[];
   links: IContentLink[];
   seo_description: string;
@@ -75,6 +85,35 @@ type FormState = {
 };
 
 const newKey = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+function mapExistingAttachments(
+  list: (string | IContentAttachment)[] | undefined,
+): ExistingAttachmentEdit[] {
+  if (!list?.length) return [];
+
+  return list.map((att, index) => {
+    if (typeof att === "string") {
+      return {
+        key: `existing-${index}`,
+        title: "",
+        url: att,
+        name: att.split("/").pop() || String(index + 1),
+      };
+    }
+
+    const url = att.url || att.file || "";
+    return {
+      key: `existing-${att.id ?? index}`,
+      id: att.id,
+      title: (att.title || "").trim(),
+      url,
+      name:
+        att.name ||
+        (url ? url.split("/").pop() : "") ||
+        String(index + 1),
+    };
+  });
+}
 
 export type EditContentConfig = {
   icon: LucideIcon;
@@ -129,6 +168,11 @@ export default function EditContent({ config }: Props) {
   const [updateItem, { isLoading: isUpdating }] = useUpdateMutation();
   const [deleteAudio, { isLoading: isDeletingAudio }] =
     useDeleteAudioMutation();
+  const [deleteAttachment, { isLoading: isDeletingAttachment }] =
+    useDeleteAttachmentMutation();
+  const [deletingAttachmentId, setDeletingAttachmentId] = useState<
+    number | null
+  >(null);
 
   const [form, setForm] = useState<FormState>({
     title_ar: "",
@@ -141,6 +185,7 @@ export default function EditContent({ config }: Props) {
     image: null,
     audio: null,
     attachmentRows: [{ key: newKey(), title: "", file: null }],
+    existingAttachments: [],
     links: [{ title: "", url: "" }],
     seo_description: "",
     seo_keywords: "",
@@ -160,6 +205,10 @@ export default function EditContent({ config }: Props) {
     (lang === "ar" ? "جاري رفع الملفات..." : "Uploading files...");
   const deleteAudioFail =
     lang === "ar" ? "فشل حذف الملف الصوتي" : "Failed to delete audio file";
+  const deleteAttachmentFail =
+    lang === "ar" ? "فشل حذف المرفق" : "Failed to delete attachment";
+  const deleteAttachmentSuccess =
+    lang === "ar" ? "تم حذف المرفق" : "Attachment deleted";
 
   useEffect(() => {
     if (!item) return;
@@ -175,6 +224,7 @@ export default function EditContent({ config }: Props) {
       image: null,
       audio: null,
       attachmentRows: [{ key: newKey(), title: "", file: null }],
+      existingAttachments: mapExistingAttachments(item.attachments),
       links:
         item.links && item.links.length > 0
           ? item.links
@@ -262,6 +312,33 @@ export default function EditContent({ config }: Props) {
     }
   };
 
+  const handleRemoveExistingAttachment = async (attachmentId?: number) => {
+    if (attachmentId == null || invalidId || isDeletingAttachment) return;
+
+    setDeletingAttachmentId(attachmentId);
+    try {
+      const res = await deleteAttachment({
+        type: basePath,
+        id: idNum,
+        attachment_id: attachmentId,
+      }).unwrap();
+      toast.success(res?.message || deleteAttachmentSuccess);
+      setForm((prev) => ({
+        ...prev,
+        existingAttachments: prev.existingAttachments.filter(
+          (row) => row.id !== attachmentId,
+        ),
+      }));
+    } catch (err: unknown) {
+      showApiError(err, {
+        fallback: deleteAttachmentFail,
+        lang,
+      });
+    } finally {
+      setDeletingAttachmentId(null);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -278,12 +355,24 @@ export default function EditContent({ config }: Props) {
     });
 
     try {
-      const attachments = form.attachmentRows
+      const fallbackAttachmentTitle =
+        form.title_ar.trim() || form.title_en.trim();
+
+      const existingAttachmentPayload = form.existingAttachments
+        .filter((row) => row.id != null)
+        .map((row) => ({
+          id: row.id,
+          title: row.title.trim() || fallbackAttachmentTitle,
+        }));
+
+      const newAttachments = form.attachmentRows
         .filter((r): r is AttachmentRow & { file: File } => r.file !== null)
         .map((r) => ({
-          title: r.title.trim(),
+          title: r.title.trim() || fallbackAttachmentTitle,
           file: r.file,
         }));
+
+      const attachments = [...existingAttachmentPayload, ...newAttachments];
 
       const res = await updateItem({
         id: idNum,
@@ -336,8 +425,6 @@ export default function EditContent({ config }: Props) {
       </div>
     );
   }
-
-  const existingAttachments = item.attachments ?? [];
 
   return (
     <div className={dash.formPageWide}>
@@ -546,51 +633,81 @@ export default function EditContent({ config }: Props) {
                 {t?.attachmentPdfSizeWarning}
               </span>
 
-              {existingAttachments.length > 0 ? (
-                <div className="mb-4 space-y-2 mt-4">
+              {form.existingAttachments.length > 0 ? (
+                <div className="mb-4 space-y-3 mt-4">
                   <p className="text-xs font-medium text-slate-600">
                     {t?.existingAttachments}
                   </p>
-                  {existingAttachments.map(
-                    (att: string | IContentAttachment, idx: number) => {
-                    const title =
-                      typeof att === "string"
-                        ? ""
-                        : (att.title || att.name || "").trim();
-                    const href =
-                      typeof att === "string"
-                        ? att
-                        : att.url || att.file || "";
-                    const fileName =
-                      typeof att === "string"
-                        ? att.split("/").pop() || String(idx + 1)
-                        : att.name ||
-                          (href ? href.split("/").pop() : "") ||
-                          String(idx + 1);
+                  {form.existingAttachments.map((att) => {
+                    const isDeletingThis =
+                      deletingAttachmentId != null &&
+                      deletingAttachmentId === att.id;
+
                     return (
                       <div
-                        key={idx}
-                        className="flex items-center gap-3 rounded-xl border border-amber-200/60 bg-white/95 px-3 py-2.5 text-sm"
+                        key={att.key}
+                        className="space-y-3 rounded-xl border border-amber-200/60 bg-white/95 p-3"
                       >
-                        <FileText className="h-4 w-4 shrink-0 text-amber-700" />
-                        <div className="min-w-0 flex-1">
-                          {title ? (
-                            <p className="truncate font-medium text-slate-900">
-                              {title}
-                            </p>
-                          ) : null}
-                          {href ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <Label className="text-sm font-semibold text-slate-800">
+                              {t?.attachmentTitle}
+                            </Label>
+                            <Input
+                              className={cn("h-11", dash.input)}
+                              value={att.title}
+                              onChange={(e) =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  existingAttachments:
+                                    prev.existingAttachments.map((row) =>
+                                      row.key === att.key
+                                        ? { ...row, title: e.target.value }
+                                        : row,
+                                    ),
+                                }))
+                              }
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            className="mt-7 shrink-0 text-red-600"
+                            disabled={
+                              att.id == null ||
+                              isDeletingAttachment ||
+                              isDeletingThis
+                            }
+                            onClick={() =>
+                              handleRemoveExistingAttachment(att.id)
+                            }
+                            title={
+                              t?.deleteAttachment ??
+                              (lang === "ar" ? "حذف المرفق" : "Delete attachment")
+                            }
+                          >
+                            {isDeletingThis ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <FileText className="h-4 w-4 shrink-0 text-amber-700" />
+                          {att.url ? (
                             <a
-                              href={href}
+                              href={att.url}
                               target="_blank"
                               rel="noreferrer"
                               className="truncate text-emerald-700 hover:underline"
                             >
-                              {fileName}
+                              {att.name}
                             </a>
                           ) : (
                             <span className="truncate text-slate-600">
-                              {fileName}
+                              {att.name}
                             </span>
                           )}
                         </div>

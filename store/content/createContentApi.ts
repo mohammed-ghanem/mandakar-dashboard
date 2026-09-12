@@ -93,6 +93,7 @@ function normalizeAttachments(raw: any): IContentAttachment[] {
     }
 
     return {
+      id: att?.id != null ? Number(att.id) : undefined,
       title: att?.title ?? "",
       url: att?.url ?? att?.file ?? att?.path ?? "",
       name: att?.name ?? att?.original_name ?? "",
@@ -124,10 +125,27 @@ function appendContentFormData(
     formData.append("audio", data.audio);
   }
 
-  (data.attachments ?? []).forEach((att, index) => {
-    if (!(att?.file instanceof File)) return;
-    formData.append(`attachments[${index}][title]`, att.title?.trim() ?? "");
-    formData.append(`attachments[${index}][file]`, att.file);
+  let attachmentIndex = 0;
+  (data.attachments ?? []).forEach((att) => {
+    const hasFile = att?.file instanceof File;
+    const hasId = att?.id != null && Number.isFinite(Number(att.id));
+    if (!hasFile && !hasId) return;
+
+    const fallbackTitle =
+      data.title_ar?.trim() || data.title_en?.trim() || "";
+    const title = att.title?.trim() || fallbackTitle;
+
+    if (hasId) {
+      formData.append(
+        `attachments[${attachmentIndex}][id]`,
+        String(att.id),
+      );
+    }
+    formData.append(`attachments[${attachmentIndex}][title]`, title);
+    if (hasFile) {
+      formData.append(`attachments[${attachmentIndex}][file]`, att.file as File);
+    }
+    attachmentIndex += 1;
   });
 
   (data.links ?? [])

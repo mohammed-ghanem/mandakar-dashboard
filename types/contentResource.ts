@@ -10,6 +10,7 @@ export interface IContentLink {
 
 /** Attachment as returned from the API (file URL + display title). */
 export interface IContentAttachment {
+  id?: number;
   title?: string;
   url?: string;
   name?: string;
@@ -18,8 +19,10 @@ export interface IContentAttachment {
 
 /** Attachment payload for create/update FormData. */
 export interface IContentAttachmentInput {
+  /** Existing attachment id (update title without re-upload). */
+  id?: number;
   title: string;
-  file: File;
+  file?: File | null;
 }
 
 export interface IContentSeo {

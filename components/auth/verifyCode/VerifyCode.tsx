@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +16,17 @@ import TranslateHook from "@/translate/TranslateHook";
 import VerifyCodeSkeleton from "@/components/skeleton/VerifyCodeSkeleton";
 
 const CODE_LENGTH = 4;
+const RESEND_COOLDOWN_MS = 3 * 60 * 1000;
+
+function resendStorageKey(email: string) {
+  return `otp_resend_until_${email}`;
+}
+
+function formatCountdown(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
 
 const VerifyCode = () => {
   const [verifyCode, { isLoading }] = useVerifyCodeMutation();
@@ -30,8 +41,19 @@ const VerifyCode = () => {
   const [code, setCode] = useState<string[]>(
     Array(CODE_LENGTH).fill("")
   );
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  const startCooldown = useCallback(
+    (durationMs = RESEND_COOLDOWN_MS) => {
+      if (!email) return;
+      const until = Date.now() + durationMs;
+      sessionStorage.setItem(resendStorageKey(email), String(until));
+      setCooldownSeconds(Math.ceil(durationMs / 1000));
+    },
+    [email],
+  );
 
   /*save email in cookie*/
   useEffect(() => {
@@ -46,6 +68,47 @@ const VerifyCode = () => {
       router.replace(`/${lang}/forget-password`);
     }
   }, [email, router, lang]);
+
+  /* Start / restore 3-minute resend cooldown */
+  useEffect(() => {
+    if (!email) return;
+
+    const key = resendStorageKey(email);
+    const stored = sessionStorage.getItem(key);
+
+    // First visit after requesting OTP — start cooldown
+    if (stored == null) {
+      startCooldown();
+      return;
+    }
+
+    const until = Number(stored);
+    // Cooldown already finished previously
+    if (!Number.isFinite(until) || until <= Date.now()) {
+      sessionStorage.setItem(key, "0");
+      setCooldownSeconds(0);
+      return;
+    }
+
+    setCooldownSeconds(Math.ceil((until - Date.now()) / 1000));
+  }, [email, startCooldown]);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0 || !email) return;
+
+    const timer = window.setInterval(() => {
+      const key = resendStorageKey(email);
+      const stored = sessionStorage.getItem(key);
+      const until = stored ? Number(stored) : 0;
+      const remaining = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+      setCooldownSeconds(remaining);
+      if (remaining <= 0) {
+        sessionStorage.setItem(key, "0");
+      }
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [cooldownSeconds > 0, email]);
 
   /* enter number in input */
   const handleChange = (value: string, index: number) => {
@@ -93,11 +156,6 @@ const VerifyCode = () => {
 
     const finalCode = code.join("");
 
-    // if (finalCode.length !== CODE_LENGTH) {
-    //   toast.error("من فضلك أدخل كود التحقق كامل");
-    //   return;
-    // }
-
     try {
       const res = await verifyCode({ code: finalCode }).unwrap();
       toast.success(res?.message);
@@ -118,9 +176,12 @@ const VerifyCode = () => {
   };
 
   const handleResend = async () => {
+    if (cooldownSeconds > 0 || isResending) return;
+
     try {
       const res = await resendOtp({ email }).unwrap();
       toast.success(res?.message);
+      startCooldown();
     } catch (err: any) {
       const errorData = err?.data ?? err;
       if (errorData?.errors) {
@@ -131,11 +192,11 @@ const VerifyCode = () => {
     }
   };
 
+  const isResendDisabled = isResending || cooldownSeconds > 0;
 
   if (!translate || !email) {
     return <VerifyCodeSkeleton />;
   }
-
 
   return (
     <div className="relative  font-cairo" dir="rtl">
@@ -214,7 +275,6 @@ const VerifyCode = () => {
               type="submit"
               disabled={isLoading}
               className="w-[50%] mx-auto  bgTitleColor cursor-pointer text-white py-3 mt-8 rounded-lg flex justify-center"
-
             >
               {isLoading ? (
                 <>
@@ -231,17 +291,28 @@ const VerifyCode = () => {
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={isResending}
-                className="darkBlueBgIcon mt-5 font-semibold"
+                disabled={isResendDisabled}
+                className={`mt-5 font-semibold ${
+                  isResendDisabled
+                    ? "cursor-not-allowed text-slate-400"
+                    : "darkBlueBgIcon cursor-pointer"
+                }`}
               >
-                {isResending
-                  ? <div className="flex items-center justify-center">
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      <span>
-                        {translate?.pages.verifyCode.pendingResendCode}
-                      </span>
-                    </div>
-                  : translate?.pages.verifyCode.resendCode}
+                {isResending ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <span>
+                      {translate?.pages.verifyCode.pendingResendCode}
+                    </span>
+                  </div>
+                ) : cooldownSeconds > 0 ? (
+                  (
+                    translate?.pages.verifyCode.resendCooldown ??
+                    "{time}"
+                  ).replace("{time}", formatCountdown(cooldownSeconds))
+                ) : (
+                  translate?.pages.verifyCode.resendCode
+                )}
               </button>
             </div>
           </form>

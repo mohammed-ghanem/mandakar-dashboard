@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUpDown, FolderTree, Layers2, Network } from "lucide-react";
 
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import IndexListPage from "@/components/shared/IndexListPage";
+import ContentGroupPicker from "@/components/swapOrder/ContentGroupPicker";
 import SwapOrderList from "@/components/swapOrder/SwapOrderList";
 import { useSessionReady } from "@/hooks/useSessionReady";
 import { useGetCategoriesTreeQuery } from "@/store/categories/categoriesApi";
@@ -54,19 +55,79 @@ function toSwapItems(list: ICategory[], lang: "ar" | "en"): SwapOrderItem[] {
   }));
 }
 
-function toOrderedContentItems(
+function toContentItemLabel(item: IContentItem, lang: "ar" | "en") {
+  return (
+    item._title ||
+    item.title?.[lang] ||
+    item.title?.ar ||
+    item.title?.en ||
+    `#${item.id}`
+  );
+}
+
+function contentCategoryLabel(item: IContentItem, lang: "ar" | "en") {
+  const category = item.category;
+  if (!category) return null;
+  return (
+    category._name ||
+    category.name?.[lang] ||
+    category.name?.ar ||
+    category.name?.en ||
+    null
+  );
+}
+
+/** Group content by category so swaps stay within the same backend scope. */
+function buildContentGroups(
   list: IContentItem[],
+  contentType: SwapOrderType,
   lang: "ar" | "en",
-): SwapOrderItem[] {
-  return sortByOrder(list).map((item) => ({
-    id: item.id,
-    label:
-      item._title ||
-      item.title?.[lang] ||
-      item.title?.ar ||
-      item.title?.en ||
-      `#${item.id}`,
-  }));
+  uncategorizedLabel: string,
+): ReorderGroup[] {
+  const buckets = new Map<
+    string,
+    { categoryId: number | null; parentLabel: string; items: IContentItem[] }
+  >();
+
+  for (const item of list) {
+    const categoryId =
+      item.category_id != null && Number.isFinite(Number(item.category_id))
+        ? Number(item.category_id)
+        : item.category?.id != null
+          ? Number(item.category.id)
+          : null;
+
+    const key = categoryId == null ? "none" : String(categoryId);
+    const existing = buckets.get(key);
+    if (existing) {
+      existing.items.push(item);
+      continue;
+    }
+
+    buckets.set(key, {
+      categoryId,
+      parentLabel:
+        contentCategoryLabel(item, lang) ||
+        (categoryId == null ? uncategorizedLabel : `#${categoryId}`),
+      items: [item],
+    });
+  }
+
+  return [...buckets.values()]
+    .sort((a, b) => {
+      if (a.categoryId == null) return 1;
+      if (b.categoryId == null) return -1;
+      return a.parentLabel.localeCompare(b.parentLabel, lang);
+    })
+    .map((bucket) => ({
+      key: `content-${bucket.categoryId ?? "none"}`,
+      parentLabel: bucket.parentLabel,
+      type: contentType,
+      items: sortByOrder(bucket.items).map((item) => ({
+        id: item.id,
+        label: toContentItemLabel(item, lang),
+      })),
+    }));
 }
 
 function buildRootGroups(
@@ -134,6 +195,7 @@ export default function ContentReorder({ config }: Props) {
   const [mainTab, setMainTab] = useState<MainTabKey>("items");
   const [categoryLevel, setCategoryLevel] =
     useState<CategoryLevelKey>("root");
+  const [contentGroupKey, setContentGroupKey] = useState<string>("");
 
   const { data: contentList = [], isLoading: contentLoading } = useGetListQuery(
     undefined,
@@ -143,10 +205,33 @@ export default function ContentReorder({ config }: Props) {
   const { data: categoryTree = [], isLoading: categoriesLoading } =
     useGetCategoriesTreeQuery({ type: contentType }, { skip: !sessionReady });
 
-  const contentItems = useMemo(
-    () => toOrderedContentItems(contentList as IContentItem[], lang),
-    [contentList, lang],
+  const contentGroups = useMemo(
+    () =>
+      buildContentGroups(
+        contentList as IContentItem[],
+        contentType,
+        lang,
+        t?.uncategorized ?? (lang === "ar" ? "بدون قسم" : "Uncategorized"),
+      ),
+    [contentList, contentType, lang, t?.uncategorized],
   );
+
+  useEffect(() => {
+    if (!contentGroups.length) {
+      setContentGroupKey("");
+      return;
+    }
+    const stillValid = contentGroups.some(
+      (group) => group.key === contentGroupKey,
+    );
+    if (!stillValid) {
+      setContentGroupKey(contentGroups[0].key);
+    }
+  }, [contentGroups, contentGroupKey]);
+
+  const activeContentGroup =
+    contentGroups.find((group) => group.key === contentGroupKey) ??
+    contentGroups[0];
 
   const categoryGroups = useMemo(() => {
     if (categoryLevel === "root") return buildRootGroups(categoryTree, lang);
@@ -237,14 +322,38 @@ export default function ContentReorder({ config }: Props) {
 
         {mainTab === "items" ? (
           <>
-            <p className="text-sm text-slate-600">{t?.itemsHint}</p>
-            <SwapOrderList
-              type={contentType}
-              items={contentItems}
-              isLoading={contentLoading}
-              emptyLabel={t?.emptyItems ?? ""}
-              {...listLabels}
-            />
+            {contentLoading ? (
+              <SwapOrderList
+                type={contentType}
+                items={[]}
+                isLoading
+                emptyLabel={t?.emptyItems ?? ""}
+                {...listLabels}
+              />
+            ) : contentGroups.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-slate-500">
+                {t?.emptyItems}
+              </p>
+            ) : (
+              <>
+                <ContentGroupPicker
+                  groups={contentGroups}
+                  activeKey={activeContentGroup?.key}
+                  onChange={setContentGroupKey}
+                />
+
+                <p className="text-sm text-slate-600">{t?.itemsHint}</p>
+
+                {activeContentGroup ? (
+                  <SwapOrderList
+                    type={activeContentGroup.type}
+                    items={activeContentGroup.items}
+                    emptyLabel={t?.emptyItems ?? ""}
+                    {...listLabels}
+                  />
+                ) : null}
+              </>
+            )}
           </>
         ) : (
           <>
