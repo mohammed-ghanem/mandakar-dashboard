@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Qahiri&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Amiri+Quran&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap");
@@ -92,10 +92,38 @@ p {
   overflow-x: hidden !important; /* Disable horizontal scrolling */
 }
 
-/* Scheherazade New is tight by default; letter-spacing would break Arabic joining */
+/* Page is RTL, so CKEditor's [dir="rtl"] list rules win inside the LTR editor too */
+.ckeditor-container[dir="ltr"] .ck.ck-dropdown__panel {
+  direction: ltr;
+}
+
+.ckeditor-container[dir="ltr"] .ck.ck-list__item > .ck-button:not(.ck-list-item-button),
+.ckeditor-container[dir="ltr"] .ck.ck-list-item-button {
+  text-align: left;
+}
+
+.ckeditor-container[dir="ltr"] .ck.ck-list-item-button.ck-list-item-button_toggleable,
+.ckeditor-container[dir="ltr"] .ck.ck-button.ck-list-item-button:has(.ck-list-item-button__check-holder) {
+  padding-left: var(--ck-spacing-small);
+  padding-right: calc(2 * var(--ck-spacing-standard));
+}
+
+.ckeditor-container[dir="ltr"] .ck.ck-list-item-button .ck-list-item-button__check-holder {
+  margin-left: 0;
+  margin-right: var(--ck-spacing-small);
+}
+
+.ckeditor-container[dir="ltr"] .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_sw {
+  left: 0;
+  right: auto;
+}
+
+/* Scheherazade New is tight by default; letter-spacing would break Arabic joining.
+   Fallback for older content: toolbar word-spacing (inline, same span) overrides it,
+   and a larger toolbar line-height on the paragraph wins over this minimum. */
 .ck-content [style*="Scheherazade"] {
   word-spacing: 0.15em;
-  line-height: 2.1;
+  line-height: 1.5;
 }
 
 /* Keep footnote-like markers readable after Word paste cleanup */

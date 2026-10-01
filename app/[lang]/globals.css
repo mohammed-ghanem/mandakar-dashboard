@@ -1,5 +1,5 @@
 /* Font imports */
-@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Amiri+Quran&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&display=swap");
 
 /* Tailwind imports */
@@ -283,5 +283,5 @@ input[data-slot="input"]:-webkit-autofill:active {
 /* Scheherazade New is tight by default; letter-spacing would break Arabic joining */
 .prose [style*="Scheherazade"] {
   word-spacing: 0.15em;
-  line-height: 2.1;
+  line-height: 1.5;
 }
