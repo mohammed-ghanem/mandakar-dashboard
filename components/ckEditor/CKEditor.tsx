@@ -187,6 +187,14 @@ const CkEditor: FC<CkEditorProps> = ({
           "El Messiri, sans-serif",
           "Reem Kufi, sans-serif",
           "Scheherazade New, serif",
+          {
+            title: "عارف رقعة",
+            model: "Aref Ruqaa, serif",
+            view: {
+              name: "span",
+              styles: { "font-family": "'Aref Ruqaa', serif" },
+            },
+          },
           "Sakkal Majalla, serif",
           "Traditional Arabic, serif",
         ],

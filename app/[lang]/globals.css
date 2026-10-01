@@ -279,3 +279,9 @@ input[data-slot="input"]:-webkit-autofill:active {
 .authSkeletonBtn {
   background-color: #9f8452;
 }
+
+/* Scheherazade New is tight by default; letter-spacing would break Arabic joining */
+.prose [style*="Scheherazade"] {
+  word-spacing: 0.15em;
+  line-height: 2.1;
+}

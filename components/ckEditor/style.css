@@ -92,6 +92,12 @@ p {
   overflow-x: hidden !important; /* Disable horizontal scrolling */
 }
 
+/* Scheherazade New is tight by default; letter-spacing would break Arabic joining */
+.ck-content [style*="Scheherazade"] {
+  word-spacing: 0.15em;
+  line-height: 2.1;
+}
+
 /* Keep footnote-like markers readable after Word paste cleanup */
 .ck-content sup {
   font-size: 0.75em;
