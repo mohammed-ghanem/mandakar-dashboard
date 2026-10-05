@@ -12,7 +12,13 @@ export interface IActivityLogSubject {
   label: string | null;
 }
 
-export type ActivityLogChangeValue = string | number | boolean | null;
+export type ActivityLogChangeValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Record<string, unknown>
+  | unknown[];
 
 export interface IActivityLogChange {
   old: ActivityLogChangeValue;

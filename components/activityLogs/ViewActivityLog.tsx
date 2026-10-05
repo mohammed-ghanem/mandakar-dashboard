@@ -23,10 +23,53 @@ import type { ActivityLogChangeValue } from "@/types/activityLogs";
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 
-function formatValue(value: ActivityLogChangeValue | undefined) {
+function parseJsonString(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return value;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return value;
+  }
+}
+
+function stripHtml(value: string) {
+  return value
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}
+
+function formatScalar(value: unknown): string {
   if (value === undefined || value === null || value === "") return "—";
   if (typeof value === "boolean") return value ? "true" : "false";
-  return String(value);
+  if (typeof value === "object") return JSON.stringify(value);
+  return stripHtml(String(value)) || "—";
+}
+
+function formatValue(value: ActivityLogChangeValue | undefined) {
+  const parsed = parseJsonString(value);
+
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const entries = Object.entries(parsed as Record<string, unknown>);
+    if (!entries.length) return "—";
+    return (
+      <div className="space-y-2">
+        {entries.map(([key, val]) => (
+          <div key={key} className="whitespace-pre-line">
+            <span className="font-semibold uppercase">{key}:</span>{" "}
+            {formatScalar(val)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return <span className="whitespace-pre-line">{formatScalar(parsed)}</span>;
 }
 
 export default function ViewActivityLog() {
@@ -185,12 +228,12 @@ export default function ViewActivityLog() {
                     className="grid grid-cols-3 gap-2 border-b border-slate-100 px-4 py-3 text-sm text-slate-800 last:border-b-0"
                   >
                     <span className="font-medium">{field}</span>
-                    <span className="wrap-break-word text-slate-600">
+                    <div className="wrap-break-word text-slate-600">
                       {formatValue(change?.old)}
-                    </span>
-                    <span className="wrap-break-word text-emerald-800">
+                    </div>
+                    <div className="wrap-break-word text-emerald-800">
                       {formatValue(change?.new)}
-                    </span>
+                    </div>
                   </div>
                 ))}
               </div>
